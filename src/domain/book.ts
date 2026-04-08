@@ -1,3 +1,11 @@
+export type DrmType = "free" | "drm";
+
+export interface EbookStore {
+  name: string;
+  url: string;
+  drm: DrmType;
+}
+
 export interface BookRecord {
   title: string;
   authors: string[];
@@ -10,6 +18,7 @@ export interface BookRecord {
   coverImageUrl?: string;
   description?: string;
   tags?: string[];
+  ebookStores?: EbookStore[];
 }
 
 export interface SearchQuery {

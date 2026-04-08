@@ -1,6 +1,7 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl, extractAsin } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, extractAsin, extractEbookStoresFromDoc } from "./base.js";
+import type { EbookStore } from "../../domain/book.js";
 
 const BASE_URL = "https://www.lambdanote.com";
 
@@ -123,6 +124,12 @@ export const lambdanoteAdapter: PublisherAdapter = {
     const imgSrc = imgEl?.attr("src") ?? imgEl?.attr("data-src");
     const coverImageUrl = imgSrc ? resolveUrl(BASE_URL, imgSrc) : undefined;
 
+    // ラムダノートの商品ページ自体がDRM-free直販。加えてページ内の他ストアリンクを収集。
+    const ebookStores: EbookStore[] = [
+      { name: "ラムダノート", url, drm: "free" },
+      ...extractEbookStoresFromDoc(doc).filter(s => s.name !== "ラムダノート"),
+    ];
+
     return {
       title,
       authors,
@@ -133,6 +140,7 @@ export const lambdanoteAdapter: PublisherAdapter = {
       isbn,
       asin,
       coverImageUrl,
+      ebookStores,
     };
   },
 };

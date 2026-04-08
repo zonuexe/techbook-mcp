@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, stripHtmlTags, resolveUrl } from "./base.js";
+import { fetchText, stripHtmlTags, resolveUrl, extractAsin, extractEbookStoresFromDoc } from "./base.js";
 
 const BASE_URL = "https://gihyo.jp";
 
@@ -93,13 +93,28 @@ export const gihyoAdapter: PublisherAdapter = {
     if (!isbnMatch) throw new Error(`URLからISBNを取得できません: ${url}`);
 
     const isbn = isbnMatch[1];
-    const searchUrl = `${BASE_URL}/api_gh/site/search?search=${encodeURIComponent(isbn)}&limit=1`;
-    const text = await fetchText(searchUrl, deps);
-    const data: GihyoSearchResponse = JSON.parse(text);
+    const apiUrl = `${BASE_URL}/api_gh/site/search?search=${encodeURIComponent(isbn)}&limit=1`;
 
+    // JSONメタデータとebook store情報(HTML)を並列取得
+    const [apiText, htmlText] = await Promise.all([
+      fetchText(apiUrl, deps),
+      fetchText(url, deps),
+    ]);
+
+    const data: GihyoSearchResponse = JSON.parse(apiText);
     const entry = data.list[isbn];
     if (!entry) throw new Error(`書籍が見つかりません: ${isbn}`);
 
-    return entryToBookRecord(isbn, entry);
+    const base = entryToBookRecord(isbn, entry);
+
+    const doc = deps.parser.parse(htmlText);
+    const ebookStores = extractEbookStoresFromDoc(doc);
+    const asin = extractAsin(htmlText);
+
+    return {
+      ...base,
+      asin,
+      ebookStores: ebookStores.length > 0 ? ebookStores : undefined,
+    };
   },
 };

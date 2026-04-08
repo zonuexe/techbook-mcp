@@ -1,4 +1,6 @@
 import type { PublisherDeps } from "../../domain/publisher.js";
+import type { EbookStore, DrmType } from "../../domain/book.js";
+import type { HtmlDocument } from "../../ports/html-parser.js";
 
 const DEFAULT_HEADERS = {
   "User-Agent": "techbook-mcp/0.1.0 (+https://github.com/zonuexe/techbook-mcp; bibliographic search bot)",
@@ -41,9 +43,63 @@ export function resolveUrl(base: string, path: string): string {
 
 /**
  * HTMLテキストから Amazon ASIN を抽出する。
- * amazon.co.jp/dp/{ASIN} または amazon.co.jp/gp/product/{ASIN} 形式に対応。
+ * amazon.co.jp/dp/{ASIN}, /gp/product/{ASIN}, /o/ASIN/{ASIN} 形式に対応。
  */
 export function extractAsin(html: string): string | undefined {
-  const match = html.match(/amazon\.co\.jp\/(?:dp|gp\/product)\/([A-Z0-9]{10})/);
+  const match = html.match(/amazon\.co\.jp\/(?:dp|gp\/product|o\/ASIN)\/([A-Z0-9]{10})/);
   return match?.[1];
+}
+
+// --- 電子書籍ストア分類 ---
+
+interface StorePattern {
+  pattern: RegExp;
+  name: string;
+  drm: DrmType;
+}
+
+const EBOOK_STORE_PATTERNS: StorePattern[] = [
+  // DRM-free
+  { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "free" },
+  { pattern: /www\.lambdanote\.com\/products\//, name: "ラムダノート", drm: "free" },
+  // DRM-attached
+  { pattern: /amazon\.co\.jp/, name: "Kindle", drm: "drm" },
+  { pattern: /books\.rakuten\.co\.jp|rakuten\.kobo\.com|kobo\.com/, name: "楽天Kobo", drm: "drm" },
+  { pattern: /booklive\.jp/, name: "BookLive", drm: "drm" },
+  { pattern: /honto\.jp/, name: "honto", drm: "drm" },
+  { pattern: /bookwalker\.jp/, name: "BOOK☆WALKER", drm: "drm" },
+  { pattern: /ebookjapan\.yahoo\.co\.jp/, name: "eBookJapan", drm: "drm" },
+  { pattern: /store\.line\.me/, name: "LINEマンガ", drm: "drm" },
+];
+
+/** URLから電子書籍ストア情報を返す。未知のストアは null。 */
+export function classifyEbookStore(url: string): EbookStore | null {
+  for (const { pattern, name, drm } of EBOOK_STORE_PATTERNS) {
+    if (pattern.test(url)) {
+      return { name, url, drm };
+    }
+  }
+  return null;
+}
+
+/**
+ * HTMLドキュメント内の全リンクを走査して電子書籍ストアを抽出する。
+ * 同一ストアのURLが複数あれば最初の1件のみ返す。
+ */
+export function extractEbookStoresFromDoc(doc: HtmlDocument): EbookStore[] {
+  const stores: EbookStore[] = [];
+  const seenNames = new Set<string>();
+
+  for (const link of doc.select("a[href]")) {
+    const href = link.attr("href");
+    if (!href) continue;
+
+    const store = classifyEbookStore(href);
+    if (store && !seenNames.has(store.name)) {
+      seenNames.add(store.name);
+      stores.push(store);
+    }
+  }
+
+  return stores;
 }
