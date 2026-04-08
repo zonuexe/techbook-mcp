@@ -1,0 +1,28 @@
+{
+  "name": "@zonuexe/techbook-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for searching Japanese technical book bibliographic information",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    ".": "./dist/main.js"
+  },
+  "bin": {
+    "techbook-mcp": "./dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "cheerio": "^1.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.0.0"
+  }
+}

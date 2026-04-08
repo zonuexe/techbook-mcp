@@ -1,0 +1,54 @@
+{
+  "lname": "typescript",
+  "total": 2,
+  "next": false,
+  "query": "TypeScript",
+  "list": {
+    "978-4-297-12815-2": {
+      "series": "",
+      "title": "プロを目指す人のためのTypeScript入門",
+      "subtitle": "安全なコードの書き方から高度な型の使い方まで",
+      "author": {
+        "著": {
+          "uhyo": ""
+        }
+      },
+      "price": [3740, 0],
+      "stock": 1,
+      "release": ["2022.4.1", ""],
+      "url": "/book/2022/978-4-297-12815-2",
+      "upcoming": false,
+      "support": true,
+      "cover": [
+        "/assets/images/cover/2022/thumb/TH800_9784297128152.jpg",
+        160,
+        200,
+        "/assets/images/cover/2022/9784297128152.jpg"
+      ]
+    },
+    "978-4-297-13601-0": {
+      "series": "",
+      "title": "TypeScriptとReact/Next.jsでつくる実践Webアプリケーション開発",
+      "subtitle": "",
+      "author": {
+        "著": {
+          "手島拓也": "",
+          "吉田健人": "",
+          "高林佳稀": ""
+        }
+      },
+      "price": [3850, 0],
+      "stock": 1,
+      "release": ["2022.7.29", ""],
+      "url": "/book/2022/978-4-297-13601-0",
+      "upcoming": false,
+      "support": true,
+      "cover": [
+        "/assets/images/cover/2022/thumb/TH800_9784297136010.jpg",
+        160,
+        200,
+        "/assets/images/cover/2022/9784297136010.jpg"
+      ]
+    }
+  }
+}
