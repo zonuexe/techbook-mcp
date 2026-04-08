@@ -95,6 +95,7 @@ techbook-mcp/
 |----|------|---------|
 | `gihyo` | 技術評論社 | JSON API (`/api_gh/site/search`) |
 | `lambdanote` | ラムダノート | HTML スクレイピング (Shopify) |
+| `tatsu-zine` | 達人出版会 | HTML スクレイピング (`/books/?search=`) |
 
 ### 技術評論社 (gihyo)
 
@@ -131,6 +132,34 @@ Shopify ストア。HTMLをスクレイピングして書誌情報を取得す�
 - 検索: `https://www.lambdanote.com/search?q={keyword}&type=product`
 - 詳細: 各商品ページ (`/products/{handle}`)
   - `<script type="application/json">` に埋め込まれた JSON からISBN・著者情報を取得
+
+### 達人出版会 (tatsu-zine)
+
+複数出版社の電子書籍を受託販売するマーケットプレイス。基本的にすべてDRM-free PDF。
+
+- 検索: `https://tatsu-zine.com/books/?search={keyword}`
+  - 書籍アイテム構造: `<h3><a href="/books/{slug}">Title</a></h3>` + `<p>Author(著)...</p>`
+- 詳細: 各書籍ページ (`/books/{slug}`)
+  - 出版社: `<a href="/books/pub/{slug}">` で実際の出版社を取得
+  - ソーシャルDRM書籍はページ内に「ソーシャルDRM」の記述あり → `drm: "social"`
+
+## 電子書籍ストア分類
+
+`EbookStore.drm` の値:
+
+| 値 | 意味 |
+|----|------|
+| `"free"` | 技術的DRMなし (DRM-free PDF/EPUB) |
+| `"social"` | ソーシャルDRM (購入者情報の透かし入りPDF、技術的制限なし。広義のDRM-freeとして扱う) |
+| `"drm"` | 技術的DRM付き (専用ビューアー必須) |
+
+| ストア | drm |
+|--------|-----|
+| Gihyo Digital Publishing | `"free"` |
+| ラムダノート | `"free"` |
+| 達人出版会 | `"free"` (ソーシャルDRM書籍は `"social"`) |
+| インプレスブックス (`book.impress.co.jp`) | `"social"` |
+| Kindle / 楽天Kobo / BookLive / honto / BOOK☆WALKER / eBookJapan / LINEマンガ | `"drm"` |
 
 ## MCPツール
 

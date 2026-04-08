@@ -1,4 +1,9 @@
-export type DrmType = "free" | "drm";
+/**
+ * - `"free"`   : 技術的DRMなし (DRM-free PDF/EPUB)
+ * - `"social"` : ソーシャルDRM (購入者情報を透かし刻印、技術的制限なし)
+ * - `"drm"`    : 技術的DRM付き (専用ビューアー必須)
+ */
+export type DrmType = "free" | "social" | "drm";
 
 export interface EbookStore {
   name: string;

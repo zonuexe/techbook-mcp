@@ -62,6 +62,9 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   // DRM-free
   { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "free" },
   { pattern: /www\.lambdanote\.com\/products\//, name: "ラムダノート", drm: "free" },
+  { pattern: /tatsu-zine\.com\/books\/(?!pub\/)/, name: "達人出版会", drm: "free" },
+  // ソーシャルDRM (購入者情報透かし入りPDF、技術的制限なし)
+  { pattern: /book\.impress\.co\.jp\/books\//, name: "インプレスブックス", drm: "social" },
   // DRM-attached
   { pattern: /amazon\.co\.jp/, name: "Kindle", drm: "drm" },
   { pattern: /books\.rakuten\.co\.jp|rakuten\.kobo\.com|kobo\.com/, name: "楽天Kobo", drm: "drm" },
