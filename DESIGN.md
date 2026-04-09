@@ -71,6 +71,8 @@ techbook-mcp/
 │   │       ├── base.ts          # 共通ユーティリティ (fetchText, parsePrice, ...)
 │   │       ├── gihyo.ts         # 技術評論社 (JSON API)
 │   │       ├── lambdanote.ts    # ラムダノート (HTML scraping / Shopify)
+│   │       ├── tatsu-zine.ts    # 達人出版会 (HTML scraping)
+│   │       ├── techbookfest.ts  # 技術書典 (GraphQL POST API)
 │   │       └── registry.ts     # 出版社リスト
 │   ├── application/
 │   │   ├── search-books.ts
@@ -83,10 +85,16 @@ techbook-mcp/
     ├── unit/
     │   └── adapters/publishers/
     │       ├── gihyo.test.ts
-    │       └── lambdanote.test.ts
+    │       ├── lambdanote.test.ts
+    │       ├── tatsu-zine.test.ts
+    │       └── techbookfest.test.ts
     └── fixtures/
-        ├── gihyo-search.json       # API レスポンスのスナップショット
-        └── lambdanote-search.html  # 検索結果ページのスナップショット
+        ├── gihyo-search.json            # 技術評論社 JSON API レスポンス
+        ├── gihyo-detail.html            # 技術評論社 書籍詳細ページ
+        ├── lambdanote-search.html       # ラムダノート 検索結果ページ
+        ├── tatsu-zine-search.html       # 達人出版会 検索結果ページ
+        ├── tatsu-zine-detail-free.html  # 達人出版会 書籍詳細ページ
+        └── techbookfest-search.json     # 技術書典 GraphQL レスポンス
 ```
 
 ## 対応出版社
@@ -96,6 +104,7 @@ techbook-mcp/
 | `gihyo` | 技術評論社 | JSON API (`/api_gh/site/search`) |
 | `lambdanote` | ラムダノート | HTML スクレイピング (Shopify) |
 | `tatsu-zine` | 達人出版会 | HTML スクレイピング (`/books/?search=`) |
+| `techbookfest` | 技術書典オンラインマーケット | GraphQL POST API (`/api/graphql`) |
 
 ### 技術評論社 (gihyo)
 
@@ -141,7 +150,21 @@ Shopify ストア。HTMLをスクレイピングして書誌情報を取得す�
   - 書籍アイテム構造: `<h3><a href="/books/{slug}">Title</a></h3>` + `<p>Author(著)...</p>`
 - 詳細: 各書籍ページ (`/books/{slug}`)
   - 出版社: `<a href="/books/pub/{slug}">` で実際の出版社を取得
-  - ソーシャルDRM書籍はページ内に「ソーシャルDRM」の記述あり → `drm: "social"`
+  - 全書籍が購入者情報印字のソーシャルDRM → 常に `drm: "social"`
+
+### 技術書典オンラインマーケット (techbookfest)
+
+同人技術書の販売プラットフォーム。DRM-freeのPDF/EPUBを直販。
+
+- API: `POST https://techbookfest.org/api/graphql` (GraphQL)
+  - Operation: `MarketSearchQuery`
+  - Variables: `{ query, first }` (`first` で件数制限)
+- レスポンス: `data.searchProducts.edges[].node.product`
+  - `databaseID` から商品URL: `https://techbookfest.org/product/{databaseID}`
+  - `organization.name` を著者として扱う
+  - `ebookVariant.price` が価格 (円、0=無料)
+  - `firstPublishedAt` (ISO 8601) を `publishedAt` (YYYY-MM-DD) に変換
+- 全商品がDRM-free → `drm: "free"`
 
 ## 電子書籍ストア分類
 
@@ -155,9 +178,10 @@ Shopify ストア。HTMLをスクレイピングして書誌情報を取得す�
 
 | ストア | drm |
 |--------|-----|
-| Gihyo Digital Publishing | `"free"` |
-| ラムダノート | `"free"` |
-| 達人出版会 | `"free"` (ソーシャルDRM書籍は `"social"`) |
+| 技術書典 (`techbookfest.org`) | `"free"` |
+| Gihyo Digital Publishing | `"social"` |
+| ラムダノート | `"social"` |
+| 達人出版会 | `"social"` |
 | インプレスブックス (`book.impress.co.jp`) | `"social"` |
 | Kindle / 楽天Kobo / BookLive / honto / BOOK☆WALKER / eBookJapan / LINEマンガ | `"drm"` |
 

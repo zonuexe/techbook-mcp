@@ -3,6 +3,7 @@ import type { HttpClient, RequestOptions, HttpResponse } from "../../ports/http.
 export interface MockResponseData {
   status: number;
   body: string;
+  headers?: Record<string, string>;
 }
 
 class MockHttpResponse implements HttpResponse {
@@ -14,15 +15,25 @@ class MockHttpResponse implements HttpResponse {
   get status(): number { return this.data.status; }
   get url(): string { return this.requestUrl; }
   async text(): Promise<string> { return this.data.body; }
+  header(name: string): string | null {
+    return this.data.headers?.[name.toLowerCase()] ?? null;
+  }
 }
 
 export class MockHttpClient implements HttpClient {
   private readonly handlers = new Map<string, MockResponseData>();
+  private readonly postHandlers = new Map<string, MockResponseData>();
   private readonly _calls: string[] = [];
 
-  /** URL の前方一致でレスポンスを登録する */
+  /** GET: URL の前方一致でレスポンスを登録する */
   addResponse(urlPrefix: string, data: MockResponseData): this {
     this.handlers.set(urlPrefix, data);
+    return this;
+  }
+
+  /** POST: URL の前方一致でレスポンスを登録する */
+  addPostResponse(urlPrefix: string, data: MockResponseData): this {
+    this.postHandlers.set(urlPrefix, data);
     return this;
   }
 
@@ -45,6 +56,22 @@ export class MockHttpClient implements HttpClient {
       }
     }
 
-    throw new Error(`MockHttpClient: no handler for: ${url}`);
+    throw new Error(`MockHttpClient: no handler for GET: ${url}`);
+  }
+
+  async post(url: string, _body: string, _options?: RequestOptions): Promise<HttpResponse> {
+    this._calls.push(url);
+
+    if (this.postHandlers.has(url)) {
+      return new MockHttpResponse(this.postHandlers.get(url)!, url);
+    }
+
+    for (const [prefix, data] of this.postHandlers) {
+      if (url.startsWith(prefix)) {
+        return new MockHttpResponse(data, url);
+      }
+    }
+
+    throw new Error(`MockHttpClient: no handler for POST: ${url}`);
   }
 }

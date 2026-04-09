@@ -1,0 +1,73 @@
+{
+  "data": {
+    "searchProducts": {
+      "pageInfo": {
+        "hasNextPage": false,
+        "endCursor": "cursor123"
+      },
+      "edges": [
+        {
+          "node": {
+            "product": {
+              "id": "Product:01HXXXX1",
+              "databaseID": "01HXXXX1",
+              "name": "TypeScriptで学ぶデザインパターン",
+              "description": "GoFのデザインパターンをTypeScriptで解説する本です。",
+              "organization": {
+                "name": "サークル名A"
+              },
+              "coverImage": {
+                "url": "https://techbookfest.org/api/image/01HXXXX1.png"
+              },
+              "ebookVariant": {
+                "price": 1000
+              },
+              "firstPublishedAt": "2024-01-15T00:00:00.000Z",
+              "status": "AVAILABLE"
+            }
+          }
+        },
+        {
+          "node": {
+            "product": {
+              "id": "Product:01HXXXX2",
+              "databaseID": "01HXXXX2",
+              "name": "実践TypeScript型パズル",
+              "description": null,
+              "organization": {
+                "name": "サークル名B"
+              },
+              "coverImage": null,
+              "ebookVariant": {
+                "price": 500
+              },
+              "firstPublishedAt": "2023-09-01T00:00:00.000Z",
+              "status": "AVAILABLE"
+            }
+          }
+        },
+        {
+          "node": {
+            "product": {
+              "id": "Product:01HXXXX3",
+              "databaseID": "01HXXXX3",
+              "name": "無料のTypeScript本",
+              "description": "無料で読める本。",
+              "organization": {
+                "name": "サークル名C"
+              },
+              "coverImage": {
+                "url": "https://techbookfest.org/api/image/01HXXXX3.png"
+              },
+              "ebookVariant": {
+                "price": 0
+              },
+              "firstPublishedAt": "2023-05-01T00:00:00.000Z",
+              "status": "AVAILABLE"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
