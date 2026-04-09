@@ -10,11 +10,19 @@ const DEFAULT_HEADERS = {
 
 export const CACHE_TTL_SECONDS = 3600; // 1時間
 
-export async function fetchText(url: string, deps: PublisherDeps): Promise<string> {
+export async function fetchText(
+  url: string,
+  deps: PublisherDeps,
+  extraHeaders?: Record<string, string>,
+): Promise<string> {
   const cached = await deps.cache.get(url);
   if (cached !== null) return cached;
 
-  const response = await deps.http.get(url, { headers: DEFAULT_HEADERS });
+  const headers = extraHeaders
+    ? { ...DEFAULT_HEADERS, ...extraHeaders }
+    : DEFAULT_HEADERS;
+
+  const response = await deps.http.get(url, { headers });
   if (response.status !== 200) {
     throw new Error(`HTTP ${response.status}: ${url}`);
   }
@@ -72,6 +80,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   // DRM-attached
   { pattern: /saiensu\.co\.jp/, name: "サイエンス社", drm: "password_pdf" },
   { pattern: /amazon\.co\.jp/, name: "Kindle", drm: "drm" },
+  { pattern: /kinokuniya\.co\.jp\/kinoppystore/, name: "Kinoppy", drm: "drm" },
   { pattern: /books\.rakuten\.co\.jp|rakuten\.kobo\.com|kobo\.com/, name: "楽天Kobo", drm: "drm" },
   { pattern: /booklive\.jp/, name: "BookLive", drm: "drm" },
   { pattern: /honto\.jp/, name: "honto", drm: "drm" },
