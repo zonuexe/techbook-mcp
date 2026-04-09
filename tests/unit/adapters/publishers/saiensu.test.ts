@@ -67,7 +67,7 @@ describe("saiensuAdapter", () => {
         {
           name: "サイエンス社",
           url: "https://www.saiensu.co.jp/search/?isbn=978-4-7819-9049-1&y=2026",
-          drm: "drm",
+          drm: "password_pdf",
         },
       ]);
     });
@@ -159,7 +159,7 @@ describe("saiensuAdapter", () => {
         {
           name: "サイエンス社",
           url: "https://www.saiensu.co.jp/search/?isbn=978-4-7819-9049-1&y=2026",
-          drm: "drm",
+          drm: "password_pdf",
         },
       ]);
     });

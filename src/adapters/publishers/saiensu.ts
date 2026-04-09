@@ -99,7 +99,7 @@ export const saiensuAdapter: PublisherAdapter = {
         publishedAt,
         coverImageUrl,
         // パスワード認証付きPDF販売。標準PDFビューアで閲覧可能だが技術的制限あり
-        ebookStores: [{ name: "サイエンス社", url: bookUrl, drm: "drm" }],
+        ebookStores: [{ name: "サイエンス社", url: bookUrl, drm: "password_pdf" }],
       });
 
       if (results.length >= limit) break;
@@ -143,7 +143,7 @@ export const saiensuAdapter: PublisherAdapter = {
       price,
       publishedAt,
       coverImageUrl,
-      ebookStores: [{ name: "サイエンス社", url, drm: "drm" }],
+      ebookStores: [{ name: "サイエンス社", url, drm: "password_pdf" }],
     };
   },
 };

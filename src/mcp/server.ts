@@ -13,9 +13,10 @@ import { TOOLS } from "./tools.js";
 // --- 出力フォーマット ---
 
 const DRM_LABELS: Record<DrmType, string> = {
-  free:   "DRMフリー",
-  social: "DRMフリー (ソーシャル)",
-  drm:    "DRM付き",
+  free:         "DRMフリー",
+  social:       "DRMフリー (ソーシャル)",
+  password_pdf: "パスワード付きPDF",
+  drm:          "DRM付き",
 };
 
 function formatEbookStore(store: EbookStore): Record<string, unknown> {

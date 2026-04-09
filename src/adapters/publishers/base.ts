@@ -70,7 +70,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   // ソーシャルDRM (購入者情報透かし入りPDF、技術的制限なし)
   { pattern: /book\.impress\.co\.jp\/books\//, name: "インプレスブックス", drm: "social" },
   // DRM-attached
-  { pattern: /saiensu\.co\.jp/, name: "サイエンス社", drm: "drm" },
+  { pattern: /saiensu\.co\.jp/, name: "サイエンス社", drm: "password_pdf" },
   { pattern: /amazon\.co\.jp/, name: "Kindle", drm: "drm" },
   { pattern: /books\.rakuten\.co\.jp|rakuten\.kobo\.com|kobo\.com/, name: "楽天Kobo", drm: "drm" },
   { pattern: /booklive\.jp/, name: "BookLive", drm: "drm" },
