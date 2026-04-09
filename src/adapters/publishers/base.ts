@@ -71,6 +71,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   { pattern: /techbookfest\.org\/product\//, name: "技術書典", drm: "free" },
   { pattern: /oreilly\.co\.jp\/books\//, name: "オライリー・ジャパン", drm: "free" },
   { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "social" },
+  { pattern: /seshop\.com\/product\//, name: "SEshop", drm: "social" },
   // ソーシャルDRM (購入時生成IDまたは購入者情報を透かし刻印、技術的制限なし)
   { pattern: /book\.mynavi\.jp\/manatee\//, name: "マナティ", drm: "social" },
   { pattern: /www\.lambdanote\.com\/products\//, name: "ラムダノート", drm: "social" },
