@@ -1,4 +1,5 @@
 import type { PublisherAdapter } from "../../domain/publisher.js";
+import { bookTechAdapter } from "./book-tech.js";
 import { gihyoAdapter } from "./gihyo.js";
 import { lambdanoteAdapter } from "./lambdanote.js";
 import { manateeAdapter } from "./manatee.js";
@@ -13,6 +14,7 @@ import { tatsuZineAdapter } from "./tatsu-zine.js";
 import { techbookfestAdapter } from "./techbookfest.js";
 
 export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
+  bookTechAdapter,
   gihyoAdapter,
   lambdanoteAdapter,
   manateeAdapter,
