@@ -1,0 +1,163 @@
+import { describe, it, expect } from "vitest";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { manateeAdapter } from "../../../../src/adapters/publishers/manatee.js";
+import { MockHttpClient } from "../../../../src/adapters/http/mock-client.js";
+import { CheerioHtmlParser } from "../../../../src/adapters/html/cheerio-parser.js";
+import { NullCacheStore } from "../../../../src/adapters/cache/null-cache.js";
+
+const FIXTURES_DIR = join(import.meta.dirname, "../../../fixtures");
+
+function makeDeps(http: MockHttpClient) {
+  return { http, parser: new CheerioHtmlParser(), cache: new NullCacheStore() };
+}
+
+async function loadFixture(name: string): Promise<string> {
+  return readFile(join(FIXTURES_DIR, name), "utf-8");
+}
+
+describe("manateeAdapter", () => {
+  describe("search()", () => {
+    it("検索結果から BookRecord[] を返す", async () => {
+      const body = await loadFixture("manatee-search.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/",
+        { status: 200, body },
+      );
+
+      const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
+
+      expect(results).toHaveLength(3);
+      expect(results[0]).toMatchObject({
+        title: "現場で使えるTypeScript 詳解実践ガイド",
+        publisher: "マナティ",
+        url: "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        price: 2948,
+      });
+    });
+
+    it("ebookStores にマナティ(ソーシャルDRM)が含まれる", async () => {
+      const body = await loadFixture("manatee-search.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/",
+        { status: 200, body },
+      );
+
+      const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
+
+      expect(results[0].ebookStores).toEqual([
+        {
+          name: "マナティ",
+          url: "https://book.mynavi.jp/manatee/books/detail/id=142711",
+          drm: "social",
+        },
+      ]);
+    });
+
+    it("coverImageUrl が設定される", async () => {
+      const body = await loadFixture("manatee-search.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/",
+        { status: 200, body },
+      );
+
+      const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
+
+      expect(results[0].coverImageUrl).toBe(
+        "https://book.mynavi.jp/files/topics/142711_ext_06_0.jpg",
+      );
+    });
+
+    it("limit を適用する", async () => {
+      const body = await loadFixture("manatee-search.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/",
+        { status: 200, body },
+      );
+
+      const results = await manateeAdapter.search({ title: "TypeScript", limit: 2 }, makeDeps(http));
+
+      expect(results).toHaveLength(2);
+    });
+
+    it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
+      const http = new MockHttpClient();
+
+      const results = await manateeAdapter.search({}, makeDeps(http));
+
+      expect(results).toEqual([]);
+      expect(http.calls).toHaveLength(0);
+    });
+
+    it("検索リクエストに topics_keyword が含まれる", async () => {
+      const body = await loadFixture("manatee-search.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/",
+        { status: 200, body },
+      );
+
+      await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
+
+      expect(http.calls[0]).toContain("topics_keyword=TypeScript");
+    });
+  });
+
+  describe("getDetail()", () => {
+    it("詳細情報を返す", async () => {
+      const body = await loadFixture("manatee-detail.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        { status: 200, body },
+      );
+
+      const book = await manateeAdapter.getDetail(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        makeDeps(http),
+      );
+
+      expect(book).toMatchObject({
+        title: "現場で使えるTypeScript 詳解実践ガイド",
+        publisher: "マイナビ出版",
+        isbn: "9784839984274",
+        price: 2948,
+        publishedAt: "2024-03-22",
+      });
+    });
+
+    it("著者が配列で返される", async () => {
+      const body = await loadFixture("manatee-detail.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        { status: 200, body },
+      );
+
+      const book = await manateeAdapter.getDetail(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        makeDeps(http),
+      );
+
+      expect(book.authors).toEqual(["菅原浩之", "CodeMafia", "外村将大"]);
+    });
+
+    it("ebookStores にマナティ(ソーシャルDRM)が含まれる", async () => {
+      const body = await loadFixture("manatee-detail.html");
+      const http = new MockHttpClient().addResponse(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        { status: 200, body },
+      );
+
+      const book = await manateeAdapter.getDetail(
+        "https://book.mynavi.jp/manatee/books/detail/id=142711",
+        makeDeps(http),
+      );
+
+      expect(book.ebookStores).toEqual([
+        {
+          name: "マナティ",
+          url: "https://book.mynavi.jp/manatee/books/detail/id=142711",
+          drm: "social",
+        },
+      ]);
+    });
+  });
+});
