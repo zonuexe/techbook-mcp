@@ -124,9 +124,9 @@ export const lambdanoteAdapter: PublisherAdapter = {
     const imgSrc = imgEl?.attr("src") ?? imgEl?.attr("data-src");
     const coverImageUrl = imgSrc ? resolveUrl(BASE_URL, imgSrc) : undefined;
 
-    // ラムダノートの商品ページ自体がDRM-free直販。加えてページ内の他ストアリンクを収集。
+    // ラムダノートは購入時生成の一意IDをPDF欄外に印字 (ソーシャルDRM)
     const ebookStores: EbookStore[] = [
-      { name: "ラムダノート", url, drm: "free" },
+      { name: "ラムダノート", url, drm: "social" },
       ...extractEbookStoresFromDoc(doc).filter(s => s.name !== "ラムダノート"),
     ];
 

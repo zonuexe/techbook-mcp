@@ -36,7 +36,7 @@ describe("tatsuZineAdapter", () => {
       expect(results[0].url).toBe("https://tatsu-zine.com/books/go-programming");
     });
 
-    it("ebookStores に達人出版会(DRM-free)が含まれる", async () => {
+    it("ebookStores に達人出版会(ソーシャルDRM)が含まれる", async () => {
       const body = await loadFixture("tatsu-zine-search.html");
       const http = new MockHttpClient().addResponse(
         "https://tatsu-zine.com/books/",
@@ -46,7 +46,7 @@ describe("tatsuZineAdapter", () => {
       const results = await tatsuZineAdapter.search({ title: "Go" }, makeDeps(http));
 
       expect(results[0].ebookStores).toEqual([
-        { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "free" },
+        { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "social" },
       ]);
     });
 
@@ -84,7 +84,7 @@ describe("tatsuZineAdapter", () => {
   });
 
   describe("getDetail()", () => {
-    it("DRM-free 書籍の詳細情報を返す", async () => {
+    it("詳細情報を返す（達人出版会は常にソーシャルDRM）", async () => {
       const body = await loadFixture("tatsu-zine-detail-free.html");
       const http = new MockHttpClient().addResponse(
         "https://tatsu-zine.com/books/go-programming",
@@ -102,27 +102,10 @@ describe("tatsuZineAdapter", () => {
         publisher: "インプレス",
         price: 3520,
       });
+      // 達人出版会は「ソーシャルDRM」と明記がなくても全書籍で購入者情報を印字
       expect(book.ebookStores).toEqual([
-        { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "free" },
+        { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "social" },
       ]);
-    });
-
-    it("ソーシャルDRM書籍は drm: 'social' になる", async () => {
-      const body = await loadFixture("tatsu-zine-detail-social.html");
-      const http = new MockHttpClient().addResponse(
-        "https://tatsu-zine.com/books/balancing-coupling-in-software-design",
-        { status: 200, body },
-      );
-
-      const book = await tatsuZineAdapter.getDetail(
-        "https://tatsu-zine.com/books/balancing-coupling-in-software-design",
-        makeDeps(http),
-      );
-
-      expect(book.ebookStores?.[0]).toMatchObject({
-        name: "達人出版会",
-        drm: "social",
-      });
     });
 
     it("出版社が達人出版会自身の場合はフォールバックする", async () => {

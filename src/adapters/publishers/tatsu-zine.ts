@@ -1,5 +1,5 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
-import type { BookRecord, SearchQuery, EbookStore, DrmType } from "../../domain/book.js";
+import type { BookRecord, SearchQuery, EbookStore } from "../../domain/book.js";
 import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
 
 const BASE_URL = "https://tatsu-zine.com";
@@ -25,13 +25,6 @@ function parsePrice(text: string): number | undefined {
   return parseJapanesePrice(text);
 }
 
-/**
- * ページにソーシャルDRMの記述があるか判定する。
- * ソーシャルDRMは技術的制限はないが購入者情報を透かしとして埋め込む。
- */
-function detectSocialDrm(html: string): boolean {
-  return /ソーシャルDRM|social\s*drm/i.test(html);
-}
 
 export const tatsuZineAdapter: PublisherAdapter = {
   id: "tatsu-zine",
@@ -76,7 +69,8 @@ export const tatsuZineAdapter: PublisherAdapter = {
         authors,
         publisher: "達人出版会",
         url: bookUrl,
-        ebookStores: [{ name: "達人出版会", url: bookUrl, drm: "free" }],
+        // 達人出版会は全書籍で購入者情報を各ページに印字 (ソーシャルDRM)
+        ebookStores: [{ name: "達人出版会", url: bookUrl, drm: "social" }],
       });
     }
 
@@ -119,9 +113,8 @@ export const tatsuZineAdapter: PublisherAdapter = {
       if (authors.length && price !== undefined) break;
     }
 
-    // DRMタイプ: ページに「ソーシャルDRM」の記述があれば social、なければ free
-    const drm: DrmType = detectSocialDrm(html) ? "social" : "free";
-    const ebookStores: EbookStore[] = [{ name: "達人出版会", url, drm }];
+    // 達人出版会は全書籍で購入者情報を各ページに印字 (ソーシャルDRM)
+    const ebookStores: EbookStore[] = [{ name: "達人出版会", url, drm: "social" }];
 
     return {
       title,
