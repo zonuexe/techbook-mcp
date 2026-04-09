@@ -71,6 +71,9 @@ techbook-mcp/
 │   │   │   └── null-cache.ts
 │   │   └── publishers/
 │   │       ├── base.ts          # 共通ユーティリティ (fetchText, parsePrice, EBOOK_STORE_PATTERNS)
+│   │       ├── book-tech.ts     # BOOK TECH
+│   │       ├── born-digital.ts  # ボーンデジタル
+│   │       ├── coronasha.ts     # コロナ社
 │   │       ├── gihyo.ts         # 技術評論社
 │   │       ├── lambdanote.ts    # ラムダノート
 │   │       ├── manatee.ts       # マナティ (マイナビ出版直販)
@@ -78,6 +81,7 @@ techbook-mcp/
 │   │       ├── optronics.ts     # オプトロニクス社
 │   │       ├── oreilly-japan.ts # オライリー・ジャパン
 │   │       ├── peaks.ts         # PEAKS
+│   │       ├── personal-media.ts  # パーソナルメディア
 │   │       ├── rutles.ts        # ラトルズ
 │   │       ├── saiensu.ts       # サイエンス社
 │   │       ├── seshop.ts        # SEshop (翔泳社)
@@ -103,6 +107,9 @@ techbook-mcp/
 
 | ID | 名称 | 取得方式 | 備考 |
 |----|------|---------|------|
+| `book-tech` | BOOK TECH | HTML scraping | カラーミーショップ |
+| `born-digital` | ボーンデジタル | HTML scraping | カラーミーショップ・EUC-JP エンコード必須 |
+| `coronasha` | コロナ社 | HTML scraping | 電子版フラグで絞り込み・外部ストアへ委託販売 |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
 | `lambdanote` | ラムダノート | HTML scraping | Shopify ストア |
 | `manatee` | マナティ (マイナビ出版直販) | HTML scraping | 複数出版社を委託販売 |
@@ -110,6 +117,7 @@ techbook-mcp/
 | `optronics` | オプトロニクス社 | HTML scraping | EC-CUBE ベース |
 | `oreilly-japan` | オライリー・ジャパン | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `peaks` | PEAKS | HTML scraping | 検索APIなし・ローカルフィルタ |
+| `personal-media` | パーソナルメディア | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `rutles` | ラトルズ | HTML scraping | クエリを EUC-JP エンコード必須 |
 | `saiensu` | サイエンス社 | HTML scraping | 電子書籍のみ (`mediaName === "電子"`) |
 | `seshop` | SEshop (翔泳社) | HTML scraping | `category_id=327` で電子書籍に絞り込み |
@@ -117,6 +125,38 @@ techbook-mcp/
 | `techbookfest` | 技術書典オンラインマーケット | GraphQL POST API | XSRF-TOKEN 必須 |
 
 ### 各アダプターの実装メモ
+
+**BOOK TECH (book-tech)** — カラーミーショップ
+```
+GET https://book-tech.com/books?q%5Btitle_or_overview_or_identification_number_1_or_product_code_cont%5D={keyword}
+```
+- `div.contents-index-item` が書籍アイテム
+- 著者: `a[href*='author_relations']` テキストから役割語（`（著）` 等）を除去
+- ISBN: `.contents-book-about-id` の13桁数字列
+- 価格: `.price` テキストから税込価格を取得
+- DRM: `"social"`
+
+**ボーンデジタル (born-digital)** — カラーミーショップ
+```
+GET https://wgn-obs.shop-pro.jp/?mode=srh&keyword={EUC-JP encoded keyword}
+```
+- クエリを **EUC-JP** でパーセントエンコード（`iconv-lite` 使用）
+- 電子書籍の絞り込み: タイトルが `【` で始まるもの（`【PDFダウンロード版】`・`【電子書籍版】`）
+- アイテム: `li.c-product-list__item`
+- 価格: `var Colorme = {...}` JSON の `product.sales_price_including_tax`
+- 著者・発行日: 詳細ページの説明テキストをタブまたは全角コロン `：` で分割して解析
+- DRM: `"social"`（PDFにメールアドレスが印字）
+
+**コロナ社 (coronasha)**
+```
+GET https://www.coronasha.co.jp/np/result.html?q={keyword}
+```
+- 電子版フラグ: `ul.status-list li` に `"電子版あり"` があるものだけ対象
+- タイトル: `.tunogaki` と `.book-title` を結合（例: `"1から始める"` + `"Juliaプログラミング大全"`）
+- 書誌情報: `.book-info dl` の dt/dd から定価・ISBN・発行年月日を取得
+- 価格は詳細ページのサイドバー `.price` から取得（`.book-info dl` には含まれない）
+- 電子書籍ストアは `extractEbookStoresFromDoc()` で自動検出（Kindle, Kinoppy, VarsityWave eBooks 等）
+- Knowledge Worker (`kw.maruzen.co.jp`) はパターン未登録のため自動除外
 
 **技術評論社 (gihyo)** — JSON API
 ```
@@ -187,6 +227,20 @@ GET https://www.seshop.com/search?keyword={keyword}&category_id=327&sort=newer
 - 詳細ページの `cxenseparse:sho-*` メタタグから ISBN・価格・発売日を取得
 - PDFにメールアドレスと著作権情報が埋め込まれる → `"social"` DRM
 
+**パーソナルメディア (personal-media)** — ローカルフィルタ
+```
+GET https://www.personal-media.co.jp/webshop/book/
+```
+- 検索APIなし。PDF直販書籍の全一覧テーブルをタイトルキーワードでローカルフィルタリング
+- 著者のみ検索は非対応（`!query.title` のとき `[]` を返す）
+- 詳細ページにセマンティックHTMLなし。`body` 全テキストを行分割して正規表現でメタデータを抽出
+  - 著者行: `^(.+?)\s+(?:著|監修|編|訳|...)$` パターンで役割語を検出・除去
+  - ISBN: `"ISBN"` を含む行から `\d[\d-]{12,}` で抽出
+  - 発行日: `"発売"` を含む行から `(\d{4})年(\d{1,2})月` を抽出 → `"YYYY-MM-01"` 形式
+- 電子書籍ストアは相対URLのため `extractEbookStoresFromDoc()` は不使用。パス文字列で手動検出
+  - `/webshop/book/` を含むリンク → パーソナルメディア (PDF版, `"social"`)
+  - `/smoothreader/store/` を含むリンク → Smooth Reader (専用ビューアー, `"drm"`)
+
 **達人出版会 (tatsu-zine)**
 ```
 GET https://tatsu-zine.com/books/?search={keyword}
@@ -226,13 +280,16 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 | オプトロニクス社 | `free` | 購入・確認済み |
 | Gihyo Digital Publishing | `social` | 公式方針 |
 | SEshop (翔泳社) | `social` | メールアドレス埋め込み透かし |
+| BOOK TECH | `social` | 購入者情報透かし |
+| ボーンデジタル | `social` | PDFにメールアドレス印字 |
 | マナティ | `social` | 公式 about ページに明記 |
 | ラムダノート | `social` | 公式方針 |
 | 達人出版会 | `social` | 公式方針 |
 | インプレスブックス | `social` | 公式方針 |
 | サイエンス社 | `password_pdf` | パスワード付きPDF |
 | Kindle | `drm` | — |
-| Kinoppy | `drm` | — |
+| Kinoppy | `drm` | `kinokuniya.co.jp/kinoppystore` および `kinokuniya.co.jp/f/dsg-08` 形式 |
+| VarsityWave eBooks | `drm` | 大学生協電子書籍 (coop-ebook.jp) |
 | 楽天Kobo | `drm` | — |
 | BookLive | `drm` | — |
 | honto | `drm` | — |
