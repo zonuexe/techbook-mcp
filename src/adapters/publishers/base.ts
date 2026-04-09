@@ -60,7 +60,7 @@ interface StorePattern {
 
 const EBOOK_STORE_PATTERNS: StorePattern[] = [
   // DRM-free
-  { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "free" },
+  { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "social" },
   // ソーシャルDRM (購入時生成IDまたは購入者情報を透かし刻印、技術的制限なし)
   { pattern: /www\.lambdanote\.com\/products\//, name: "ラムダノート", drm: "social" },
   { pattern: /tatsu-zine\.com\/books\/(?!pub\/)/, name: "達人出版会", drm: "social" },

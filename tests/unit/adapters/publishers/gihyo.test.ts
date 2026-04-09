@@ -98,7 +98,7 @@ describe("gihyoAdapter", () => {
   });
 
   describe("getDetail()", () => {
-    it("ebookStores にDRM-freeとDRM付きが含まれる", async () => {
+    it("ebookStores にソーシャルDRMとDRM付きが含まれる", async () => {
       const deps = await makeDetailDeps();
       const book = await gihyoAdapter.getDetail(
         "https://gihyo.jp/book/2022/978-4-297-12815-2",
@@ -106,13 +106,14 @@ describe("gihyoAdapter", () => {
       );
 
       expect(book.ebookStores).toBeDefined();
-      const freeStores = book.ebookStores!.filter(s => s.drm === "free");
+      const socialStores = book.ebookStores!.filter(s => s.drm === "social");
       const drmStores = book.ebookStores!.filter(s => s.drm === "drm");
 
-      expect(freeStores).toHaveLength(1);
-      expect(freeStores[0]).toMatchObject({
+      // Gihyo Digital Publishing は見えない購入者情報を埋め込むソーシャルDRM
+      expect(socialStores).toHaveLength(1);
+      expect(socialStores[0]).toMatchObject({
         name: "Gihyo Digital Publishing",
-        drm: "free",
+        drm: "social",
         url: expect.stringContaining("gihyo.jp/dp/ebook/"),
       });
 
