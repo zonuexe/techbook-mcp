@@ -3,6 +3,7 @@ import { gihyoAdapter } from "./gihyo.js";
 import { lambdanoteAdapter } from "./lambdanote.js";
 import { manateeAdapter } from "./manatee.js";
 import { maruzenPublishingAdapter } from "./maruzen-publishing.js";
+import { optronicsAdapter } from "./optronics.js";
 import { oreillyJapanAdapter } from "./oreilly-japan.js";
 import { peaksAdapter } from "./peaks.js";
 import { rutlesAdapter } from "./rutles.js";
@@ -16,6 +17,7 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   lambdanoteAdapter,
   manateeAdapter,
   maruzenPublishingAdapter,
+  optronicsAdapter,
   oreillyJapanAdapter,
   peaksAdapter,
   rutlesAdapter,

@@ -72,6 +72,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   { pattern: /oreilly\.co\.jp\/books\//, name: "オライリー・ジャパン", drm: "free" },
   { pattern: /shop\.rutles\.net\//, name: "ラトルズ", drm: "free" },
   { pattern: /peaks\.cc\/books\//, name: "PEAKS", drm: "free" },
+  { pattern: /optronics-ebook\.com\/products\//, name: "オプトロニクス社", drm: "free" },
   { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "social" },
   { pattern: /seshop\.com\/product\//, name: "SEshop", drm: "social" },
   // ソーシャルDRM (購入時生成IDまたは購入者情報を透かし刻印、技術的制限なし)
