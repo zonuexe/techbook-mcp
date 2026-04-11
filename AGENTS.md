@@ -3,6 +3,15 @@
 日本語技術書の書誌情報を出版社公式サイト・APIから取得するMCPサーバー。
 詳細な設計は [docs/design-doc.md](docs/design-doc.md) を参照。
 
+## コミットメッセージ規約
+
+Conventional Commits は使わない。コミットメッセージは端的な日本語または英語の命令形で書く。
+
+```
+robots.txt チェックを追加し結果を6時間キャッシュする
+Add robots.txt check with 6-hour cache
+```
+
 ## 開発コマンド
 
 ```bash

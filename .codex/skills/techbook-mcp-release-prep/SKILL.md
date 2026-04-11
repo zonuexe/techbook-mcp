@@ -88,7 +88,7 @@ Prefer a single release-prep commit containing:
 Use this commit message format:
 
 ```text
-chore: release x.y.z
+Bump up version to x.y.z
 ```
 
 Do not include other unrelated changes in the release commit.
