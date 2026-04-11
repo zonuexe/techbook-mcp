@@ -1,0 +1,12 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn"],
+  "rules": {
+    "no-unused-vars": "error",
+    "no-console": "warn",
+    "unicorn/no-array-for-each": "error",
+    "unicorn/prefer-string-slice": "error",
+    "typescript/consistent-type-imports": "error"
+  },
+  "ignorePatterns": ["dist/**", "node_modules/**"]
+}

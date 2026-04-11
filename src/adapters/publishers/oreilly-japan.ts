@@ -94,7 +94,7 @@ export const oreillyJapanAdapter: PublisherAdapter = {
 
     const titleMain = doc.selectOne("h1[itemprop='name']")?.text().trim() ?? "";
     const subTitle = doc.selectOne("p.sub_title")?.text()
-      .replace(/^[\s\u3000―\-]+/, "").trim();
+      .replace(/^[\s\u3000―-]+/, "").trim();
     const title = subTitle ? `${titleMain} ―${subTitle}` : titleMain;
 
     const authorText = doc.selectOne("span[itemprop='author']")?.text().trim() ?? "";

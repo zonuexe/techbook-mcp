@@ -1,5 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
+import type { HtmlDocument } from "../../ports/html-parser.js";
 import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
 
 const BASE_URL = "https://book.mynavi.jp/manatee";
@@ -9,7 +10,7 @@ const BOOKS_URL = `${BASE_URL}/books/`;
  * `.attribute li` 内の著者リンクを配列にする。
  * 各 <a> のテキストが著者名（役割は括弧内テキストで付記されているが名前は <a> 内）。
  */
-function parseAuthors(doc: ReturnType<import("../../ports/html-parser.js").HtmlParser["parse"]>): string[] {
+function parseAuthors(doc: HtmlDocument): string[] {
   return doc
     .select(".attribute li a")
     .map(el => el.text().trim())

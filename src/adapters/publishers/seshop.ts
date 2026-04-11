@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
+import { fetchText, resolveUrl } from "./base.js";
 
 const BASE_URL = "https://www.seshop.com";
 const SEARCH_URL = `${BASE_URL}/search`;
