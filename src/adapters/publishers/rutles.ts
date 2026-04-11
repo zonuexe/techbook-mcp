@@ -1,20 +1,8 @@
-import iconv from "iconv-lite";
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice } from "./base.js";
+import { fetchText, parseJapanesePrice, encodeEucJp } from "./base.js";
 
 const BASE_URL = "https://shop.rutles.net";
-
-/**
- * キーワードを EUC-JP でパーセントエンコードする。
- * shop.rutles.net は EUC-JP エンコードされたクエリのみ受け付けるため。
- */
-function encodeEucJp(text: string): string {
-  const bytes = iconv.encode(text, "euc-jp");
-  return Array.from(bytes)
-    .map(b => "%" + b.toString(16).toUpperCase().padStart(2, "0"))
-    .join("");
-}
 
 /**
  * "著者: 大槻有一郎:著　山田巧(DXライブラリ管理人):監修<br />"

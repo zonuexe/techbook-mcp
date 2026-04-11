@@ -1,3 +1,4 @@
+import iconv from "iconv-lite";
 import type { PublisherDeps } from "../../domain/publisher.js";
 import type { EbookStore, DrmType } from "../../domain/book.js";
 import type { HtmlDocument } from "../../ports/html-parser.js";
@@ -35,6 +36,35 @@ export async function fetchText(
 /** HTMLタグを除去する（gihyo APIのauthorフィールドのruby markup除去に使用） */
 export function stripHtmlTags(html: string): string {
   return html.replace(/<[^>]+>/g, "");
+}
+
+/**
+ * キーワードを EUC-JP でパーセントエンコードする。
+ * born-digital・rutles など EUC-JP エンコードのみ受け付けるサイト向け。
+ */
+export function encodeEucJp(text: string): string {
+  const bytes = iconv.encode(text, "euc-jp");
+  return Array.from(bytes)
+    .map(b => "%" + b.toString(16).toUpperCase().padStart(2, "0"))
+    .join("");
+}
+
+/**
+ * "2026年3月25日" → "2026-03-25"
+ * 1桁の月・日も対応する。
+ */
+export function parseJapaneseDateToISO(text: string): string | undefined {
+  const m = text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+  if (!m) return undefined;
+  return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+}
+
+/**
+ * 著者名末尾の役割語（著・訳・編・監修・監訳など）を除去して名前だけを返す。
+ * 例: "Dan Vanderkam　著" → "Dan Vanderkam"
+ */
+export function stripAuthorRole(name: string): string {
+  return name.replace(/[\u3000\s]*(著|訳|編|監修|監訳|著訳|著・訳|他)[\u3000\s]*$/, "").trim();
 }
 
 /** "¥3,960" や "3,300円（税込）" などから整数値を取り出す */

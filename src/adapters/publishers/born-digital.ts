@@ -1,20 +1,8 @@
-import iconv from "iconv-lite";
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, encodeEucJp, parseJapaneseDateToISO } from "./base.js";
 
 const BASE_URL = "https://wgn-obs.shop-pro.jp";
-
-/**
- * キーワードを EUC-JP でパーセントエンコードする。
- * wgn-obs.shop-pro.jp は EUC-JP エンコードされたクエリのみ受け付けるため。
- */
-function encodeEucJp(text: string): string {
-  const bytes = iconv.encode(text, "euc-jp");
-  return Array.from(bytes)
-    .map(b => "%" + b.toString(16).toUpperCase().padStart(2, "0"))
-    .join("");
-}
 
 /**
  * 商品説明テキストから著者・出版社・発売日を取得する。
@@ -45,10 +33,7 @@ function parseDescription(text: string): {
     } else if (key.startsWith("発行") || key === "発売") {
       publisher = value.replace(/^株式会社\s*/, "").replace(/\s*株式会社$/, "").trim();
     } else if (key === "発売日") {
-      const dm = value.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-      if (dm) {
-        publishedAt = `${dm[1]}-${dm[2].padStart(2, "0")}-${dm[3].padStart(2, "0")}`;
-      }
+      publishedAt = parseJapaneseDateToISO(value);
     }
   }
 

@@ -7,6 +7,9 @@ import {
   classifyEbookStore,
   extractEbookStoresFromDoc,
   fetchText,
+  encodeEucJp,
+  parseJapaneseDateToISO,
+  stripAuthorRole,
 } from "../../../src/adapters/publishers/base.js";
 import { MockHttpClient } from "../../../src/adapters/http/mock-client.js";
 import { CheerioHtmlParser } from "../../../src/adapters/html/cheerio-parser.js";
@@ -16,6 +19,72 @@ import { MemoryCacheStore } from "../../../src/adapters/cache/memory-cache.js";
 function makeDeps(http: MockHttpClient, cache = new NullCacheStore()) {
   return { http, parser: new CheerioHtmlParser(), cache };
 }
+
+// --- encodeEucJp ---
+
+describe("encodeEucJp()", () => {
+  it("ASCII文字はそのままパーセントエンコードする", () => {
+    expect(encodeEucJp("abc")).toMatch(/^(%[0-9A-F]{2})+$/);
+  });
+
+  it("日本語をEUC-JPでエンコードする", () => {
+    const result = encodeEucJp("TypeScript");
+    // EUC-JPでエンコードされた結果は%XX形式
+    expect(result).toMatch(/^(%[0-9A-F]{2})+$/);
+  });
+
+  it("空文字列は空文字列を返す", () => {
+    expect(encodeEucJp("")).toBe("");
+  });
+});
+
+// --- parseJapaneseDateToISO ---
+
+describe("parseJapaneseDateToISO()", () => {
+  it("YYYY年M月D日 を YYYY-MM-DD に変換する", () => {
+    expect(parseJapaneseDateToISO("2026年3月25日")).toBe("2026-03-25");
+  });
+
+  it("1桁の月・日もゼロパディングする", () => {
+    expect(parseJapaneseDateToISO("2024年1月5日")).toBe("2024-01-05");
+  });
+
+  it("日付パターンがなければ undefined を返す", () => {
+    expect(parseJapaneseDateToISO("発行：サイエンス社")).toBeUndefined();
+  });
+
+  it("テキスト中に埋め込まれていても抽出できる", () => {
+    expect(parseJapaneseDateToISO("発行日：2026年3月25日")).toBe("2026-03-25");
+  });
+});
+
+// --- stripAuthorRole ---
+
+describe("stripAuthorRole()", () => {
+  it("末尾の「著」を除去する", () => {
+    expect(stripAuthorRole("Dan Vanderkam　著")).toBe("Dan Vanderkam");
+  });
+
+  it("末尾の「訳」を除去する", () => {
+    expect(stripAuthorRole("今村 謙士　訳")).toBe("今村 謙士");
+  });
+
+  it("末尾の「監修」を除去する", () => {
+    expect(stripAuthorRole("堀井俊佑 監修")).toBe("堀井俊佑");
+  });
+
+  it("末尾の「著訳」を除去する", () => {
+    expect(stripAuthorRole("島田浩二　著訳")).toBe("島田浩二");
+  });
+
+  it("役割語がなければそのまま返す", () => {
+    expect(stripAuthorRole("山田太郎")).toBe("山田太郎");
+  });
+
+  it("前後の空白・全角スペースをトリムする", () => {
+    expect(stripAuthorRole("  著者名  ")).toBe("著者名");
+  });
+});
 
 // --- parseJapanesePrice ---
 

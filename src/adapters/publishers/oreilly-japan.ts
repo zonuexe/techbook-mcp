@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, parseJapaneseDateToISO, stripAuthorRole } from "./base.js";
 
 const BASE_URL = "https://www.oreilly.co.jp";
 const EBOOK_LIST_URL = `${BASE_URL}/ebook/`;
@@ -10,22 +10,17 @@ const EBOOK_LIST_URL = `${BASE_URL}/ebook/`;
  * "2025-04-08" (content属性) はそのまま返す
  */
 function parseOreillyDate(text: string): string | undefined {
-  const jpMatch = text.match(/(\d{4})年(\d{2})月(\d{2})日/);
-  if (jpMatch) return `${jpMatch[1]}-${jpMatch[2]}-${jpMatch[3]}`;
   const isoMatch = text.match(/\d{4}-\d{2}-\d{2}/);
-  return isoMatch ? isoMatch[0] : undefined;
+  if (isoMatch) return isoMatch[0];
+  return parseJapaneseDateToISO(text);
 }
 
 /**
  * 著者文字列をパースして配列に変換する。
  * 例: "Dan Vanderkam　著、今村 謙士　訳" → ["Dan Vanderkam", "今村 謙士"]
- * 役割語（著・訳・監訳・監修・編など）を除去する。
  */
 function parseAuthors(text: string): string[] {
-  return text
-    .split(/[、,]/)
-    .map(s => s.replace(/[\u3000\s]*(著|訳|監訳|監修|編|他|著訳|著・訳)[\u3000\s]*$/, "").trim())
-    .filter(Boolean);
+  return text.split(/[、,]/).map(stripAuthorRole).filter(Boolean);
 }
 
 export const oreillyJapanAdapter: PublisherAdapter = {

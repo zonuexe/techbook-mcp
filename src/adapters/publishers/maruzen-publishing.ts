@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, resolveUrl, extractEbookStoresFromDoc } from "./base.js";
+import { fetchText, resolveUrl, extractEbookStoresFromDoc, parseJapaneseDateToISO, stripAuthorRole } from "./base.js";
 
 const BASE_URL = "https://www.maruzen-publishing.co.jp";
 const SEARCH_URL = `${BASE_URL}/search/`;
@@ -13,20 +13,14 @@ const EXTRA_HEADERS = { Referer: `${BASE_URL}/` };
  * 役割語（著・訳・編・監訳・監修など）を除去する。
  */
 function parseAuthorsFromText(text: string): string[] {
-  return text
-    .split(/[　\s]+(?=\S)/)
-    .map(part => part.replace(/[\u3000\s]*(著|訳|編|監修|監訳|他)[\u3000\s]*$/, "").trim())
-    .filter(Boolean);
+  return text.split(/[　\s]+(?=\S)/).map(stripAuthorRole).filter(Boolean);
 }
 
 /**
  * div.author 内の各リンクから役割語を除去して著者名のみ返す。
- * リンクテキストには名前のみ含まれるため、隣接するテキストノードの役割語は無視してよい。
  */
 function parseAuthorLinks(authors: string[]): string[] {
-  return authors
-    .map(name => name.replace(/[\u3000\s]*(著|訳|編|監修|監訳|他)[\u3000\s]*$/, "").trim())
-    .filter(Boolean);
+  return authors.map(stripAuthorRole).filter(Boolean);
 }
 
 /**
@@ -34,17 +28,11 @@ function parseAuthorLinks(authors: string[]): string[] {
  * "2020年3月31日" → "2020-03-31"
  */
 function parseDate(text: string): string | undefined {
-  // YYYY/MM/DD
   const m1 = text.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
   if (m1) {
     return `${m1[1]}-${m1[2].padStart(2, "0")}-${m1[3].padStart(2, "0")}`;
   }
-  // YYYY年M月D日
-  const m2 = text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-  if (m2) {
-    return `${m2[1]}-${m2[2].padStart(2, "0")}-${m2[3].padStart(2, "0")}`;
-  }
-  return undefined;
+  return parseJapaneseDateToISO(text);
 }
 
 export const maruzenPublishingAdapter: PublisherAdapter = {

@@ -1,29 +1,16 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice } from "./base.js";
+import { fetchText, parseJapanesePrice, parseJapaneseDateToISO, stripAuthorRole } from "./base.js";
 
 const BASE_URL = "https://www.saiensu.co.jp";
 const SEARCH_URL = `${BASE_URL}/search/`;
 
 /**
  * "堀井俊佑(早稲田大学准教授)　監修" → "堀井俊佑"
- * 所属（括弧内）と役割語（著・編・監修など）を除去する。
+ * 所属（括弧内）と役割語を除去する。
  */
 function parseAuthorName(text: string): string {
-  return text
-    .replace(/\(.*?\)/g, "")        // (所属) を除去
-    .replace(/[\u3000\s]*(著|訳|編|監修|監訳|他)[\u3000\s]*$/, "")
-    .trim();
-}
-
-/**
- * "発行日：2026年3月25日" → "2026-03-25"
- * 1桁の月・日も対応する。
- */
-function parseDate(text: string): string | undefined {
-  const m = text.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
-  if (!m) return undefined;
-  return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  return stripAuthorRole(text.replace(/\(.*?\)/g, ""));
 }
 
 /** "ISBN：978-4-7819-9049-1" → "9784781990491" */
@@ -76,7 +63,7 @@ export const saiensuAdapter: PublisherAdapter = {
       const price = priceText ? parseJapanesePrice(priceText) : undefined;
 
       const dateText = article.find(".bookListItemData_publishDate")[0]?.text().trim();
-      const publishedAt = dateText ? parseDate(dateText) : undefined;
+      const publishedAt = dateText ? parseJapaneseDateToISO(dateText) : undefined;
 
       const publisherText = article.find(".bookListItemData_publisher")[0]?.text().trim();
       const publisher = publisherText ? parsePublisher(publisherText) : "サイエンス社";
@@ -124,7 +111,7 @@ export const saiensuAdapter: PublisherAdapter = {
     const price = priceText ? parseJapanesePrice(priceText) : undefined;
 
     const dateText = doc.selectOne(".bookDetail_publishDate")?.text().trim();
-    const publishedAt = dateText ? parseDate(dateText) : undefined;
+    const publishedAt = dateText ? parseJapaneseDateToISO(dateText) : undefined;
 
     const publisherText = doc.selectOne(".bookDetail_publisher")?.text().trim();
     const publisher = publisherText ? parsePublisher(publisherText) : "サイエンス社";
