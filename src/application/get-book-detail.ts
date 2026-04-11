@@ -1,5 +1,6 @@
 import type { BookRecord } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
+import { checkRobotsTxt } from "../adapters/publishers/base.js";
 
 export async function getBookDetail(
   url: string,
@@ -13,5 +14,11 @@ export async function getBookDetail(
       `対応URL: ${publishers.map(p => p.baseUrl).join(", ")}`,
     );
   }
+
+  const allowed = await checkRobotsTxt(url, deps);
+  if (!allowed) {
+    throw new Error(`robots.txt によりアクセスが禁止されています: ${url}`);
+  }
+
   return publisher.getDetail(url, deps);
 }

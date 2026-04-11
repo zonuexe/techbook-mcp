@@ -1,5 +1,6 @@
 import type { BookRecord, SearchQuery } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
+import { checkRobotsTxt } from "../adapters/publishers/base.js";
 
 export interface SearchBooksResult {
   books: BookRecord[];
@@ -16,7 +17,11 @@ export async function searchBooks(
     : publishers;
 
   const results = await Promise.allSettled(
-    targets.map(p => p.search(query, deps)),
+    targets.map(async (p) => {
+      const allowed = await checkRobotsTxt(p.baseUrl, deps);
+      if (!allowed) throw new Error(`robots.txt によりアクセスが禁止されています: ${p.baseUrl}`);
+      return p.search(query, deps);
+    }),
   );
 
   const books: BookRecord[] = [];

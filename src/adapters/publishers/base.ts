@@ -10,6 +10,126 @@ const DEFAULT_HEADERS = {
 };
 
 export const CACHE_TTL_SECONDS = 3600; // 1時間
+export const ROBOTS_CACHE_TTL_SECONDS = 6 * 3600; // 6時間
+
+// --- robots.txt チェック ---
+
+/** robots.txt の1ルール */
+interface RobotsRule {
+  type: "allow" | "disallow";
+  path: string;
+}
+
+/** robots.txt のユーザーエージェントセクション */
+interface RobotsSection {
+  agents: string[];
+  rules: RobotsRule[];
+}
+
+/** robots.txt をパースしてセクション一覧を返す */
+function parseRobotsTxt(content: string): RobotsSection[] {
+  const sections: RobotsSection[] = [];
+  let current: RobotsSection | null = null;
+  let inAgentBlock = true;
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const trimmedRaw = rawLine.trim();
+    // 空行（コメント行ではない）のみセクションをリセット
+    if (!trimmedRaw || trimmedRaw.startsWith("#")) {
+      if (!trimmedRaw) {
+        current = null;
+        inAgentBlock = true;
+      }
+      continue;
+    }
+
+    const line = trimmedRaw.split("#")[0].trim();
+    if (!line) continue;
+
+    const colonIdx = line.indexOf(":");
+    if (colonIdx === -1) continue;
+
+    const key = line.slice(0, colonIdx).trim().toLowerCase();
+    const value = line.slice(colonIdx + 1).trim();
+
+    if (key === "user-agent") {
+      if (inAgentBlock && current !== null) {
+        // 同じセクションに複数のUser-agent行
+        current.agents.push(value.toLowerCase());
+      } else {
+        // 新しいセクション開始
+        current = { agents: [value.toLowerCase()], rules: [] };
+        sections.push(current);
+        inAgentBlock = true;
+      }
+    } else if (current !== null && (key === "allow" || key === "disallow")) {
+      inAgentBlock = false;
+      current.rules.push({ type: key, path: value });
+    }
+  }
+
+  return sections;
+}
+
+/** 指定ユーザーエージェントに適用されるルールを返す（固有エージェント優先、なければ * にフォールバック） */
+function getRulesForAgent(sections: RobotsSection[], agentToken: string): RobotsRule[] {
+  const lower = agentToken.toLowerCase();
+
+  for (const section of sections) {
+    if (section.agents.includes(lower)) return section.rules;
+  }
+  for (const section of sections) {
+    if (section.agents.includes("*")) return section.rules;
+  }
+  return [];
+}
+
+/** パスがルール一覧で許可されているか判定する（最長プレフィックス一致） */
+function isPathAllowed(path: string, rules: RobotsRule[]): boolean {
+  let bestMatch = { length: -1, allowed: true };
+
+  for (const rule of rules) {
+    if (!rule.path) continue; // 空の Disallow は「全許可」を意味するが不一致として扱う
+
+    if (path.startsWith(rule.path) && rule.path.length > bestMatch.length) {
+      bestMatch = { length: rule.path.length, allowed: rule.type === "allow" };
+    }
+  }
+
+  return bestMatch.allowed;
+}
+
+/**
+ * 指定URLのオリジンの robots.txt を取得してアクセス可否を返す。
+ * 取得結果は6時間キャッシュする。エラー時はアクセスを許可する（fail-open）。
+ */
+export async function checkRobotsTxt(url: string, deps: PublisherDeps): Promise<boolean> {
+  const parsed = new URL(url);
+  const origin = `${parsed.protocol}//${parsed.host}`;
+  const cacheKey = `robots:${origin}`;
+
+  let content: string;
+  const cached = await deps.cache.get(cacheKey);
+
+  if (cached !== null) {
+    content = cached;
+  } else {
+    try {
+      const response = await deps.http.get(`${origin}/robots.txt`, { headers: DEFAULT_HEADERS });
+      content = response.status === 200 ? await response.text() : "";
+    } catch {
+      // robots.txt 取得失敗時はアクセスを許可する
+      content = "";
+    }
+    await deps.cache.set(cacheKey, content, ROBOTS_CACHE_TTL_SECONDS);
+  }
+
+  if (!content) return true;
+
+  const sections = parseRobotsTxt(content);
+  const rules = getRulesForAgent(sections, "techbook-mcp");
+  return isPathAllowed(parsed.pathname + parsed.search, rules);
+}
 
 export async function fetchText(
   url: string,

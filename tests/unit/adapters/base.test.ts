@@ -10,6 +10,8 @@ import {
   encodeEucJp,
   parseJapaneseDateToISO,
   stripAuthorRole,
+  checkRobotsTxt,
+  ROBOTS_CACHE_TTL_SECONDS,
 } from "../../../src/adapters/publishers/base.js";
 import { MockHttpClient } from "../../../src/adapters/http/mock-client.js";
 import { CheerioHtmlParser } from "../../../src/adapters/html/cheerio-parser.js";
@@ -299,5 +301,128 @@ describe("fetchText()", () => {
     );
     expect(result).toBe("ok");
     expect(http.calls).toHaveLength(1);
+  });
+});
+
+// --- checkRobotsTxt ---
+
+describe("checkRobotsTxt()", () => {
+  it("robots.txt が存在しない (404) 場合はアクセスを許可する", async () => {
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 404, body: "Not Found" },
+    );
+    const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
+    expect(result).toBe(true);
+  });
+
+  it("HTTP エラー時はアクセスを許可する (fail-open)", async () => {
+    // ハンドラー未登録 → MockHttpClient が例外をスロー
+    const http = new MockHttpClient();
+    const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
+    expect(result).toBe(true);
+  });
+
+  it("Disallow がない場合はアクセスを許可する", async () => {
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: "User-agent: *\nDisallow:\n" },
+    );
+    const result = await checkRobotsTxt("https://example.com/search", makeDeps(http));
+    expect(result).toBe(true);
+  });
+
+  it("Disallow: / はすべてのパスを禁止する", async () => {
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: "User-agent: *\nDisallow: /\n" },
+    );
+    const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
+    expect(result).toBe(false);
+  });
+
+  it("特定パスの Disallow はそのパスだけを禁止する", async () => {
+    const robotsTxt = "User-agent: *\nDisallow: /private/\n";
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: robotsTxt },
+    );
+    const deps = makeDeps(http);
+
+    expect(await checkRobotsTxt("https://example.com/private/data", deps)).toBe(false);
+    expect(await checkRobotsTxt("https://example.com/public/page", deps)).toBe(true);
+  });
+
+  it("techbook-mcp 固有ルールがワイルドカードより優先される", async () => {
+    const robotsTxt = [
+      "User-agent: *",
+      "Disallow: /",
+      "",
+      "User-agent: techbook-mcp",
+      "Allow: /",
+    ].join("\n");
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: robotsTxt },
+    );
+    const result = await checkRobotsTxt("https://example.com/search", makeDeps(http));
+    expect(result).toBe(true);
+  });
+
+  it("Allow が Disallow より長いプレフィックスで一致する場合は許可する", async () => {
+    const robotsTxt = [
+      "User-agent: *",
+      "Disallow: /books/",
+      "Allow: /books/detail/",
+    ].join("\n");
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: robotsTxt },
+    );
+    const deps = makeDeps(http);
+
+    expect(await checkRobotsTxt("https://example.com/books/list", deps)).toBe(false);
+    expect(await checkRobotsTxt("https://example.com/books/detail/123", deps)).toBe(true);
+  });
+
+  it("robots.txt の結果を ${ROBOTS_CACHE_TTL_SECONDS}秒キャッシュする", async () => {
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: "User-agent: *\nDisallow: /\n" },
+    );
+    const cache = new MemoryCacheStore();
+    const deps = makeDeps(http, cache);
+
+    await checkRobotsTxt("https://example.com/page", deps);
+
+    const cached = await cache.get("robots:https://example.com");
+    expect(cached).not.toBeNull();
+    expect(http.calls.filter(u => u.includes("robots.txt"))).toHaveLength(1);
+  });
+
+  it("キャッシュヒット時は HTTP を呼ばない", async () => {
+    const cache = new MemoryCacheStore();
+    await cache.set("robots:https://example.com", "", ROBOTS_CACHE_TTL_SECONDS);
+
+    const http = new MockHttpClient();
+    const result = await checkRobotsTxt("https://example.com/page", makeDeps(http, cache));
+
+    expect(result).toBe(true);
+    expect(http.calls).toHaveLength(0);
+  });
+
+  it("コメント行を無視する", async () => {
+    const robotsTxt = [
+      "# このサイトのクローラー設定",
+      "User-agent: *",
+      "# 検索ページを禁止",
+      "Disallow: /search/",
+    ].join("\n");
+    const http = new MockHttpClient().addResponse(
+      "https://example.com/robots.txt",
+      { status: 200, body: robotsTxt },
+    );
+    const result = await checkRobotsTxt("https://example.com/search/query", makeDeps(http));
+    expect(result).toBe(false);
   });
 });
