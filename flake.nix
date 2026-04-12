@@ -14,7 +14,7 @@
       {
         packages.default = pkgs.buildNpmPackage {
           pname = "techbook-mcp";
-          version = "0.1.0";
+          version = "0.2.0";
           src = ./.;
           # After running `npm install` to generate package-lock.json,
           # run `nix build 2>&1 | grep "got:"` and paste the hash here.
