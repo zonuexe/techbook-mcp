@@ -8,7 +8,7 @@
     ".": "./dist/main.js"
   },
   "bin": {
-    "techbook-mcp": "./dist/main.js"
+    "techbook-mcp": "dist/main.js"
   },
   "scripts": {
     "build": "tsc",
