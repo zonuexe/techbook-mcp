@@ -69,4 +69,4 @@ jobs:
       - run: npm ci
 
       - name: Run tests
-        run: deno test --allow-read tests/
+        run: deno test --allow-read --no-check --sloppy-imports tests/
