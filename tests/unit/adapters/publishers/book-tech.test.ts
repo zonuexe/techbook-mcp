@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { bookTechAdapter } from "../../../../src/adapters/publishers/book-tech.js";
@@ -27,8 +28,8 @@ describe("bookTechAdapter", () => {
 
       const results = await bookTechAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "次のステップへ！React実践開発　サクサク作って学ぶ UI/テスト/デプロイ",
         publisher: "インプレス NextPublishing",
         url: "https://book-tech.com/books/d80ffe3d-f3fe-458b-95ee-b4dd3327fab2",
@@ -46,8 +47,8 @@ describe("bookTechAdapter", () => {
 
       const results = await bookTechAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].authors).toEqual(["philosophy"]);
-      expect(results[1].authors).toEqual(["井手 優太"]);
+      assert.deepStrictEqual(results[0].authors, ["philosophy"]);
+      assert.deepStrictEqual(results[1].authors, ["井手 優太"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -59,7 +60,8 @@ describe("bookTechAdapter", () => {
 
       const results = await bookTechAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://booktech-share.s3-ap-northeast-1.amazonaws.com/books/d80ffe3d.webp",
       );
     });
@@ -73,7 +75,7 @@ describe("bookTechAdapter", () => {
 
       const results = await bookTechAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "BOOK TECH",
           url: "https://book-tech.com/books/d80ffe3d-f3fe-458b-95ee-b4dd3327fab2",
@@ -87,8 +89,8 @@ describe("bookTechAdapter", () => {
 
       const results = await bookTechAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに q[...] パラメータが含まれる", async () => {
@@ -100,8 +102,8 @@ describe("bookTechAdapter", () => {
 
       await bookTechAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("TypeScript");
-      expect(http.calls[0]).toContain("title_or_overview");
+      assert.ok(http.calls[0].includes("TypeScript"));
+      assert.ok(http.calls[0].includes("title_or_overview"));
     });
   });
 
@@ -118,7 +120,7 @@ describe("bookTechAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "次のステップへ！React実践開発　サクサク作って学ぶ UI/テスト/デプロイ",
         publisher: "インプレス NextPublishing",
         isbn: "9784295604136",
@@ -139,7 +141,7 @@ describe("bookTechAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["philosophy"]);
+      assert.deepStrictEqual(book.authors, ["philosophy"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -154,7 +156,8 @@ describe("bookTechAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://booktech-share.s3-ap-northeast-1.amazonaws.com/books/d80ffe3d.webp",
       );
     });
@@ -171,7 +174,7 @@ describe("bookTechAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "BOOK TECH",
           url: "https://book-tech.com/books/d80ffe3d-f3fe-458b-95ee-b4dd3327fab2",

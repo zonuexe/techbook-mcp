@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { oreillyJapanAdapter } from "../../../../src/adapters/publishers/oreilly-japan.js";
@@ -27,8 +28,8 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results).toHaveLength(1);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 1);
+      assert.partialDeepStrictEqual(results[0], {
         title: "Effective TypeScript 第2版",
         publisher: "オライリー・ジャパン",
         url: "https://www.oreilly.co.jp/books/9784814401093/",
@@ -47,7 +48,7 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "オライリー・ジャパン",
           url: "https://www.oreilly.co.jp/books/9784814401093/",
@@ -65,7 +66,8 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://www.oreilly.co.jp/books/images/picture_large978-4-8144-0109-3.jpeg",
       );
     });
@@ -79,7 +81,7 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ title: "typescript" }, makeDeps(http));
 
-      expect(results).toHaveLength(1);
+      assert.strictEqual(results.length, 1);
     });
 
     it("limit を適用する", async () => {
@@ -91,7 +93,7 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ title: "の", limit: 1 }, makeDeps(http));
 
-      expect(results).toHaveLength(1);
+      assert.strictEqual(results.length, 1);
     });
 
     it("title が未指定の場合は [] を返しHTTPを呼ばない", async () => {
@@ -99,8 +101,8 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("author のみの場合も [] を返しHTTPを呼ばない", async () => {
@@ -108,8 +110,8 @@ describe("oreillyJapanAdapter", () => {
 
       const results = await oreillyJapanAdapter.search({ author: "Dan Vanderkam" }, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
   });
 
@@ -126,13 +128,13 @@ describe("oreillyJapanAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         isbn: "9784814401093",
         price: 4620,
         publishedAt: "2025-04-08",
         publisher: "オライリー・ジャパン",
       });
-      expect(book.title).toContain("Effective TypeScript 第2版");
+      assert.ok(book.title.includes("Effective TypeScript 第2版"));
     });
 
     it("著者が配列で返される（役割語を除去）", async () => {
@@ -147,7 +149,7 @@ describe("oreillyJapanAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["Dan Vanderkam", "今村 謙士"]);
+      assert.deepStrictEqual(book.authors, ["Dan Vanderkam", "今村 謙士"]);
     });
 
     it("coverImageUrl が取得される", async () => {
@@ -162,7 +164,8 @@ describe("oreillyJapanAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://www.oreilly.co.jp/books/images/picture_large978-4-8144-0109-3.jpeg",
       );
     });
@@ -179,7 +182,7 @@ describe("oreillyJapanAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "オライリー・ジャパン",
           url: "https://www.oreilly.co.jp/books/9784814401093/",

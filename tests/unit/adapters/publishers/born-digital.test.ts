@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { bornDigitalAdapter } from "../../../../src/adapters/publishers/born-digital.js";
@@ -28,14 +29,14 @@ describe("bornDigitalAdapter", () => {
       const results = await bornDigitalAdapter.search({ title: "HTML" }, makeDeps(http));
 
       // フィクスチャには電子2件・紙1件あり、電子のみ返す
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "【PDFダウンロード版】HTML解体新書 ー仕様から紐解く本格入門",
         publisher: "ボーンデジタル",
         url: "https://wgn-obs.shop-pro.jp/?pid=167400957",
         price: 3520,
       });
-      expect(results[1]).toMatchObject({
+      assert.partialDeepStrictEqual(results[1], {
         title: "【電子書籍版】インクルーシブHTML+CSS & JavaScript",
         publisher: "ボーンデジタル",
         url: "https://wgn-obs.shop-pro.jp/?pid=144269584",
@@ -52,7 +53,8 @@ describe("bornDigitalAdapter", () => {
 
       const results = await bornDigitalAdapter.search({ title: "HTML" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://img07.shop-pro.jp/PA01427/945/product/167400957_th.png?cmsp_timestamp=20220328140327",
       );
     });
@@ -66,7 +68,7 @@ describe("bornDigitalAdapter", () => {
 
       const results = await bornDigitalAdapter.search({ title: "HTML" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "ボーンデジタル",
           url: "https://wgn-obs.shop-pro.jp/?pid=167400957",
@@ -80,8 +82,8 @@ describe("bornDigitalAdapter", () => {
 
       const results = await bornDigitalAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに EUC-JP エンコードされた keyword が含まれる", async () => {
@@ -93,9 +95,9 @@ describe("bornDigitalAdapter", () => {
 
       await bornDigitalAdapter.search({ title: "HTML" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("mode=srh");
+      assert.ok(http.calls[0].includes("mode=srh"));
       // ASCII は EUC-JP でも同じバイト列だがパーセントエンコードされる
-      expect(http.calls[0]).toContain("keyword=%48%54%4D%4C");
+      assert.ok(http.calls[0].includes("keyword=%48%54%4D%4C"));
     });
   });
 
@@ -112,7 +114,7 @@ describe("bornDigitalAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "【PDFダウンロード版】HTML解体新書 ー仕様から紐解く本格入門",
         publisher: "ボーンデジタル",
         price: 3520,
@@ -132,7 +134,7 @@ describe("bornDigitalAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["太田 良典", "中村 直樹"]);
+      assert.deepStrictEqual(book.authors, ["太田 良典", "中村 直樹"]);
     });
 
     it("Colorme JSON から価格を取得する", async () => {
@@ -147,7 +149,7 @@ describe("bornDigitalAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.price).toBe(3520);
+      assert.strictEqual(book.price, 3520);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -162,7 +164,8 @@ describe("bornDigitalAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://img07.shop-pro.jp/PA01427/945/product/167400957.png?cmsp_timestamp=20220328140327",
       );
     });
@@ -179,7 +182,7 @@ describe("bornDigitalAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "ボーンデジタル",
           url: "https://wgn-obs.shop-pro.jp/?pid=167400957",

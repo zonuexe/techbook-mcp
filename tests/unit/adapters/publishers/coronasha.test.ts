@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { coronashaAdapter } from "../../../../src/adapters/publishers/coronasha.js";
@@ -28,7 +29,7 @@ describe("coronashaAdapter", () => {
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
       // フィクスチャには電子版あり1件・電子版なし1件あり、電子版のみ返す
-      expect(results).toHaveLength(1);
+      assert.strictEqual(results.length, 1);
     });
 
     it("タイトルを tunogaki + book-title で組み立てる", async () => {
@@ -40,7 +41,7 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
-      expect(results[0].title).toBe("1から始める Juliaプログラミング大全");
+      assert.strictEqual(results[0].title, "1から始める Juliaプログラミング大全");
     });
 
     it("著者一覧を返す", async () => {
@@ -52,7 +53,7 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
-      expect(results[0].authors).toEqual(["進藤 裕之", "佐藤 建太"]);
+      assert.deepStrictEqual(results[0].authors, ["進藤 裕之", "佐藤 建太"]);
     });
 
     it("価格・ISBN・発行日を返す", async () => {
@@ -64,7 +65,7 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
-      expect(results[0]).toMatchObject({
+      assert.partialDeepStrictEqual(results[0], {
         price: 3630,
         isbn: "9784339029345",
         publishedAt: "2023-05-01",
@@ -80,7 +81,8 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://www.coronasha.co.jp/np/images/isbn/9784339029345_main.jpg",
       );
     });
@@ -94,7 +96,7 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({ title: "Julia" }, makeDeps(http));
 
-      expect(results[0].publisher).toBe("コロナ社");
+      assert.strictEqual(results[0].publisher, "コロナ社");
     });
 
     it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
@@ -102,8 +104,8 @@ describe("coronashaAdapter", () => {
 
       const results = await coronashaAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
   });
 
@@ -120,7 +122,7 @@ describe("coronashaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "1から始める Juliaプログラミング大全",
         publisher: "コロナ社",
         price: 3630,
@@ -141,7 +143,7 @@ describe("coronashaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["進藤 裕之", "佐藤 建太"]);
+      assert.deepStrictEqual(book.authors, ["進藤 裕之", "佐藤 建太"]);
     });
 
     it("ebookStores に Kindle・Kinoppy・VarsityWave eBooks が含まれる", async () => {
@@ -156,13 +158,16 @@ describe("coronashaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: "Kindle", drm: "drm" }),
-          expect.objectContaining({ name: "Kinoppy", drm: "drm" }),
-          expect.objectContaining({ name: "VarsityWave eBooks", drm: "drm" }),
-        ]),
-      );
+      for (const { name, drm } of [
+        { name: "Kindle", drm: "drm" },
+        { name: "Kinoppy", drm: "drm" },
+        { name: "VarsityWave eBooks", drm: "drm" },
+      ]) {
+        assert.ok(
+          book.ebookStores.some(s => s.name === name && s.drm === drm),
+          `Expected store: ${name} (${drm})`,
+        );
+      }
     });
 
     it("Knowledge Worker (kw.maruzen.co.jp) は ebookStores に含まれない", async () => {
@@ -178,7 +183,7 @@ describe("coronashaAdapter", () => {
       );
 
       const names = book.ebookStores.map(s => s.name);
-      expect(names).not.toContain("Knowledge Worker");
+      assert.ok(!names.includes("Knowledge Worker"));
     });
 
     it("coverImageUrl が絶対URLになる", async () => {
@@ -193,7 +198,8 @@ describe("coronashaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://www.coronasha.co.jp/np/images/isbn/9784339029345_main.jpg",
       );
     });

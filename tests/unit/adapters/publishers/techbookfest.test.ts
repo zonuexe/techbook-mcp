@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { techbookfestAdapter } from "../../../../src/adapters/publishers/techbookfest.js";
@@ -33,8 +34,8 @@ describe("techbookfestAdapter", () => {
 
       const results = await techbookfestAdapter.search({ title: "TypeScript", limit: 10 }, makeDeps(http));
 
-      expect(results).toHaveLength(3);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 3);
+      assert.partialDeepStrictEqual(results[0], {
         title: "TypeScriptで学ぶデザインパターン",
         authors: ["サークル名A"],
         publisher: "技術書典",
@@ -42,7 +43,7 @@ describe("techbookfestAdapter", () => {
         price: 1000,
         publishedAt: "2024-01-15",
       });
-      expect(results[0].coverImageUrl).toBe("https://techbookfest.org/api/image/01HXXXX1.png");
+      assert.strictEqual(results[0].coverImageUrl, "https://techbookfest.org/api/image/01HXXXX1.png");
     });
 
     it("ebookStores に技術書典(DRMフリー)が含まれる", async () => {
@@ -50,7 +51,7 @@ describe("techbookfestAdapter", () => {
 
       const results = await techbookfestAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         { name: "技術書典", url: "https://techbookfest.org/product/01HXXXX1", drm: "free" },
       ]);
     });
@@ -61,15 +62,15 @@ describe("techbookfestAdapter", () => {
       const results = await techbookfestAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
       const book = results.find(b => b.url === "https://techbookfest.org/product/01HXXXX2");
-      expect(book?.coverImageUrl).toBeUndefined();
+      assert.strictEqual(book?.coverImageUrl, undefined);
     });
 
     it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
       const http = new MockHttpClient();
       const results = await techbookfestAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("トップページ GET で XSRF-TOKEN を取得してから GraphQL に POST する", async () => {
@@ -77,8 +78,8 @@ describe("techbookfestAdapter", () => {
 
       await techbookfestAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toBe("https://techbookfest.org");
-      expect(http.calls[1]).toBe("https://techbookfest.org/api/graphql");
+      assert.strictEqual(http.calls[0], "https://techbookfest.org");
+      assert.strictEqual(http.calls[1], "https://techbookfest.org/api/graphql");
     });
 
     it("price が 0 の書籍も返す", async () => {
@@ -87,7 +88,7 @@ describe("techbookfestAdapter", () => {
       const results = await techbookfestAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
       const freeBook = results.find(b => b.url === "https://techbookfest.org/product/01HXXXX3");
-      expect(freeBook?.price).toBe(0);
+      assert.strictEqual(freeBook?.price, 0);
     });
   });
 });

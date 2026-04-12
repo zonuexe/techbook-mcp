@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { personalMediaAdapter } from "../../../../src/adapters/publishers/personal-media.js";
@@ -28,7 +29,7 @@ describe("personalMediaAdapter", () => {
       const results = await personalMediaAdapter.search({ title: "TRON" }, makeDeps(http));
 
       // フィクスチャには TRON 含む2件・含まない1件あり
-      expect(results).toHaveLength(2);
+      assert.strictEqual(results.length, 2);
     });
 
     it("書籍タイトルが正しく取得される", async () => {
@@ -40,7 +41,7 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({ title: "TRON" }, makeDeps(http));
 
-      expect(results[0].title).toBe("μITRON4.0標準ガイドブック(PDF版)");
+      assert.strictEqual(results[0].title, "μITRON4.0標準ガイドブック(PDF版)");
     });
 
     it("税込価格が取得される", async () => {
@@ -52,7 +53,7 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({ title: "TRON" }, makeDeps(http));
 
-      expect(results[0].price).toBe(2585);
+      assert.strictEqual(results[0].price, 2585);
     });
 
     it("url が書籍詳細ページの絶対URLになる", async () => {
@@ -64,7 +65,8 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({ title: "TRON" }, makeDeps(http));
 
-      expect(results[0].url).toBe(
+      assert.strictEqual(
+        results[0].url,
         "https://www.personal-media.co.jp/book/tron/191.html",
       );
     });
@@ -78,7 +80,7 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({ title: "TRON" }, makeDeps(http));
 
-      expect(results[0].publisher).toBe("パーソナルメディア");
+      assert.strictEqual(results[0].publisher, "パーソナルメディア");
     });
 
     it("title が空の場合は [] を返しHTTPを呼ばない", async () => {
@@ -86,8 +88,8 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("author のみ指定の場合も [] を返しHTTPを呼ばない", async () => {
@@ -95,8 +97,8 @@ describe("personalMediaAdapter", () => {
 
       const results = await personalMediaAdapter.search({ author: "坂村健" }, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
   });
 
@@ -113,7 +115,7 @@ describe("personalMediaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.title).toBe("μITRON4.0標準ガイドブック");
+      assert.strictEqual(book.title, "μITRON4.0標準ガイドブック");
     });
 
     it("著者名から役割語を除去して返す", async () => {
@@ -128,7 +130,7 @@ describe("personalMediaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["坂村　健", "社団法人トロン協会"]);
+      assert.deepStrictEqual(book.authors, ["坂村　健", "社団法人トロン協会"]);
     });
 
     it("価格・ISBN・発行日を返す", async () => {
@@ -143,7 +145,7 @@ describe("personalMediaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         price: 3520,
         isbn: "9784893621917",
         publishedAt: "2001-11-01",
@@ -162,7 +164,8 @@ describe("personalMediaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://www.personal-media.co.jp/book/tron/images/191_l.jpg",
       );
     });
@@ -179,7 +182,7 @@ describe("personalMediaAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "パーソナルメディア",
           url: "https://www.personal-media.co.jp/webshop/book/20191.html",

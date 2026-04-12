@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { saiensuAdapter } from "../../../../src/adapters/publishers/saiensu.js";
@@ -28,8 +29,8 @@ describe("saiensuAdapter", () => {
       const results = await saiensuAdapter.search({ title: "統計" }, makeDeps(http));
 
       // フィクスチャには電子1件・紙1件あり、電子のみ返す
-      expect(results).toHaveLength(1);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 1);
+      assert.partialDeepStrictEqual(results[0], {
         title: "統計リテラシーI【電子版】 ―記述統計から推測統計へ",
         authors: ["堀井俊佑"],
         publisher: "サイエンス社",
@@ -49,7 +50,8 @@ describe("saiensuAdapter", () => {
 
       const results = await saiensuAdapter.search({ title: "統計" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://www.saiensu.co.jp/bookThumbs/2026-978-4-7819-9049-1.jpg",
       );
     });
@@ -63,7 +65,7 @@ describe("saiensuAdapter", () => {
 
       const results = await saiensuAdapter.search({ title: "統計" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "サイエンス社",
           url: "https://www.saiensu.co.jp/search/?isbn=978-4-7819-9049-1&y=2026",
@@ -81,7 +83,7 @@ describe("saiensuAdapter", () => {
 
       const results = await saiensuAdapter.search({ title: "統計" }, makeDeps(http));
 
-      expect(results[0].authors).toEqual(["堀井俊佑"]);
+      assert.deepStrictEqual(results[0].authors, ["堀井俊佑"]);
     });
 
     it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
@@ -89,8 +91,8 @@ describe("saiensuAdapter", () => {
 
       const results = await saiensuAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに keyword が含まれる", async () => {
@@ -102,7 +104,7 @@ describe("saiensuAdapter", () => {
 
       await saiensuAdapter.search({ title: "意味論" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("keyword=%E6%84%8F%E5%91%B3%E8%AB%96");
+      assert.ok(http.calls[0].includes("keyword=%E6%84%8F%E5%91%B3%E8%AB%96"));
     });
   });
 
@@ -119,7 +121,7 @@ describe("saiensuAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "統計リテラシーI【電子版】 ―記述統計から推測統計へ",
         publisher: "サイエンス社",
         isbn: "9784781990491",
@@ -140,7 +142,7 @@ describe("saiensuAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["堀井俊佑"]);
+      assert.deepStrictEqual(book.authors, ["堀井俊佑"]);
     });
 
     it("ebookStores にサイエンス社(DRM付き)が含まれる", async () => {
@@ -155,7 +157,7 @@ describe("saiensuAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "サイエンス社",
           url: "https://www.saiensu.co.jp/search/?isbn=978-4-7819-9049-1&y=2026",

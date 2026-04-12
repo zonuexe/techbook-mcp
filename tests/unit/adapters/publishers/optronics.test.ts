@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { optronicsAdapter } from "../../../../src/adapters/publishers/optronics.js";
@@ -27,8 +28,8 @@ describe("optronicsAdapter", () => {
 
       const results = await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "感性計測&感覚センサ技術集成",
         url: "https://optronics-ebook.com/products/detail.php?product_id=235",
         price: 15000,
@@ -44,7 +45,7 @@ describe("optronicsAdapter", () => {
 
       const results = await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
-      expect(results[0].publisher).toBe("センシンディー株式会社");
+      assert.strictEqual(results[0].publisher, "センシンディー株式会社");
     });
 
     it("listcomment から著者を取得する", async () => {
@@ -57,7 +58,7 @@ describe("optronicsAdapter", () => {
       const results = await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
       // 2件目は著者フィールドあり
-      expect(results[1].authors).toEqual(["波多腰 玄一"]);
+      assert.deepStrictEqual(results[1].authors, ["波多腰 玄一"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -69,7 +70,8 @@ describe("optronicsAdapter", () => {
 
       const results = await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://optronics-ebook.com/upload/save_image/03031025_69a6388916874.jpg",
       );
     });
@@ -83,7 +85,7 @@ describe("optronicsAdapter", () => {
 
       const results = await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "オプトロニクス社",
           url: "https://optronics-ebook.com/products/detail.php?product_id=235",
@@ -97,8 +99,8 @@ describe("optronicsAdapter", () => {
 
       const results = await optronicsAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索URLに name と category_id=1 が含まれる", async () => {
@@ -110,8 +112,8 @@ describe("optronicsAdapter", () => {
 
       await optronicsAdapter.search({ title: "センシング" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("name=%E3%82%BB%E3%83%B3%E3%82%B7%E3%83%B3%E3%82%B0");
-      expect(http.calls[0]).toContain("category_id=1");
+      assert.ok(http.calls[0].includes("name=%E3%82%BB%E3%83%B3%E3%82%B7%E3%83%B3%E3%82%B0"));
+      assert.ok(http.calls[0].includes("category_id=1"));
     });
   });
 
@@ -128,7 +130,7 @@ describe("optronicsAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "光センシング技術の最前線",
         price: 20000,
       });
@@ -146,7 +148,7 @@ describe("optronicsAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["波多腰 玄一"]);
+      assert.deepStrictEqual(book.authors, ["波多腰 玄一"]);
     });
 
     it("main_comment から発行元を取得し ㈱ を除去する", async () => {
@@ -161,7 +163,7 @@ describe("optronicsAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.publisher).toBe("オプトロニクス社");
+      assert.strictEqual(book.publisher, "オプトロニクス社");
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -176,7 +178,8 @@ describe("optronicsAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://optronics-ebook.com/upload/save_image/11141121_636a1e0f7bd39.jpg",
       );
     });
@@ -193,7 +196,7 @@ describe("optronicsAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "オプトロニクス社",
           url: "https://optronics-ebook.com/products/detail.php?product_id=210",

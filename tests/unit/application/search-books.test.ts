@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, mock } from "node:test";
+import assert from "node:assert/strict";
 import { searchBooks } from "../../../src/application/search-books.js";
 import type { PublisherAdapter, PublisherDeps } from "../../../src/domain/publisher.js";
 import type { BookRecord } from "../../../src/domain/book.js";
@@ -29,8 +30,8 @@ function makeAdapter(id: string, books: BookRecord[]): PublisherAdapter {
     id,
     name: `${id} 出版社`,
     baseUrl: `https://${id}.example.com`,
-    search: vi.fn().mockResolvedValue(books),
-    getDetail: vi.fn(),
+    search: mock.fn(async () => books),
+    getDetail: mock.fn(),
   };
 }
 
@@ -42,10 +43,10 @@ describe("searchBooks()", () => {
 
     const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
 
-    expect(books).toHaveLength(2);
-    expect(books[0].title).toBe("本A");
-    expect(books[1].title).toBe("本B");
-    expect(errors).toHaveLength(0);
+    assert.strictEqual(books.length, 2);
+    assert.strictEqual(books[0].title, "本A");
+    assert.strictEqual(books[1].title, "本B");
+    assert.strictEqual(errors.length, 0);
   });
 
   it("publisherId が指定された場合は該当アダプターのみ呼ぶ", async () => {
@@ -56,9 +57,9 @@ describe("searchBooks()", () => {
 
     const { books } = await searchBooks({ title: "テスト", publisherId: "a" }, publishers, makeDeps());
 
-    expect(books).toHaveLength(1);
-    expect(adapterA.search).toHaveBeenCalledOnce();
-    expect(adapterB.search).not.toHaveBeenCalled();
+    assert.strictEqual(books.length, 1);
+    assert.strictEqual((adapterA.search as ReturnType<typeof mock.fn>).mock.callCount(), 1);
+    assert.strictEqual((adapterB.search as ReturnType<typeof mock.fn>).mock.callCount(), 0);
   });
 
   it("1つのアダプターが失敗しても他の結果は返す", async () => {
@@ -67,46 +68,46 @@ describe("searchBooks()", () => {
       id: "fail",
       name: "失敗社",
       baseUrl: "https://fail.example.com",
-      search: vi.fn().mockRejectedValue(new Error("network error")),
-      getDetail: vi.fn(),
+      search: mock.fn(() => Promise.reject(new Error("network error"))),
+      getDetail: mock.fn(),
     };
     const publishers = [failingAdapter, makeAdapter("ok", [book])];
 
     const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
 
-    expect(books).toHaveLength(1);
-    expect(books[0].title).toBe("成功");
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toEqual({ publisherId: "fail", message: "network error" });
+    assert.strictEqual(books.length, 1);
+    assert.strictEqual(books[0].title, "成功");
+    assert.strictEqual(errors.length, 1);
+    assert.deepStrictEqual(errors[0], { publisherId: "fail", message: "network error" });
   });
 
   it("全アダプターが失敗した場合は books が空で errors に全件入る", async () => {
     const publishers = [
-      { id: "a", name: "A社", baseUrl: "https://a.example.com", search: vi.fn().mockRejectedValue(new Error("err A")), getDetail: vi.fn() },
-      { id: "b", name: "B社", baseUrl: "https://b.example.com", search: vi.fn().mockRejectedValue(new Error("err B")), getDetail: vi.fn() },
+      { id: "a", name: "A社", baseUrl: "https://a.example.com", search: mock.fn(() => Promise.reject(new Error("err A"))), getDetail: mock.fn() },
+      { id: "b", name: "B社", baseUrl: "https://b.example.com", search: mock.fn(() => Promise.reject(new Error("err B"))), getDetail: mock.fn() },
     ];
 
     const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
 
-    expect(books).toHaveLength(0);
-    expect(errors).toHaveLength(2);
-    expect(errors.map(e => e.publisherId)).toEqual(["a", "b"]);
+    assert.strictEqual(books.length, 0);
+    assert.strictEqual(errors.length, 2);
+    assert.deepStrictEqual(errors.map(e => e.publisherId), ["a", "b"]);
   });
 
   it("Error 以外の例外も文字列化して errors に入れる", async () => {
     const publishers = [
-      { id: "x", name: "X社", baseUrl: "https://x.example.com", search: vi.fn().mockRejectedValue("string error"), getDetail: vi.fn() },
+      { id: "x", name: "X社", baseUrl: "https://x.example.com", search: mock.fn(() => Promise.reject("string error")), getDetail: mock.fn() },
     ];
 
     const { errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
 
-    expect(errors[0].message).toBe("string error");
+    assert.strictEqual(errors[0].message, "string error");
   });
 
   it("アダプターが0件のとき空配列を返す", async () => {
     const { books, errors } = await searchBooks({ title: "テスト" }, [], makeDeps());
-    expect(books).toEqual([]);
-    expect(errors).toEqual([]);
+    assert.deepStrictEqual(books, []);
+    assert.deepStrictEqual(errors, []);
   });
 
   it("クエリをそのまま各アダプターの search() に渡す", async () => {
@@ -115,6 +116,9 @@ describe("searchBooks()", () => {
 
     await searchBooks(query, [adapter], makeDeps());
 
-    expect(adapter.search).toHaveBeenCalledWith(query, expect.anything());
+    assert.deepStrictEqual(
+      (adapter.search as ReturnType<typeof mock.fn>).mock.calls[0].arguments[0],
+      query,
+    );
   });
 });

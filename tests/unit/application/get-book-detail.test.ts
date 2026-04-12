@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, mock } from "node:test";
+import assert from "node:assert/strict";
 import { getBookDetail } from "../../../src/application/get-book-detail.js";
 import type { PublisherAdapter, PublisherDeps } from "../../../src/domain/publisher.js";
 import type { BookRecord } from "../../../src/domain/book.js";
@@ -29,8 +30,8 @@ function makeAdapter(baseUrl: string, book: BookRecord): PublisherAdapter {
     id: "test",
     name: "テスト社",
     baseUrl,
-    search: vi.fn(),
-    getDetail: vi.fn().mockResolvedValue(book),
+    search: mock.fn(),
+    getDetail: mock.fn(async () => book),
   };
 }
 
@@ -42,8 +43,11 @@ describe("getBookDetail()", () => {
 
     const result = await getBookDetail(url, [adapter], makeDeps());
 
-    expect(result).toEqual(book);
-    expect(adapter.getDetail).toHaveBeenCalledWith(url, expect.anything());
+    assert.deepStrictEqual(result, book);
+    assert.strictEqual(
+      (adapter.getDetail as ReturnType<typeof mock.fn>).mock.calls[0].arguments[0],
+      url,
+    );
   });
 
   it("baseUrl が前方一致するアダプターを選択する", async () => {
@@ -54,29 +58,32 @@ describe("getBookDetail()", () => {
 
     const result = await getBookDetail("https://b.example.com/book/1", [adapterA, adapterB], makeDeps());
 
-    expect(result.title).toBe("B社の本");
-    expect(adapterA.getDetail).not.toHaveBeenCalled();
+    assert.strictEqual(result.title, "B社の本");
+    assert.strictEqual((adapterA.getDetail as ReturnType<typeof mock.fn>).mock.callCount(), 0);
   });
 
   it("対応するアダプターがなければエラーをスローする", async () => {
     const adapter = makeAdapter("https://other.example.com", makeBook());
 
-    await expect(
+    await assert.rejects(
       getBookDetail("https://unknown.example.com/book/1", [adapter], makeDeps()),
-    ).rejects.toThrow("このURLに対応する出版社アダプターがありません");
+      /このURLに対応する出版社アダプターがありません/,
+    );
   });
 
   it("エラーメッセージに対応URLリストを含む", async () => {
     const adapter = makeAdapter("https://example.com", makeBook());
 
-    await expect(
+    await assert.rejects(
       getBookDetail("https://unknown.example.com/book/1", [adapter], makeDeps()),
-    ).rejects.toThrow("https://example.com");
+      /https:\/\/example\.com/,
+    );
   });
 
   it("アダプターが空のときエラーをスローする", async () => {
-    await expect(
+    await assert.rejects(
       getBookDetail("https://example.com/book/1", [], makeDeps()),
-    ).rejects.toThrow("このURLに対応する出版社アダプターがありません");
+      /このURLに対応する出版社アダプターがありません/,
+    );
   });
 });

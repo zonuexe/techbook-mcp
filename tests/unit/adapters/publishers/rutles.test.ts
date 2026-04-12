@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { rutlesAdapter } from "../../../../src/adapters/publishers/rutles.js";
@@ -28,8 +29,8 @@ describe("rutlesAdapter", () => {
       const results = await rutlesAdapter.search({ title: "C言語" }, makeDeps(http));
 
       // フィクスチャには電子2件・紙1件、電子のみ返す
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "【電子版】C言語3Dゲームプログラミング教室",
         publisher: "ラトルズ",
         url: "https://shop.rutles.net/?pid=173173393",
@@ -46,7 +47,8 @@ describe("rutlesAdapter", () => {
 
       const results = await rutlesAdapter.search({ title: "C言語" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://img21.shop-pro.jp/PA01496/800/product/173173393_th.jpg",
       );
     });
@@ -60,7 +62,7 @@ describe("rutlesAdapter", () => {
 
       const results = await rutlesAdapter.search({ title: "C言語" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "ラトルズ",
           url: "https://shop.rutles.net/?pid=173173393",
@@ -74,8 +76,8 @@ describe("rutlesAdapter", () => {
 
       const results = await rutlesAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索URLに EUC-JP エンコードされたキーワードが含まれる", async () => {
@@ -88,7 +90,7 @@ describe("rutlesAdapter", () => {
       await rutlesAdapter.search({ title: "言語" }, makeDeps(http));
 
       // "言語" の EUC-JP エンコード = %B8%C0%B8%EC
-      expect(http.calls[0]).toContain("%B8%C0%B8%EC");
+      assert.ok(http.calls[0].includes("%B8%C0%B8%EC"));
     });
   });
 
@@ -105,7 +107,7 @@ describe("rutlesAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "【電子版】C言語3Dゲームプログラミング教室",
         publisher: "ラトルズ",
         isbn: "9784899774211",
@@ -126,7 +128,7 @@ describe("rutlesAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["大槻有一郎", "山田巧"]);
+      assert.deepStrictEqual(book.authors, ["大槻有一郎", "山田巧"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -141,7 +143,8 @@ describe("rutlesAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://img21.shop-pro.jp/PA01496/800/product/173173393.jpg",
       );
     });
@@ -158,7 +161,7 @@ describe("rutlesAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "ラトルズ",
           url: "https://shop.rutles.net/?pid=173173393",

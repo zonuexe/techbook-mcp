@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { lambdanoteAdapter } from "../../../../src/adapters/publishers/lambdanote.js";
@@ -22,14 +23,14 @@ describe("lambdanoteAdapter", () => {
 
     const results = await lambdanoteAdapter.search({ title: "Go" }, makeDeps(http));
 
-    expect(results).toHaveLength(2);
-    expect(results[0]).toMatchObject({
+    assert.strictEqual(results.length, 2);
+    assert.partialDeepStrictEqual(results[0], {
       title: "Goならわかるシステムプログラミング 第2版",
       publisher: "ラムダノート",
       price: 3960,
     });
-    expect(results[0].url).toBe("https://www.lambdanote.com/products/go-2");
-    expect(results[0].coverImageUrl).toContain("go2_small.jpg");
+    assert.strictEqual(results[0].url, "https://www.lambdanote.com/products/go-2");
+    assert.ok(results[0].coverImageUrl?.includes("go2_small.jpg"));
   });
 
   it("2件目の書籍も正しく取得できる", async () => {
@@ -41,11 +42,11 @@ describe("lambdanoteAdapter", () => {
 
     const results = await lambdanoteAdapter.search({ title: "Go" }, makeDeps(http));
 
-    expect(results[1]).toMatchObject({
+    assert.partialDeepStrictEqual(results[1], {
       title: "プログラミング言語Go",
       price: 4400,
     });
-    expect(results[1].url).toBe("https://www.lambdanote.com/products/gopl");
+    assert.strictEqual(results[1].url, "https://www.lambdanote.com/products/gopl");
   });
 
   it("limit を適用する", async () => {
@@ -57,7 +58,7 @@ describe("lambdanoteAdapter", () => {
 
     const results = await lambdanoteAdapter.search({ title: "Go", limit: 1 }, makeDeps(http));
 
-    expect(results).toHaveLength(1);
+    assert.strictEqual(results.length, 1);
   });
 
   it("結果ゼロの場合は [] を返す", async () => {
@@ -71,14 +72,14 @@ describe("lambdanoteAdapter", () => {
 
     const results = await lambdanoteAdapter.search({ title: "存在しない本" }, makeDeps(http));
 
-    expect(results).toEqual([]);
+    assert.deepStrictEqual(results, []);
   });
 
   it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
     const http = new MockHttpClient();
     const results = await lambdanoteAdapter.search({}, makeDeps(http));
 
-    expect(results).toEqual([]);
-    expect(http.calls).toHaveLength(0);
+    assert.deepStrictEqual(results, []);
+    assert.strictEqual(http.calls.length, 0);
   });
 });

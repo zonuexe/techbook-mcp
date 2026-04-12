@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { impressBooksAdapter } from "../../../../src/adapters/publishers/impress.js";
@@ -23,15 +24,15 @@ describe("impressBooksAdapter", () => {
     it("検索APIがないため常に [] を返しHTTPを呼ばない", async () => {
       const http = new MockHttpClient();
       const results = await impressBooksAdapter.search({ title: "Python" }, makeDeps(http));
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("クエリが空でも [] を返しHTTPを呼ばない", async () => {
       const http = new MockHttpClient();
       const results = await impressBooksAdapter.search({}, makeDeps(http));
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
   });
 
@@ -42,7 +43,8 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book.title).toBe(
+      assert.strictEqual(
+        book.title,
         "いちばんやさしい　先生が校務に使えるGoogle NotebookLMの教本　人気講師が教える学校業務を効率化するAI活用法",
       );
     });
@@ -53,7 +55,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book.authors).toEqual(["山本康太"]);
+      assert.deepStrictEqual(book.authors, ["山本康太"]);
     });
 
     it("ISBN・発売日・価格を返す", async () => {
@@ -62,7 +64,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         isbn: "9784295023654",
         publishedAt: "2026-01-22",
         price: 1980,
@@ -75,7 +77,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book.publisher).toBe("インプレスブックス");
+      assert.strictEqual(book.publisher, "インプレスブックス");
     });
 
     it("ebookStores に インプレスブックス (social) が含まれる", async () => {
@@ -84,7 +86,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         { name: "インプレスブックス", url: DETAIL_SOCIAL_URL, drm: "social" },
       ]);
     });
@@ -95,7 +97,8 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_SOCIAL_URL, makeDeps(http));
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://img.ips.co.jp/ij/25/1125101113/1125101113-520x.jpg",
       );
     });
@@ -108,7 +111,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_EPUB_URL, makeDeps(http));
 
-      expect(book.authors).toEqual(["廣瀬 豪"]);
+      assert.deepStrictEqual(book.authors, ["廣瀬 豪"]);
     });
 
     it("DRM情報が明示されない EPUB 書籍は social として返す", async () => {
@@ -117,7 +120,7 @@ describe("impressBooksAdapter", () => {
 
       const book = await impressBooksAdapter.getDetail(DETAIL_EPUB_URL, makeDeps(http));
 
-      expect(book.ebookStores[0]).toMatchObject({
+      assert.partialDeepStrictEqual(book.ebookStores[0], {
         name: "インプレスブックス",
         drm: "social",
       });

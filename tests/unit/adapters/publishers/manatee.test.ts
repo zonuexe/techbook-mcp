@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { manateeAdapter } from "../../../../src/adapters/publishers/manatee.js";
@@ -27,8 +28,8 @@ describe("manateeAdapter", () => {
 
       const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results).toHaveLength(3);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 3);
+      assert.partialDeepStrictEqual(results[0], {
         title: "現場で使えるTypeScript 詳解実践ガイド",
         publisher: "マナティ",
         url: "https://book.mynavi.jp/manatee/books/detail/id=142711",
@@ -45,7 +46,7 @@ describe("manateeAdapter", () => {
 
       const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "マナティ",
           url: "https://book.mynavi.jp/manatee/books/detail/id=142711",
@@ -63,7 +64,8 @@ describe("manateeAdapter", () => {
 
       const results = await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://book.mynavi.jp/files/topics/142711_ext_06_0.jpg",
       );
     });
@@ -77,7 +79,7 @@ describe("manateeAdapter", () => {
 
       const results = await manateeAdapter.search({ title: "TypeScript", limit: 2 }, makeDeps(http));
 
-      expect(results).toHaveLength(2);
+      assert.strictEqual(results.length, 2);
     });
 
     it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
@@ -85,8 +87,8 @@ describe("manateeAdapter", () => {
 
       const results = await manateeAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに topics_keyword が含まれる", async () => {
@@ -98,7 +100,7 @@ describe("manateeAdapter", () => {
 
       await manateeAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("topics_keyword=TypeScript");
+      assert.ok(http.calls[0].includes("topics_keyword=TypeScript"));
     });
   });
 
@@ -115,7 +117,7 @@ describe("manateeAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "現場で使えるTypeScript 詳解実践ガイド",
         publisher: "マイナビ出版",
         isbn: "9784839984274",
@@ -136,7 +138,7 @@ describe("manateeAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["菅原浩之", "CodeMafia", "外村将大"]);
+      assert.deepStrictEqual(book.authors, ["菅原浩之", "CodeMafia", "外村将大"]);
     });
 
     it("ebookStores にマナティ(ソーシャルDRM)が含まれる", async () => {
@@ -151,7 +153,7 @@ describe("manateeAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "マナティ",
           url: "https://book.mynavi.jp/manatee/books/detail/id=142711",

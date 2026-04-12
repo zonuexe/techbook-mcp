@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { peaksAdapter } from "../../../../src/adapters/publishers/peaks.js";
@@ -27,8 +28,8 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({ title: "Android" }, makeDeps(http));
 
-      expect(results).toHaveLength(1);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 1);
+      assert.partialDeepStrictEqual(results[0], {
         title: "チームで育てるAndroidアプリ設計",
         publisher: "PEAKS",
         url: "https://peaks.cc/books/architecture_with_team",
@@ -44,7 +45,8 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({ title: "Android" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://peaks-img.s3-ap-northeast-1.amazonaws.com/architecture_with_team_book_cover_alpha.png",
       );
     });
@@ -58,7 +60,7 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({ title: "Android" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "PEAKS",
           url: "https://peaks.cc/books/architecture_with_team",
@@ -72,8 +74,8 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("author のみの検索は [] を返しHTTPを呼ばない", async () => {
@@ -81,8 +83,8 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({ author: "伊藤" }, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("マッチしないキーワードは空配列を返す", async () => {
@@ -94,7 +96,7 @@ describe("peaksAdapter", () => {
 
       const results = await peaksAdapter.search({ title: "Python" }, makeDeps(http));
 
-      expect(results).toEqual([]);
+      assert.deepStrictEqual(results, []);
     });
   });
 
@@ -111,7 +113,7 @@ describe("peaksAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "Jestではじめるテスト入門",
         publisher: "PEAKS",
         price: 2900,
@@ -130,7 +132,7 @@ describe("peaksAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["伊藤 貴之", "椎葉 光行"]);
+      assert.deepStrictEqual(book.authors, ["伊藤 貴之", "椎葉 光行"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -145,7 +147,8 @@ describe("peaksAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://peaks-img.s3-ap-northeast-1.amazonaws.com/testing_with_jest_twittercard.png",
       );
     });
@@ -162,7 +165,7 @@ describe("peaksAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "PEAKS",
           url: "https://peaks.cc/books/testing_with_jest",

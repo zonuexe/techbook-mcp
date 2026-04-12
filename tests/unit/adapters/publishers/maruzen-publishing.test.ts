@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { maruzenPublishingAdapter } from "../../../../src/adapters/publishers/maruzen-publishing.js";
@@ -27,8 +28,8 @@ describe("maruzenPublishingAdapter", () => {
 
       const results = await maruzenPublishingAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results.length).toBeGreaterThanOrEqual(1);
-      expect(results[0]).toMatchObject({
+      assert.ok(results.length >= 1);
+      assert.partialDeepStrictEqual(results[0], {
         title: "プログラミングTypeScript",
         publisher: "丸善出版",
         url: "https://www.maruzen-publishing.co.jp/book/b10152370.html",
@@ -44,7 +45,7 @@ describe("maruzenPublishingAdapter", () => {
 
       const results = await maruzenPublishingAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].authors).toEqual(["ボリス・チェルニー", "折山文哉"]);
+      assert.deepStrictEqual(results[0].authors, ["ボリス・チェルニー", "折山文哉"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -56,7 +57,8 @@ describe("maruzenPublishingAdapter", () => {
 
       const results = await maruzenPublishingAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://www.maruzen-publishing.co.jp/files/isbn/978-4-621-30855-1.jpg",
       );
     });
@@ -66,8 +68,8 @@ describe("maruzenPublishingAdapter", () => {
 
       const results = await maruzenPublishingAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに search_keyword が含まれる", async () => {
@@ -79,7 +81,7 @@ describe("maruzenPublishingAdapter", () => {
 
       await maruzenPublishingAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("search_keyword=TypeScript");
+      assert.ok(http.calls[0].includes("search_keyword=TypeScript"));
     });
 
     it("検索リクエストに format=1 が含まれる", async () => {
@@ -91,7 +93,7 @@ describe("maruzenPublishingAdapter", () => {
 
       await maruzenPublishingAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("format=1");
+      assert.ok(http.calls[0].includes("format=1"));
     });
 
     it("3件取得できる", async () => {
@@ -103,7 +105,7 @@ describe("maruzenPublishingAdapter", () => {
 
       const results = await maruzenPublishingAdapter.search({ title: "プログラム" }, makeDeps(http));
 
-      expect(results).toHaveLength(3);
+      assert.strictEqual(results.length, 3);
     });
 
     it("監訳者の役割語も除去する", async () => {
@@ -116,7 +118,7 @@ describe("maruzenPublishingAdapter", () => {
       const results = await maruzenPublishingAdapter.search({ title: "統計" }, makeDeps(http));
       const statsBook = results.find(r => r.title.includes("統計"));
 
-      expect(statsBook?.authors).toEqual(["ピーター・ブルース", "アンドリュー・ブルース", "大橋真也"]);
+      assert.deepStrictEqual(statsBook?.authors, ["ピーター・ブルース", "アンドリュー・ブルース", "大橋真也"]);
     });
   });
 
@@ -133,7 +135,7 @@ describe("maruzenPublishingAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "プログラミングTypeScript",
         publisher: "丸善出版",
         publishedAt: "2020-03-31",
@@ -152,7 +154,7 @@ describe("maruzenPublishingAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["ボリス・チェルニー", "折山文哉"]);
+      assert.deepStrictEqual(book.authors, ["ボリス・チェルニー", "折山文哉"]);
     });
 
     it("ebookStores に Kindle と Kinoppy と honto が含まれ Knowledge Worker は除外される", async () => {
@@ -168,10 +170,10 @@ describe("maruzenPublishingAdapter", () => {
       );
 
       const storeNames = book.ebookStores?.map(s => s.name) ?? [];
-      expect(storeNames).toContain("Kindle");
-      expect(storeNames).toContain("Kinoppy");
-      expect(storeNames).toContain("honto");
-      expect(storeNames).not.toContain("Knowledge Worker");
+      assert.ok(storeNames.includes("Kindle"));
+      assert.ok(storeNames.includes("Kinoppy"));
+      assert.ok(storeNames.includes("honto"));
+      assert.ok(!storeNames.includes("Knowledge Worker"));
     });
   });
 });

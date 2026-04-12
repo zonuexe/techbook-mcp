@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tatsuZineAdapter } from "../../../../src/adapters/publishers/tatsu-zine.js";
@@ -27,13 +28,13 @@ describe("tatsuZineAdapter", () => {
 
       const results = await tatsuZineAdapter.search({ title: "Go" }, makeDeps(http));
 
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "Goプログラミング実践入門",
         authors: ["Sau Sheong Chang", "武舎 広幸"],
         publisher: "達人出版会",
       });
-      expect(results[0].url).toBe("https://tatsu-zine.com/books/go-programming");
+      assert.strictEqual(results[0].url, "https://tatsu-zine.com/books/go-programming");
     });
 
     it("ebookStores に達人出版会(ソーシャルDRM)が含まれる", async () => {
@@ -45,7 +46,7 @@ describe("tatsuZineAdapter", () => {
 
       const results = await tatsuZineAdapter.search({ title: "Go" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "social" },
       ]);
     });
@@ -59,15 +60,15 @@ describe("tatsuZineAdapter", () => {
 
       const results = await tatsuZineAdapter.search({ title: "Go", limit: 1 }, makeDeps(http));
 
-      expect(results).toHaveLength(1);
+      assert.strictEqual(results.length, 1);
     });
 
     it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
       const http = new MockHttpClient();
       const results = await tatsuZineAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに search パラメータが含まれる", async () => {
@@ -79,7 +80,7 @@ describe("tatsuZineAdapter", () => {
 
       await tatsuZineAdapter.search({ title: "Go言語" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("search=Go%E8%A8%80%E8%AA%9E");
+      assert.ok(http.calls[0].includes("search=Go%E8%A8%80%E8%AA%9E"));
     });
   });
 
@@ -96,14 +97,14 @@ describe("tatsuZineAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "Goプログラミング実践入門",
         authors: ["Sau Sheong Chang", "武舎 広幸"],
         publisher: "インプレス",
         price: 3520,
       });
       // 達人出版会は「ソーシャルDRM」と明記がなくても全書籍で購入者情報を印字
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         { name: "達人出版会", url: "https://tatsu-zine.com/books/go-programming", drm: "social" },
       ]);
     });
@@ -124,7 +125,7 @@ describe("tatsuZineAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.publisher).toBe("達人出版会");
+      assert.strictEqual(book.publisher, "達人出版会");
     });
   });
 });

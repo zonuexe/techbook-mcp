@@ -13,8 +13,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "oxlint --config .oxlintrc.json src/",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "node --import tsx/esm --test 'tests/**/*.test.ts'",
+    "test:watch": "node --import tsx/esm --test --watch 'tests/**/*.test.ts'"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.0",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "oxlint": "^1.59.0",
-    "typescript": "^5.8.0",
-    "vitest": "^3.0.0"
+    "tsx": "^4.0.0",
+    "typescript": "^5.8.0"
   }
 }

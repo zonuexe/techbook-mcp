@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import {
   parseJapanesePrice,
   stripHtmlTags,
@@ -26,17 +27,17 @@ function makeDeps(http: MockHttpClient, cache = new NullCacheStore()) {
 
 describe("encodeEucJp()", () => {
   it("ASCII文字はそのままパーセントエンコードする", () => {
-    expect(encodeEucJp("abc")).toMatch(/^(%[0-9A-F]{2})+$/);
+    assert.match(encodeEucJp("abc"), /^(%[0-9A-F]{2})+$/);
   });
 
   it("日本語をEUC-JPでエンコードする", () => {
     const result = encodeEucJp("TypeScript");
     // EUC-JPでエンコードされた結果は%XX形式
-    expect(result).toMatch(/^(%[0-9A-F]{2})+$/);
+    assert.match(result, /^(%[0-9A-F]{2})+$/);
   });
 
   it("空文字列は空文字列を返す", () => {
-    expect(encodeEucJp("")).toBe("");
+    assert.strictEqual(encodeEucJp(""), "");
   });
 });
 
@@ -44,19 +45,19 @@ describe("encodeEucJp()", () => {
 
 describe("parseJapaneseDateToISO()", () => {
   it("YYYY年M月D日 を YYYY-MM-DD に変換する", () => {
-    expect(parseJapaneseDateToISO("2026年3月25日")).toBe("2026-03-25");
+    assert.strictEqual(parseJapaneseDateToISO("2026年3月25日"), "2026-03-25");
   });
 
   it("1桁の月・日もゼロパディングする", () => {
-    expect(parseJapaneseDateToISO("2024年1月5日")).toBe("2024-01-05");
+    assert.strictEqual(parseJapaneseDateToISO("2024年1月5日"), "2024-01-05");
   });
 
   it("日付パターンがなければ undefined を返す", () => {
-    expect(parseJapaneseDateToISO("発行：サイエンス社")).toBeUndefined();
+    assert.strictEqual(parseJapaneseDateToISO("発行：サイエンス社"), undefined);
   });
 
   it("テキスト中に埋め込まれていても抽出できる", () => {
-    expect(parseJapaneseDateToISO("発行日：2026年3月25日")).toBe("2026-03-25");
+    assert.strictEqual(parseJapaneseDateToISO("発行日：2026年3月25日"), "2026-03-25");
   });
 });
 
@@ -64,27 +65,27 @@ describe("parseJapaneseDateToISO()", () => {
 
 describe("stripAuthorRole()", () => {
   it("末尾の「著」を除去する", () => {
-    expect(stripAuthorRole("Dan Vanderkam　著")).toBe("Dan Vanderkam");
+    assert.strictEqual(stripAuthorRole("Dan Vanderkam　著"), "Dan Vanderkam");
   });
 
   it("末尾の「訳」を除去する", () => {
-    expect(stripAuthorRole("今村 謙士　訳")).toBe("今村 謙士");
+    assert.strictEqual(stripAuthorRole("今村 謙士　訳"), "今村 謙士");
   });
 
   it("末尾の「監修」を除去する", () => {
-    expect(stripAuthorRole("堀井俊佑 監修")).toBe("堀井俊佑");
+    assert.strictEqual(stripAuthorRole("堀井俊佑 監修"), "堀井俊佑");
   });
 
   it("末尾の「著訳」を除去する", () => {
-    expect(stripAuthorRole("島田浩二　著訳")).toBe("島田浩二");
+    assert.strictEqual(stripAuthorRole("島田浩二　著訳"), "島田浩二");
   });
 
   it("役割語がなければそのまま返す", () => {
-    expect(stripAuthorRole("山田太郎")).toBe("山田太郎");
+    assert.strictEqual(stripAuthorRole("山田太郎"), "山田太郎");
   });
 
   it("前後の空白・全角スペースをトリムする", () => {
-    expect(stripAuthorRole("  著者名  ")).toBe("著者名");
+    assert.strictEqual(stripAuthorRole("  著者名  "), "著者名");
   });
 });
 
@@ -92,19 +93,19 @@ describe("stripAuthorRole()", () => {
 
 describe("parseJapanesePrice()", () => {
   it("カンマ区切りの円表記をパースする", () => {
-    expect(parseJapanesePrice("3,960円（税込）")).toBe(3960);
+    assert.strictEqual(parseJapanesePrice("3,960円（税込）"), 3960);
   });
 
   it("¥記号付きをパースする", () => {
-    expect(parseJapanesePrice("¥3,960")).toBe(3960);
+    assert.strictEqual(parseJapanesePrice("¥3,960"), 3960);
   });
 
   it("カンマなし整数をパースする", () => {
-    expect(parseJapanesePrice("1980円")).toBe(1980);
+    assert.strictEqual(parseJapanesePrice("1980円"), 1980);
   });
 
   it("数字がなければ undefined を返す", () => {
-    expect(parseJapanesePrice("価格未定")).toBeUndefined();
+    assert.strictEqual(parseJapanesePrice("価格未定"), undefined);
   });
 });
 
@@ -112,20 +113,20 @@ describe("parseJapanesePrice()", () => {
 
 describe("stripHtmlTags()", () => {
   it("HTMLタグを除去してテキストを返す", () => {
-    expect(stripHtmlTags("<b>太字</b>テキスト")).toBe("太字テキスト");
+    assert.strictEqual(stripHtmlTags("<b>太字</b>テキスト"), "太字テキスト");
   });
 
   it("ruby タグを除去する（rt の中身は残る）", () => {
     // タグを除去するだけなので <rt> 内のテキストは残る
-    expect(stripHtmlTags("<ruby>著者<rt>ちょしゃ</rt></ruby>名")).toBe("著者ちょしゃ名");
+    assert.strictEqual(stripHtmlTags("<ruby>著者<rt>ちょしゃ</rt></ruby>名"), "著者ちょしゃ名");
   });
 
   it("タグがなければそのまま返す", () => {
-    expect(stripHtmlTags("プレーンテキスト")).toBe("プレーンテキスト");
+    assert.strictEqual(stripHtmlTags("プレーンテキスト"), "プレーンテキスト");
   });
 
   it("空文字列はそのまま", () => {
-    expect(stripHtmlTags("")).toBe("");
+    assert.strictEqual(stripHtmlTags(""), "");
   });
 });
 
@@ -133,18 +134,24 @@ describe("stripHtmlTags()", () => {
 
 describe("resolveUrl()", () => {
   it("相対パスを絶対URLに変換する", () => {
-    expect(resolveUrl("https://example.com/books/", "../detail/1"))
-      .toBe("https://example.com/detail/1");
+    assert.strictEqual(
+      resolveUrl("https://example.com/books/", "../detail/1"),
+      "https://example.com/detail/1",
+    );
   });
 
   it("絶対URLはそのまま返す", () => {
-    expect(resolveUrl("https://example.com/", "https://other.com/page"))
-      .toBe("https://other.com/page");
+    assert.strictEqual(
+      resolveUrl("https://example.com/", "https://other.com/page"),
+      "https://other.com/page",
+    );
   });
 
   it("ルート相対パスを解決する", () => {
-    expect(resolveUrl("https://example.com/books/123", "/about"))
-      .toBe("https://example.com/about");
+    assert.strictEqual(
+      resolveUrl("https://example.com/books/123", "/about"),
+      "https://example.com/about",
+    );
   });
 });
 
@@ -152,21 +159,25 @@ describe("resolveUrl()", () => {
 
 describe("extractAsin()", () => {
   it("/dp/ 形式から ASIN を抽出する", () => {
-    expect(extractAsin("https://www.amazon.co.jp/dp/4873119464"))
-      .toBe("4873119464");
+    assert.strictEqual(
+      extractAsin("https://www.amazon.co.jp/dp/4873119464"),
+      "4873119464",
+    );
   });
 
   it("/gp/product/ 形式から ASIN を抽出する", () => {
-    expect(extractAsin("https://www.amazon.co.jp/gp/product/4873119464"))
-      .toBe("4873119464");
+    assert.strictEqual(
+      extractAsin("https://www.amazon.co.jp/gp/product/4873119464"),
+      "4873119464",
+    );
   });
 
   it("Amazon URL でなければ undefined を返す", () => {
-    expect(extractAsin("https://example.com/books/123")).toBeUndefined();
+    assert.strictEqual(extractAsin("https://example.com/books/123"), undefined);
   });
 
   it("ASIN を含まなければ undefined を返す", () => {
-    expect(extractAsin("https://www.amazon.co.jp/")).toBeUndefined();
+    assert.strictEqual(extractAsin("https://www.amazon.co.jp/"), undefined);
   });
 });
 
@@ -175,31 +186,31 @@ describe("extractAsin()", () => {
 describe("classifyEbookStore()", () => {
   it("技術書典URLは free を返す", () => {
     const store = classifyEbookStore("https://techbookfest.org/product/abc123");
-    expect(store).toMatchObject({ name: "技術書典", drm: "free" });
+    assert.partialDeepStrictEqual(store, { name: "技術書典", drm: "free" });
   });
 
   it("Kindle URLは drm を返す", () => {
     const store = classifyEbookStore("https://www.amazon.co.jp/dp/B0XXXXX");
-    expect(store).toMatchObject({ name: "Kindle", drm: "drm" });
+    assert.partialDeepStrictEqual(store, { name: "Kindle", drm: "drm" });
   });
 
   it("サイエンス社は password_pdf を返す", () => {
     const store = classifyEbookStore("https://www.saiensu.co.jp/search/?isbn=978-4-7819-1234-5&y=2024#book");
-    expect(store).toMatchObject({ name: "サイエンス社", drm: "password_pdf" });
+    assert.partialDeepStrictEqual(store, { name: "サイエンス社", drm: "password_pdf" });
   });
 
   it("SEshop URLは social を返す", () => {
     const store = classifyEbookStore("https://www.seshop.com/product/detail/12345");
-    expect(store).toMatchObject({ name: "SEshop", drm: "social" });
+    assert.partialDeepStrictEqual(store, { name: "SEshop", drm: "social" });
   });
 
   it("未知のURLは null を返す", () => {
-    expect(classifyEbookStore("https://unknown-store.example.com/book/1")).toBeNull();
+    assert.strictEqual(classifyEbookStore("https://unknown-store.example.com/book/1"), null);
   });
 
   it("URLを store.url に格納する", () => {
     const url = "https://techbookfest.org/product/abc123";
-    expect(classifyEbookStore(url)?.url).toBe(url);
+    assert.strictEqual(classifyEbookStore(url)?.url, url);
   });
 });
 
@@ -215,9 +226,9 @@ describe("extractEbookStoresFromDoc()", () => {
     </body></html>`;
     const doc = parser.parse(html);
     const stores = extractEbookStoresFromDoc(doc);
-    expect(stores).toHaveLength(2);
-    expect(stores[0]).toMatchObject({ name: "技術書典", drm: "free" });
-    expect(stores[1]).toMatchObject({ name: "Kindle", drm: "drm" });
+    assert.strictEqual(stores.length, 2);
+    assert.partialDeepStrictEqual(stores[0], { name: "技術書典", drm: "free" });
+    assert.partialDeepStrictEqual(stores[1], { name: "Kindle", drm: "drm" });
   });
 
   it("同一ストアのURLが複数あれば最初の1件のみ返す", () => {
@@ -227,20 +238,20 @@ describe("extractEbookStoresFromDoc()", () => {
     </body></html>`;
     const doc = parser.parse(html);
     const stores = extractEbookStoresFromDoc(doc);
-    expect(stores).toHaveLength(1);
-    expect(stores[0].url).toBe("https://www.amazon.co.jp/dp/B0AAAAA");
+    assert.strictEqual(stores.length, 1);
+    assert.strictEqual(stores[0].url, "https://www.amazon.co.jp/dp/B0AAAAA");
   });
 
   it("既知ストアへのリンクがなければ空配列を返す", () => {
     const html = `<html><body><a href="https://example.com/">不明</a></body></html>`;
     const doc = parser.parse(html);
-    expect(extractEbookStoresFromDoc(doc)).toEqual([]);
+    assert.deepStrictEqual(extractEbookStoresFromDoc(doc), []);
   });
 
   it("href を持たない a 要素は無視する", () => {
     const html = `<html><body><a>リンクなし</a></body></html>`;
     const doc = parser.parse(html);
-    expect(extractEbookStoresFromDoc(doc)).toEqual([]);
+    assert.deepStrictEqual(extractEbookStoresFromDoc(doc), []);
   });
 });
 
@@ -253,7 +264,7 @@ describe("fetchText()", () => {
       { status: 200, body: "<html>hello</html>" },
     );
     const result = await fetchText("https://example.com/page", makeDeps(http));
-    expect(result).toBe("<html>hello</html>");
+    assert.strictEqual(result, "<html>hello</html>");
   });
 
   it("200以外はエラーをスローする", async () => {
@@ -261,8 +272,10 @@ describe("fetchText()", () => {
       "https://example.com/page",
       { status: 404, body: "Not Found" },
     );
-    await expect(fetchText("https://example.com/page", makeDeps(http)))
-      .rejects.toThrow("HTTP 404");
+    await assert.rejects(
+      fetchText("https://example.com/page", makeDeps(http)),
+      /HTTP 404/,
+    );
   });
 
   it("キャッシュヒット時はHTTPを呼ばない", async () => {
@@ -272,8 +285,8 @@ describe("fetchText()", () => {
     const http = new MockHttpClient();
     const result = await fetchText("https://example.com/page", makeDeps(http, cache));
 
-    expect(result).toBe("<html>cached</html>");
-    expect(http.calls).toHaveLength(0);
+    assert.strictEqual(result, "<html>cached</html>");
+    assert.strictEqual(http.calls.length, 0);
   });
 
   it("取得結果をキャッシュに保存する", async () => {
@@ -285,7 +298,7 @@ describe("fetchText()", () => {
 
     await fetchText("https://example.com/page", makeDeps(http, cache));
     const cached = await cache.get("https://example.com/page");
-    expect(cached).toBe("<html>fresh</html>");
+    assert.strictEqual(cached, "<html>fresh</html>");
   });
 
   it("extraHeaders をリクエストに含める", async () => {
@@ -299,8 +312,8 @@ describe("fetchText()", () => {
       makeDeps(http),
       { Referer: "https://example.com/" },
     );
-    expect(result).toBe("ok");
-    expect(http.calls).toHaveLength(1);
+    assert.strictEqual(result, "ok");
+    assert.strictEqual(http.calls.length, 1);
   });
 });
 
@@ -313,14 +326,14 @@ describe("checkRobotsTxt()", () => {
       { status: 404, body: "Not Found" },
     );
     const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
-    expect(result).toBe(true);
+    assert.strictEqual(result, true);
   });
 
   it("HTTP エラー時はアクセスを許可する (fail-open)", async () => {
     // ハンドラー未登録 → MockHttpClient が例外をスロー
     const http = new MockHttpClient();
     const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
-    expect(result).toBe(true);
+    assert.strictEqual(result, true);
   });
 
   it("Disallow がない場合はアクセスを許可する", async () => {
@@ -329,7 +342,7 @@ describe("checkRobotsTxt()", () => {
       { status: 200, body: "User-agent: *\nDisallow:\n" },
     );
     const result = await checkRobotsTxt("https://example.com/search", makeDeps(http));
-    expect(result).toBe(true);
+    assert.strictEqual(result, true);
   });
 
   it("Disallow: / はすべてのパスを禁止する", async () => {
@@ -338,7 +351,7 @@ describe("checkRobotsTxt()", () => {
       { status: 200, body: "User-agent: *\nDisallow: /\n" },
     );
     const result = await checkRobotsTxt("https://example.com/search?q=foo", makeDeps(http));
-    expect(result).toBe(false);
+    assert.strictEqual(result, false);
   });
 
   it("特定パスの Disallow はそのパスだけを禁止する", async () => {
@@ -349,8 +362,8 @@ describe("checkRobotsTxt()", () => {
     );
     const deps = makeDeps(http);
 
-    expect(await checkRobotsTxt("https://example.com/private/data", deps)).toBe(false);
-    expect(await checkRobotsTxt("https://example.com/public/page", deps)).toBe(true);
+    assert.strictEqual(await checkRobotsTxt("https://example.com/private/data", deps), false);
+    assert.strictEqual(await checkRobotsTxt("https://example.com/public/page", deps), true);
   });
 
   it("techbook-mcp 固有ルールがワイルドカードより優先される", async () => {
@@ -366,7 +379,7 @@ describe("checkRobotsTxt()", () => {
       { status: 200, body: robotsTxt },
     );
     const result = await checkRobotsTxt("https://example.com/search", makeDeps(http));
-    expect(result).toBe(true);
+    assert.strictEqual(result, true);
   });
 
   it("Allow が Disallow より長いプレフィックスで一致する場合は許可する", async () => {
@@ -381,8 +394,8 @@ describe("checkRobotsTxt()", () => {
     );
     const deps = makeDeps(http);
 
-    expect(await checkRobotsTxt("https://example.com/books/list", deps)).toBe(false);
-    expect(await checkRobotsTxt("https://example.com/books/detail/123", deps)).toBe(true);
+    assert.strictEqual(await checkRobotsTxt("https://example.com/books/list", deps), false);
+    assert.strictEqual(await checkRobotsTxt("https://example.com/books/detail/123", deps), true);
   });
 
   it("robots.txt の結果を ${ROBOTS_CACHE_TTL_SECONDS}秒キャッシュする", async () => {
@@ -396,8 +409,8 @@ describe("checkRobotsTxt()", () => {
     await checkRobotsTxt("https://example.com/page", deps);
 
     const cached = await cache.get("robots:https://example.com");
-    expect(cached).not.toBeNull();
-    expect(http.calls.filter(u => u.includes("robots.txt"))).toHaveLength(1);
+    assert.notEqual(cached, null);
+    assert.strictEqual(http.calls.filter(u => u.includes("robots.txt")).length, 1);
   });
 
   it("キャッシュヒット時は HTTP を呼ばない", async () => {
@@ -407,8 +420,8 @@ describe("checkRobotsTxt()", () => {
     const http = new MockHttpClient();
     const result = await checkRobotsTxt("https://example.com/page", makeDeps(http, cache));
 
-    expect(result).toBe(true);
-    expect(http.calls).toHaveLength(0);
+    assert.strictEqual(result, true);
+    assert.strictEqual(http.calls.length, 0);
   });
 
   it("コメント行を無視する", async () => {
@@ -423,6 +436,6 @@ describe("checkRobotsTxt()", () => {
       { status: 200, body: robotsTxt },
     );
     const result = await checkRobotsTxt("https://example.com/search/query", makeDeps(http));
-    expect(result).toBe(false);
+    assert.strictEqual(result, false);
   });
 });

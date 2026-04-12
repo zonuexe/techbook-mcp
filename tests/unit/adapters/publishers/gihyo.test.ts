@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { gihyoAdapter } from "../../../../src/adapters/publishers/gihyo.js";
@@ -42,8 +43,8 @@ describe("gihyoAdapter", () => {
 
     const results = await gihyoAdapter.search({ title: "TypeScript", limit: 10 }, deps);
 
-    expect(results).toHaveLength(2);
-    expect(results[0]).toMatchObject({
+    assert.strictEqual(results.length, 2);
+    assert.partialDeepStrictEqual(results[0], {
       title: "プロを目指す人のためのTypeScript入門 安全なコードの書き方から高度な型の使い方まで",
       authors: ["uhyo"],
       publisher: "技術評論社",
@@ -51,8 +52,9 @@ describe("gihyoAdapter", () => {
       price: 3740,
       publishedAt: "2022-04-01",
     });
-    expect(results[0].url).toBe("https://gihyo.jp/book/2022/978-4-297-12815-2");
-    expect(results[0].coverImageUrl).toBe(
+    assert.strictEqual(results[0].url, "https://gihyo.jp/book/2022/978-4-297-12815-2");
+    assert.strictEqual(
+      results[0].coverImageUrl,
       "https://gihyo.jp/assets/images/cover/2022/9784297128152.jpg",
     );
   });
@@ -62,7 +64,7 @@ describe("gihyoAdapter", () => {
     const results = await gihyoAdapter.search({ title: "TypeScript" }, deps);
 
     const book = results.find(b => b.isbn === "9784297136010");
-    expect(book?.title).toBe("TypeScriptとReact/Next.jsでつくる実践Webアプリケーション開発");
+    assert.strictEqual(book?.title, "TypeScriptとReact/Next.jsでつくる実践Webアプリケーション開発");
   });
 
   it("複数著者が配列になる", async () => {
@@ -70,7 +72,7 @@ describe("gihyoAdapter", () => {
     const results = await gihyoAdapter.search({ title: "TypeScript" }, deps);
 
     const book = results.find(b => b.isbn === "9784297136010");
-    expect(book?.authors).toEqual(["手島拓也", "吉田健人", "高林佳稀"]);
+    assert.deepStrictEqual(book?.authors, ["手島拓也", "吉田健人", "高林佳稀"]);
   });
 
   it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
@@ -79,22 +81,22 @@ describe("gihyoAdapter", () => {
 
     const results = await gihyoAdapter.search({}, deps);
 
-    expect(results).toEqual([]);
-    expect(http.calls).toHaveLength(0);
+    assert.deepStrictEqual(results, []);
+    assert.strictEqual(http.calls.length, 0);
   });
 
   it("search() のリクエストURLにクエリが含まれる", async () => {
     const deps = await makeSearchDeps("gihyo-search.json");
     await gihyoAdapter.search({ title: "TypeScript" }, deps);
 
-    expect(deps.http.calls[0]).toContain("search=TypeScript");
+    assert.ok(deps.http.calls[0].includes("search=TypeScript"));
   });
 
   it("author クエリが API に渡される", async () => {
     const deps = await makeSearchDeps("gihyo-search.json");
     await gihyoAdapter.search({ author: "uhyo" }, deps);
 
-    expect(deps.http.calls[0]).toContain("search=uhyo");
+    assert.ok(deps.http.calls[0].includes("search=uhyo"));
   });
 
   describe("getDetail()", () => {
@@ -105,21 +107,21 @@ describe("gihyoAdapter", () => {
         deps,
       );
 
-      expect(book.ebookStores).toBeDefined();
+      assert.ok(book.ebookStores !== undefined);
       const socialStores = book.ebookStores!.filter(s => s.drm === "social");
       const drmStores = book.ebookStores!.filter(s => s.drm === "drm");
 
       // Gihyo Digital Publishing は見えない購入者情報を埋め込むソーシャルDRM
-      expect(socialStores).toHaveLength(1);
-      expect(socialStores[0]).toMatchObject({
+      assert.strictEqual(socialStores.length, 1);
+      assert.partialDeepStrictEqual(socialStores[0], {
         name: "Gihyo Digital Publishing",
         drm: "social",
-        url: expect.stringContaining("gihyo.jp/dp/ebook/"),
       });
+      assert.ok(socialStores[0].url.includes("gihyo.jp/dp/ebook/"));
 
-      expect(drmStores.map(s => s.name)).toEqual(
-        expect.arrayContaining(["Kindle", "楽天Kobo", "BookLive", "honto"]),
-      );
+      for (const name of ["Kindle", "楽天Kobo", "BookLive", "honto"]) {
+        assert.ok(drmStores.some(s => s.name === name), `Expected DRM store: ${name}`);
+      }
     });
 
     it("ASIN が Amazon リンクから抽出される", async () => {
@@ -129,7 +131,7 @@ describe("gihyoAdapter", () => {
         deps,
       );
 
-      expect(book.asin).toBe("B09YGZ18ZK");
+      assert.strictEqual(book.asin, "B09YGZ18ZK");
     });
   });
 });

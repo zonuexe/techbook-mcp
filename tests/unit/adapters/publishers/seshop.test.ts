@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { seshopAdapter } from "../../../../src/adapters/publishers/seshop.js";
@@ -28,8 +29,8 @@ describe("seshopAdapter", () => {
       const results = await seshopAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
       // フィクスチャには電子2件・紙1件あり、電子のみ返す
-      expect(results).toHaveLength(2);
-      expect(results[0]).toMatchObject({
+      assert.strictEqual(results.length, 2);
+      assert.partialDeepStrictEqual(results[0], {
         title: "TypeScript入門【PDF版】",
         publisher: "翔泳社",
         url: "https://www.seshop.com/product/detail/26500",
@@ -47,7 +48,8 @@ describe("seshopAdapter", () => {
 
       const results = await seshopAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].coverImageUrl).toBe(
+      assert.strictEqual(
+        results[0].coverImageUrl,
         "https://www.seshop.com/static/images/product/26500/L.png",
       );
     });
@@ -61,7 +63,7 @@ describe("seshopAdapter", () => {
 
       const results = await seshopAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(results[0].ebookStores).toEqual([
+      assert.deepStrictEqual(results[0].ebookStores, [
         {
           name: "SEshop",
           url: "https://www.seshop.com/product/detail/26500",
@@ -75,8 +77,8 @@ describe("seshopAdapter", () => {
 
       const results = await seshopAdapter.search({}, makeDeps(http));
 
-      expect(results).toEqual([]);
-      expect(http.calls).toHaveLength(0);
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
     });
 
     it("検索リクエストに keyword と category_id=327 が含まれる", async () => {
@@ -88,8 +90,8 @@ describe("seshopAdapter", () => {
 
       await seshopAdapter.search({ title: "TypeScript" }, makeDeps(http));
 
-      expect(http.calls[0]).toContain("keyword=TypeScript");
-      expect(http.calls[0]).toContain("category_id=327");
+      assert.ok(http.calls[0].includes("keyword=TypeScript"));
+      assert.ok(http.calls[0].includes("category_id=327"));
     });
   });
 
@@ -106,7 +108,7 @@ describe("seshopAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book).toMatchObject({
+      assert.partialDeepStrictEqual(book, {
         title: "TypeScript入門【PDF版】",
         publisher: "翔泳社",
         isbn: "9784798190014",
@@ -127,7 +129,7 @@ describe("seshopAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.authors).toEqual(["山田 太郎", "鈴木 花子"]);
+      assert.deepStrictEqual(book.authors, ["山田 太郎", "鈴木 花子"]);
     });
 
     it("coverImageUrl が設定される", async () => {
@@ -142,7 +144,8 @@ describe("seshopAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.coverImageUrl).toBe(
+      assert.strictEqual(
+        book.coverImageUrl,
         "https://www.seshop.com/static/images/product/26500/L.png",
       );
     });
@@ -159,7 +162,7 @@ describe("seshopAdapter", () => {
         makeDeps(http),
       );
 
-      expect(book.ebookStores).toEqual([
+      assert.deepStrictEqual(book.ebookStores, [
         {
           name: "SEshop",
           url: "https://www.seshop.com/product/detail/26500",

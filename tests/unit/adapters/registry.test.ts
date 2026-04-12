@@ -1,36 +1,37 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
 import { DEFAULT_PUBLISHERS } from "../../../src/adapters/publishers/registry.js";
 
 describe("DEFAULT_PUBLISHERS", () => {
   it("アダプターが1件以上登録されている", () => {
-    expect(DEFAULT_PUBLISHERS.length).toBeGreaterThan(0);
+    assert.ok(DEFAULT_PUBLISHERS.length > 0);
   });
 
   it("id がすべて一意である", () => {
     const ids = DEFAULT_PUBLISHERS.map(p => p.id);
     const uniqueIds = new Set(ids);
-    expect(uniqueIds.size).toBe(ids.length);
+    assert.strictEqual(uniqueIds.size, ids.length);
   });
 
   it("baseUrl がすべて一意である", () => {
     const urls = DEFAULT_PUBLISHERS.map(p => p.baseUrl);
     const uniqueUrls = new Set(urls);
-    expect(uniqueUrls.size).toBe(urls.length);
+    assert.strictEqual(uniqueUrls.size, urls.length);
   });
 
   it("各アダプターが必須フィールドを持つ", () => {
     for (const p of DEFAULT_PUBLISHERS) {
-      expect(p.id, `${p.id}: id が空`).toBeTruthy();
-      expect(p.name, `${p.id}: name が空`).toBeTruthy();
-      expect(p.baseUrl, `${p.id}: baseUrl が空`).toBeTruthy();
-      expect(typeof p.search, `${p.id}: search が関数でない`).toBe("function");
-      expect(typeof p.getDetail, `${p.id}: getDetail が関数でない`).toBe("function");
+      assert.ok(p.id, `${p.id}: id が空`);
+      assert.ok(p.name, `${p.id}: name が空`);
+      assert.ok(p.baseUrl, `${p.id}: baseUrl が空`);
+      assert.strictEqual(typeof p.search, "function", `${p.id}: search が関数でない`);
+      assert.strictEqual(typeof p.getDetail, "function", `${p.id}: getDetail が関数でない`);
     }
   });
 
   it("baseUrl がすべて https:// で始まる", () => {
     for (const p of DEFAULT_PUBLISHERS) {
-      expect(p.baseUrl, `${p.id}: baseUrl が https でない`).toMatch(/^https:\/\//);
+      assert.match(p.baseUrl, /^https:\/\//, `${p.id}: baseUrl が https でない`);
     }
   });
 });

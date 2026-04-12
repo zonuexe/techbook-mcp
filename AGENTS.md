@@ -16,7 +16,7 @@ Add robots.txt check with 6-hour cache
 
 ```bash
 npm install
-npm test           # ユニットテスト実行 (Vitest)
+npm test           # ユニットテスト実行 (node:test)
 npm run build      # TypeScript コンパイル → dist/
 ```
 
@@ -56,7 +56,12 @@ npm run build      # TypeScript コンパイル → dist/
 
 ## テスト方針
 
+テストフレームワークは `node:test` + `node:assert/strict` を使う（vitest は使わない）。
+
 ```typescript
+import { describe, it, mock } from "node:test";
+import assert from "node:assert/strict";
+
 // 標準的なテストセットアップ
 function makeDeps(http: MockHttpClient) {
   return { http, parser: new CheerioHtmlParser(), cache: new NullCacheStore() };
@@ -69,6 +74,17 @@ const http = new MockHttpClient()
 // POST のモック (GraphQL等)
 const http = new MockHttpClient()
   .addPostResponse("https://api.example.com/graphql", { status: 200, body: json });
+
+// vitest → node:assert の主な対応
+// expect(x).toBe(y)          → assert.strictEqual(x, y)
+// expect(x).toEqual(y)       → assert.deepStrictEqual(x, y)
+// expect(x).toMatchObject(y) → assert.partialDeepStrictEqual(x, y)
+// expect(x).toHaveLength(n)  → assert.strictEqual(x.length, n)
+// expect(x).toContain(s)     → assert.ok(x.includes(s))
+// expect(x).toMatch(/r/)     → assert.match(x, /r/)
+// await expect(p).rejects.toThrow("msg") → await assert.rejects(p, /msg/)
+// vi.fn().mockResolvedValue(v)           → mock.fn(async () => v)
+// fn.toHaveBeenCalledOnce()              → assert.strictEqual(fn.mock.callCount(), 1)
 ```
 
 ## よくある落とし穴
