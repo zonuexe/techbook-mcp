@@ -1,4 +1,4 @@
-import { describe, it, mock } from "node:test";
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { getBookDetail } from "../../../src/application/get-book-detail.js";
 import type { PublisherAdapter, PublisherDeps } from "../../../src/domain/publisher.js";
@@ -6,6 +6,19 @@ import type { BookRecord } from "../../../src/domain/book.js";
 import { MockHttpClient } from "../../../src/adapters/http/mock-client.js";
 import { CheerioHtmlParser } from "../../../src/adapters/html/cheerio-parser.js";
 import { NullCacheStore } from "../../../src/adapters/cache/null-cache.js";
+
+/** ランタイム非依存の最小モック関数 */
+function mockFn<T>(impl: (...args: unknown[]) => T = () => undefined as T) {
+  const _calls: { arguments: unknown[] }[] = [];
+  const fn = Object.assign(
+    (...args: unknown[]) => {
+      _calls.push({ arguments: args });
+      return impl(...args);
+    },
+    { mock: { calls: _calls, callCount: () => _calls.length } },
+  );
+  return fn;
+}
 
 function makeDeps(): PublisherDeps {
   return {
@@ -30,8 +43,8 @@ function makeAdapter(baseUrl: string, book: BookRecord): PublisherAdapter {
     id: "test",
     name: "テスト社",
     baseUrl,
-    search: mock.fn(),
-    getDetail: mock.fn(async () => book),
+    search: mockFn(),
+    getDetail: mockFn(async () => book),
   };
 }
 
@@ -45,7 +58,7 @@ describe("getBookDetail()", () => {
 
     assert.deepStrictEqual(result, book);
     assert.strictEqual(
-      (adapter.getDetail as ReturnType<typeof mock.fn>).mock.calls[0].arguments[0],
+      (adapter.getDetail as ReturnType<typeof mockFn>).mock.calls[0].arguments[0],
       url,
     );
   });
@@ -59,7 +72,7 @@ describe("getBookDetail()", () => {
     const result = await getBookDetail("https://b.example.com/book/1", [adapterA, adapterB], makeDeps());
 
     assert.strictEqual(result.title, "B社の本");
-    assert.strictEqual((adapterA.getDetail as ReturnType<typeof mock.fn>).mock.callCount(), 0);
+    assert.strictEqual((adapterA.getDetail as ReturnType<typeof mockFn>).mock.callCount(), 0);
   });
 
   it("対応するアダプターがなければエラーをスローする", async () => {

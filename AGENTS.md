@@ -59,7 +59,7 @@ npm run build      # TypeScript コンパイル → dist/
 テストフレームワークは `node:test` + `node:assert/strict` を使う（vitest は使わない）。
 
 ```typescript
-import { describe, it, mock } from "node:test";
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
 // 標準的なテストセットアップ
@@ -83,8 +83,11 @@ const http = new MockHttpClient()
 // expect(x).toContain(s)     → assert.ok(x.includes(s))
 // expect(x).toMatch(/r/)     → assert.match(x, /r/)
 // await expect(p).rejects.toThrow("msg") → await assert.rejects(p, /msg/)
-// vi.fn().mockResolvedValue(v)           → mock.fn(async () => v)
-// fn.toHaveBeenCalledOnce()              → assert.strictEqual(fn.mock.callCount(), 1)
+
+// モック関数: node:test の mock.fn() は Bun 非対応のため、テストファイル内に
+// ローカルで mockFn() ヘルパーを定義して使う（Node.js・Bun・Deno 共通で動作）
+// vi.fn().mockResolvedValue(v) → mockFn(async () => v)
+// fn.toHaveBeenCalledOnce()    → assert.strictEqual(fn.mock.callCount(), 1)
 ```
 
 ## よくある落とし穴

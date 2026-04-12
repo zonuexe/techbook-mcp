@@ -1,4 +1,4 @@
-import { describe, it, mock } from "node:test";
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { searchBooks } from "../../../src/application/search-books.js";
 import type { PublisherAdapter, PublisherDeps } from "../../../src/domain/publisher.js";
@@ -6,6 +6,19 @@ import type { BookRecord } from "../../../src/domain/book.js";
 import { MockHttpClient } from "../../../src/adapters/http/mock-client.js";
 import { CheerioHtmlParser } from "../../../src/adapters/html/cheerio-parser.js";
 import { NullCacheStore } from "../../../src/adapters/cache/null-cache.js";
+
+/** ランタイム非依存の最小モック関数 */
+function mockFn<T>(impl: (...args: unknown[]) => T = () => undefined as T) {
+  const _calls: { arguments: unknown[] }[] = [];
+  const fn = Object.assign(
+    (...args: unknown[]) => {
+      _calls.push({ arguments: args });
+      return impl(...args);
+    },
+    { mock: { calls: _calls, callCount: () => _calls.length } },
+  );
+  return fn;
+}
 
 function makeDeps(): PublisherDeps {
   return {
@@ -30,8 +43,8 @@ function makeAdapter(id: string, books: BookRecord[]): PublisherAdapter {
     id,
     name: `${id} 出版社`,
     baseUrl: `https://${id}.example.com`,
-    search: mock.fn(async () => books),
-    getDetail: mock.fn(),
+    search: mockFn(async () => books),
+    getDetail: mockFn(),
   };
 }
 
@@ -58,8 +71,8 @@ describe("searchBooks()", () => {
     const { books } = await searchBooks({ title: "テスト", publisherId: "a" }, publishers, makeDeps());
 
     assert.strictEqual(books.length, 1);
-    assert.strictEqual((adapterA.search as ReturnType<typeof mock.fn>).mock.callCount(), 1);
-    assert.strictEqual((adapterB.search as ReturnType<typeof mock.fn>).mock.callCount(), 0);
+    assert.strictEqual((adapterA.search as ReturnType<typeof mockFn>).mock.callCount(), 1);
+    assert.strictEqual((adapterB.search as ReturnType<typeof mockFn>).mock.callCount(), 0);
   });
 
   it("1つのアダプターが失敗しても他の結果は返す", async () => {
@@ -68,8 +81,8 @@ describe("searchBooks()", () => {
       id: "fail",
       name: "失敗社",
       baseUrl: "https://fail.example.com",
-      search: mock.fn(() => Promise.reject(new Error("network error"))),
-      getDetail: mock.fn(),
+      search: mockFn(() => Promise.reject(new Error("network error"))),
+      getDetail: mockFn(),
     };
     const publishers = [failingAdapter, makeAdapter("ok", [book])];
 
@@ -83,8 +96,8 @@ describe("searchBooks()", () => {
 
   it("全アダプターが失敗した場合は books が空で errors に全件入る", async () => {
     const publishers = [
-      { id: "a", name: "A社", baseUrl: "https://a.example.com", search: mock.fn(() => Promise.reject(new Error("err A"))), getDetail: mock.fn() },
-      { id: "b", name: "B社", baseUrl: "https://b.example.com", search: mock.fn(() => Promise.reject(new Error("err B"))), getDetail: mock.fn() },
+      { id: "a", name: "A社", baseUrl: "https://a.example.com", search: mockFn(() => Promise.reject(new Error("err A"))), getDetail: mockFn() },
+      { id: "b", name: "B社", baseUrl: "https://b.example.com", search: mockFn(() => Promise.reject(new Error("err B"))), getDetail: mockFn() },
     ];
 
     const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
@@ -96,7 +109,7 @@ describe("searchBooks()", () => {
 
   it("Error 以外の例外も文字列化して errors に入れる", async () => {
     const publishers = [
-      { id: "x", name: "X社", baseUrl: "https://x.example.com", search: mock.fn(() => Promise.reject("string error")), getDetail: mock.fn() },
+      { id: "x", name: "X社", baseUrl: "https://x.example.com", search: mockFn(() => Promise.reject("string error")), getDetail: mockFn() },
     ];
 
     const { errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
@@ -117,7 +130,7 @@ describe("searchBooks()", () => {
     await searchBooks(query, [adapter], makeDeps());
 
     assert.deepStrictEqual(
-      (adapter.search as ReturnType<typeof mock.fn>).mock.calls[0].arguments[0],
+      (adapter.search as ReturnType<typeof mockFn>).mock.calls[0].arguments[0],
       query,
     );
   });
