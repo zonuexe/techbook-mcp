@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { startServer } from "./mcp/server.js";
 import { DEFAULT_PUBLISHERS } from "./adapters/publishers/registry.js";
 import { FetchHttpClient } from "./adapters/http/fetch-client.js";
