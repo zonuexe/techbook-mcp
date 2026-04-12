@@ -1,5 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery, EbookStore } from "../../domain/book.js";
+import type { HtmlDocument } from "../../ports/html-parser.js";
 import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
 
 const BASE_URL = "https://tatsu-zine.com";
@@ -13,6 +14,20 @@ function parseAuthors(text: string): string[] {
     .split(/[,、]\s*/)
     .map(part => part.replace(/\s*[(（][^)）]*[)）]\s*$/, "").trim())
     .filter(Boolean);
+}
+
+/**
+ * ページネーションリンクから最終ページ番号を取得する。
+ * <a class="btn-pagination" href="/books?page=11">最後へ</a>
+ */
+function detectLastPage(doc: HtmlDocument): number {
+  let max = 1;
+  for (const a of doc.select("a.btn-pagination")) {
+    const href = a.attr("href") ?? "";
+    const m = href.match(/[?&]page=(\d+)/);
+    if (m) max = Math.max(max, parseInt(m[1], 10));
+  }
+  return max;
 }
 
 /**
@@ -32,49 +47,59 @@ export const tatsuZineAdapter: PublisherAdapter = {
   baseUrl: BASE_URL,
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
-    const word = [query.title, query.author].filter(Boolean).join(" ");
-    if (!word) return [];
+    // 検索APIがないため書籍一覧からローカルフィルタリングする
+    // 著者のみの検索は非対応
+    if (!query.title) return [];
 
-    // 検索フォーム: <form method="get" action="/books/"><input name="search">
-    const url = `${BASE_URL}/books/?search=${encodeURIComponent(word)}`;
-    const html = await fetchText(url, deps);
-    const doc = deps.parser.parse(html);
+    const titleKeyword = query.title.toLowerCase();
+    const authorKeyword = query.author?.toLowerCase();
+    const limit = query.limit ?? 10;
 
-    // 書籍アイテムのHTML構造:
-    //   <a href="/books/{slug}"><img src="/images/books/{id}/cover_s.jpg" alt="Title"></a>
-    //   <h3><a href="/books/{slug}">Title</a></h3>
-    //   <p>Author(著), ...</p>
-    //
-    // タイトルリンクと著者段落を位置で対応付ける
-    const titleLinks = doc.select("h3 a[href]").filter(a => {
-      const href = a.attr("href") ?? "";
-      return href.startsWith("/books/") && !href.startsWith("/books/pub/");
-    });
-    const authorParagraphs = doc.select("h3 + p");
+    // 書籍一覧ページ: <article class="book"> が各書籍アイテム、ページネーションあり
+    const firstHtml = await fetchText(`${BASE_URL}/books/`, deps);
+    const firstDoc = deps.parser.parse(firstHtml);
+    const lastPage = detectLastPage(firstDoc);
 
     const results: BookRecord[] = [];
+    const docs = [[firstHtml, firstDoc] as const];
 
-    for (let i = 0; i < titleLinks.length; i++) {
-      const titleLink = titleLinks[i];
-      const title = titleLink.text().trim();
-      const href = titleLink.attr("href");
-      if (!title || !href) continue;
-
-      const bookUrl = resolveUrl(BASE_URL, href);
-      const authorText = authorParagraphs[i]?.text().trim() ?? "";
-      const authors = authorText ? parseAuthors(authorText) : [];
-
-      results.push({
-        title,
-        authors,
-        publisher: "達人出版会",
-        url: bookUrl,
-        // 達人出版会は全書籍で購入者情報を各ページに印字 (ソーシャルDRM)
-        ebookStores: [{ name: "達人出版会", url: bookUrl, drm: "social" }],
-      });
+    // ページ2以降を先行して取得しておく（キャッシュ経由）
+    for (let page = 2; page <= lastPage; page++) {
+      const html = await fetchText(`${BASE_URL}/books?page=${page}`, deps);
+      docs.push([html, deps.parser.parse(html)]);
     }
 
-    return results.slice(0, query.limit ?? 10);
+    outer: for (const [, doc] of docs) {
+      for (const article of doc.select("article.book")) {
+        const titleEl = article.find("h3[itemprop='name'] a")[0];
+        if (!titleEl) continue;
+
+        const title = titleEl.text().trim();
+        if (!title.toLowerCase().includes(titleKeyword)) continue;
+
+        const authorText = article.find("p[itemprop='author']")[0]?.text().trim() ?? "";
+        if (authorKeyword && !authorText.toLowerCase().includes(authorKeyword)) continue;
+
+        const href = titleEl.attr("href");
+        if (!href) continue;
+        const bookUrl = resolveUrl(BASE_URL, href);
+
+        const authors = authorText ? parseAuthors(authorText) : [];
+
+        results.push({
+          title,
+          authors,
+          publisher: "達人出版会",
+          url: bookUrl,
+          // 達人出版会は全書籍で購入者情報を各ページに印字 (ソーシャルDRM)
+          ebookStores: [{ name: "達人出版会", url: bookUrl, drm: "social" }],
+        });
+
+        if (results.length >= limit) break outer;
+      }
+    }
+
+    return results;
   },
 
   async getDetail(url: string, deps: PublisherDeps): Promise<BookRecord> {

@@ -63,7 +63,7 @@ describe("tatsuZineAdapter", () => {
       assert.strictEqual(results.length, 1);
     });
 
-    it("title も author も空の場合は [] を返しHTTPを呼ばない", async () => {
+    it("title が未指定の場合は [] を返しHTTPを呼ばない", async () => {
       const http = new MockHttpClient();
       const results = await tatsuZineAdapter.search({}, makeDeps(http));
 
@@ -71,7 +71,15 @@ describe("tatsuZineAdapter", () => {
       assert.strictEqual(http.calls.length, 0);
     });
 
-    it("検索リクエストに search パラメータが含まれる", async () => {
+    it("author のみ指定の場合も [] を返しHTTPを呼ばない", async () => {
+      const http = new MockHttpClient();
+      const results = await tatsuZineAdapter.search({ author: "Jesse Storimer" }, makeDeps(http));
+
+      assert.deepStrictEqual(results, []);
+      assert.strictEqual(http.calls.length, 0);
+    });
+
+    it("書籍一覧ページ全体を取得してタイトルでフィルタする", async () => {
       const body = await loadFixture("tatsu-zine-search.html");
       const http = new MockHttpClient().addResponse(
         "https://tatsu-zine.com/books/",
@@ -80,7 +88,40 @@ describe("tatsuZineAdapter", () => {
 
       await tatsuZineAdapter.search({ title: "Go言語" }, makeDeps(http));
 
-      assert.ok(http.calls[0].includes("search=Go%E8%A8%80%E8%AA%9E"));
+      assert.strictEqual(http.calls[0], "https://tatsu-zine.com/books/");
+    });
+
+    it("ページネーションがある場合は全ページを取得してフィルタする", async () => {
+      const page1 = `<!DOCTYPE html><html><body>
+        <section class="pagination">
+          <nav class="pagination">
+            <a class="btn-pagination" href="/books?page=2">2</a>
+            <a class="btn-pagination" href="/books?page=2">最後へ</a>
+          </nav>
+        </section>
+        <article class="book">
+          <h3 itemprop="name"><a href="/books/page1-book">ページ1の本</a></h3>
+          <p itemprop="author" class="author">著者A(著)</p>
+        </article>
+      </body></html>`;
+      const page2 = `<!DOCTYPE html><html><body>
+        <article class="book">
+          <h3 itemprop="name"><a href="/books/naruhounix">なるほどUnixプロセス ― Rubyで学ぶUnixの基礎</a></h3>
+          <p itemprop="author" class="author">Jesse Storimer(著), 島田 浩二(訳), 角谷 信太郎(訳)</p>
+        </article>
+      </body></html>`;
+      const http = new MockHttpClient()
+        .addResponse("https://tatsu-zine.com/books/", { status: 200, body: page1 })
+        .addResponse("https://tatsu-zine.com/books?page=2", { status: 200, body: page2 });
+
+      const results = await tatsuZineAdapter.search({ title: "なるほどUnix" }, makeDeps(http));
+
+      assert.strictEqual(results.length, 1);
+      assert.partialDeepStrictEqual(results[0], {
+        title: "なるほどUnixプロセス ― Rubyで学ぶUnixの基礎",
+        authors: ["Jesse Storimer", "島田 浩二", "角谷 信太郎"],
+        url: "https://tatsu-zine.com/books/naruhounix",
+      });
     });
   });
 
