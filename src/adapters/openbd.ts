@@ -27,8 +27,15 @@ interface OpenBDPrice {
   CurrencyCode: string;
 }
 
+interface OpenBDHanmoto {
+  isbn: string;
+  storelink?: string;
+  [key: string]: unknown;
+}
+
 export interface OpenBDEntry {
   summary: OpenBDSummary;
+  hanmoto?: OpenBDHanmoto;
   onix: {
     CollateralDetail?: {
       TextContent?: OpenBDTextContent[];
@@ -92,6 +99,32 @@ export async function fetchOpenBDBooks(
     }
   }
   return result;
+}
+
+/**
+ * openBD エントリを BookRecord に変換する。
+ * 出版社サイトから取得できない場合のフォールバック用。
+ * url には hanmoto.storelink を使用し、なければ openBD API URL を使用する。
+ */
+export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
+  const { summary } = entry;
+  const storelink = entry.hanmoto?.storelink;
+
+  const authors = summary.author
+    ? summary.author.split(/[\/／、,，]/).map(a => a.trim()).filter(Boolean)
+    : [];
+
+  return {
+    title: summary.title,
+    authors,
+    publisher: summary.publisher,
+    isbn: summary.isbn,
+    publishedAt: parsePubDate(summary.pubdate),
+    url: storelink ?? `https://api.openbd.jp/v1/get?isbn=${summary.isbn}`,
+    price: getTaxIncludedPrice(entry),
+    coverImageUrl: summary.cover || undefined,
+    description: findTextByType(entry, "03", "02"),
+  };
 }
 
 /**

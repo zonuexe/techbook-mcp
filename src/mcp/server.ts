@@ -8,6 +8,7 @@ import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, EbookStore, DrmType, SearchQuery } from "../domain/book.js";
 import { searchBooks } from "../application/search-books.js";
 import { getBookDetail } from "../application/get-book-detail.js";
+import { getBookByIsbn } from "../application/get-book-by-isbn.js";
 import { TOOLS } from "./tools.js";
 
 // --- 出力フォーマット ---
@@ -82,6 +83,15 @@ export function createServer(
         }));
         return {
           content: [{ type: "text", text: JSON.stringify(list, null, 2) }],
+        };
+      }
+
+      case "get_book_by_isbn": {
+        const isbn = args["isbn"];
+        if (typeof isbn !== "string") throw new Error("isbn は必須です");
+        const book = await getBookByIsbn(isbn, publishers, deps);
+        return {
+          content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
         };
       }
 

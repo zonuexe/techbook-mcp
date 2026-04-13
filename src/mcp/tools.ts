@@ -51,4 +51,21 @@ export const TOOLS = [
       properties: {},
     },
   },
+  {
+    name: "get_book_by_isbn",
+    description:
+      "ISBNから書誌情報を取得します。" +
+      "openBDで出版社を特定し、可能であれば出版社サイトから詳細情報を取得します。" +
+      "出版社サイトから取得できない場合はopenBDのデータを返します。",
+    inputSchema: {
+      type: "object",
+      required: ["isbn"],
+      properties: {
+        isbn: {
+          type: "string",
+          description: "ISBN-13（ハイフンあり・なし両対応、例: 978-4-908686-20-7）",
+        },
+      },
+    },
+  },
 ] as const;
