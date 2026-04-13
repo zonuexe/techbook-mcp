@@ -1,6 +1,7 @@
 import type { BookRecord, SearchQuery } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import { checkRobotsTxt } from "../adapters/publishers/base.js";
+import { fetchOpenBDBooks, enrichWithOpenBD } from "../adapters/openbd.js";
 
 export interface SearchBooksResult {
   books: BookRecord[];
@@ -37,6 +38,25 @@ export async function searchBooks(
         ? result.reason.message
         : String(result.reason);
       errors.push({ publisherId: publisher.id, message });
+    }
+  }
+
+  // ISBNが特定できる書籍をopenBDで一括補完
+  const isbns = books.map(b => b.isbn).filter((isbn): isbn is string => isbn !== undefined);
+  if (isbns.length > 0) {
+    try {
+      const openBDMap = await fetchOpenBDBooks(isbns, deps);
+      for (let i = 0; i < books.length; i++) {
+        const isbn = books[i].isbn;
+        if (isbn !== undefined) {
+          const entry = openBDMap.get(isbn);
+          if (entry !== undefined) {
+            books[i] = enrichWithOpenBD(books[i], entry);
+          }
+        }
+      }
+    } catch {
+      // openBD の取得失敗は無視して出版社から取得できた情報を返す
     }
   }
 

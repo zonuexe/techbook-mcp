@@ -1,0 +1,110 @@
+[
+  {
+    "onix": {
+      "RecordReference": "9784908686207",
+      "NotificationType": "03",
+      "ProductIdentifier": {
+        "ProductIDType": "15",
+        "IDValue": "9784908686207"
+      },
+      "DescriptiveDetail": {
+        "ProductComposition": "00",
+        "ProductForm": "BA",
+        "TitleDetail": {
+          "TitleType": "01",
+          "TitleElement": {
+            "TitleElementLevel": "01",
+            "TitleText": {
+              "collationkey": "カタシステムノシクミ",
+              "content": "型システムのしくみ TypeScriptで実装しながら学ぶ型とプログラミング言語"
+            }
+          }
+        },
+        "Contributor": [
+          {
+            "SequenceNumber": "1",
+            "ContributorRole": ["A01"],
+            "PersonName": {
+              "collationkey": "エンドウユウスケ",
+              "content": "遠藤侑介"
+            }
+          }
+        ]
+      },
+      "CollateralDetail": {
+        "TextContent": [
+          {
+            "TextType": "02",
+            "ContentAudience": "00",
+            "Text": "現代のすべてのプログラミング言語の基礎理論である「型」を、プログラマー向けに解き明かした初の概説書！"
+          },
+          {
+            "TextType": "03",
+            "ContentAudience": "00",
+            "Text": "TypeScriptのサブセットを実装しながら、型推論・型検査・多相型・ジェネリクスのしくみを一から学べる実践的な解説書。"
+          },
+          {
+            "TextType": "04",
+            "ContentAudience": "00",
+            "Text": "第1章 型とは何か\n第2章 単純型付きラムダ計算\n第3章 型推論"
+          }
+        ],
+        "SupportingResource": [
+          {
+            "ResourceContentType": "01",
+            "ContentAudience": "01",
+            "ResourceMode": "03",
+            "ResourceVersion": [
+              {
+                "ResourceForm": "02",
+                "ResourceLink": "https://cover.openbd.jp/9784908686207.jpg"
+              }
+            ]
+          }
+        ]
+      },
+      "PublishingDetail": {
+        "Imprint": {
+          "ImprintName": "ラムダノート"
+        },
+        "Publisher": {
+          "PublishingRole": "01",
+          "PublisherName": "ラムダノート"
+        },
+        "PublishingDate": [
+          {
+            "PublishingDateRole": "01",
+            "Date": "20250418"
+          }
+        ]
+      },
+      "ProductSupply": {
+        "SupplyDetail": {
+          "ProductAvailability": "99",
+          "Price": [
+            {
+              "PriceType": "03",
+              "PriceAmount": "3300",
+              "CurrencyCode": "JPY"
+            }
+          ]
+        }
+      }
+    },
+    "hanmoto": {
+      "isbn": "9784908686207",
+      "hatsubai": "ラムダノート",
+      "storelink": "https://www.lambdanote.com/collections/type-systems",
+      "datemodified": "2025-10-22 12:11:38",
+      "datecreated": "2025-04-08 17:23:18"
+    },
+    "summary": {
+      "isbn": "9784908686207",
+      "title": "型システムのしくみ TypeScriptで実装しながら学ぶ型とプログラミング言語",
+      "publisher": "ラムダノート",
+      "pubdate": "20250418",
+      "cover": "https://cover.openbd.jp/9784908686207.jpg",
+      "author": "遠藤侑介"
+    }
+  }
+]

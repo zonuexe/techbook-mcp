@@ -1,6 +1,7 @@
 import type { BookRecord } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import { checkRobotsTxt } from "../adapters/publishers/base.js";
+import { fetchOpenBDBooks, enrichWithOpenBD } from "../adapters/openbd.js";
 
 export async function getBookDetail(
   url: string,
@@ -20,5 +21,20 @@ export async function getBookDetail(
     throw new Error(`robots.txt によりアクセスが禁止されています: ${url}`);
   }
 
-  return publisher.getDetail(url, deps);
+  const book = await publisher.getDetail(url, deps);
+
+  // ISBNが特定できる場合はopenBDで欠損フィールドを補完
+  if (book.isbn !== undefined) {
+    try {
+      const openBDMap = await fetchOpenBDBooks([book.isbn], deps);
+      const entry = openBDMap.get(book.isbn);
+      if (entry !== undefined) {
+        return enrichWithOpenBD(book, entry);
+      }
+    } catch {
+      // openBD の取得失敗は無視して出版社から取得できた情報を返す
+    }
+  }
+
+  return book;
 }
