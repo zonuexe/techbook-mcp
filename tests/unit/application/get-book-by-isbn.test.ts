@@ -143,7 +143,7 @@ describe("getBookByIsbn()", () => {
 
     await assert.rejects(
       getBookByIsbn("9780000000000", [], deps),
-      /openBDに書誌情報が見つかりません/,
+      /書誌情報が見つかりません/,
     );
   });
 

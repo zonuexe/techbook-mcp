@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHPを使おう: PHPで広がるWebビジネス展開 | カーリル</title>
+    
+    <meta name="theme-color" content="#00A1EA">
+    <meta name="application-name" content="カーリル" />
+    <meta name="apple-mobile-web-app-title" content="カーリル">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <link rel="search" type="application/opensearchdescription+xml" href="https://calil.jp/public/search.xml" title="カーリル" />  
+    <link rel="alternate" type="application/rss+xml" title="カーリルのブログ" href="https://blog.calil.jp/feed" />
+    <link rel="stylesheet" href="/public/web-html/css/index.css">
+    <style type="text/css" media="print">
+        #menu, #menu_sp, .navigation {
+            display: none;
+        }
+        #next, #next * {
+            -webkit-print-color-adjust: exact;
+        }
+    </style>
+<link rel="canonical" href="https://calil.jp/book/4901676032" />
+<meta name="description" content="「PHPを使おう: PHPで広がるWebビジネス展開」を図書館から検索。カーリルは複数の図書館からまとめて蔵書検索ができるサービスです。">
+<meta name="keywords"
+    content="PHPを使おう: PHPで広がるWebビジネス展開,図書館,蔵書検索,4901676032,WebビジネスPHP研究部会" />
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@caliljp" />
+<meta name="twitter:title" content="「PHPを使おう: PHPで広がるWebビジネス展開」を図書館から検索。" />
+<meta name="twitter:description" content="カーリルは複数の図書館からまとめて蔵書検索ができるサービスです。" />
+<meta name="twitter:domain" content="calil.jp">
+<meta name="twitter:url" content="https://calil.jp/book/4901676032" />
+<meta name="twitter:image:src"
+    content="https://m.media-amazon.com/images/I/5103GGFMD3L._SL500_.jpg" />
+<meta property="fb:app_id" content="270660792981320" />
+<meta property="og:title" content="「PHPを使おう: PHPで広がるWebビジネス展開」を図書館から検索。" />
+<meta property="og:type" content="books.book" />
+<meta property="og:url" content="https://calil.jp/book/4901676032" />
+<meta property="og:image"
+    content="https://m.media-amazon.com/images/I/5103GGFMD3L._SL500_.jpg" />
+<meta property="og:site_name" content="カーリル" />
+<meta property="og:description" content="カーリルは全国7000以上の図書館から書籍とその貸し出し状況を簡単に横断検索できるサービスです。" />
+<meta property="books:isbn" content="4901676032" />
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S0SYRD0CEW"></script>
+<script>
+  var dnt = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+  if (dnt!=='1' && dnt!=='yes') {
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-S0SYRD0CEW');
+  } else {
+    console.log('Do-Not-Track, not loading analytics.');
+    window.gtag = function() {};
+  }
+</script>
+
+</head>
+<body>
+    
+    
+    <div id="menu">
+        <div class="container">
+            <a href="/">
+                <img src="/public/web-html/assets/home.svg" title="ホーム">
+            </a>
+            <a href="/popular/">今話題の本</a><a href="/library/">図書館マップ</a><a href="/recipe">本のレシピ</a><a class="large" href="/list">読みたいリスト</a>
+            <div class="dropdown">
+                <button aria-disabled="true" onclick="event.target.focus();">もっと見る<span class="caret" aria-hidden="true">&#9660;</span></button>
+                <div class="menu" role="menubar">
+                    <a tabindex="0" class="small" href="/list">読みたいリスト</a>
+                    <a tabindex="0" href="/review/">書評</a>
+                    <a tabindex="0" href="/local/">カーリルローカル</a>
+                    <a tabindex="0" href="/touch/">カーリルタッチ</a>
+                    <a tabindex="0" href="/stamp">図書館スタンプラリー</a>
+                </div>
+            </div>
+            <div class="right">
+                
+                <a href="/login?redirect=/book/4901676032">ログイン・新規登録</a>
+                <div class="dropdown">
+                    <button aria-disabled="true" onclick="event.target.focus();">設定<span class="caret">&#9660;</span>
+                    </button>
+                    <div class="menu" role="menubar" aria-label="設定">
+                        <a tabindex="0" href="/settings">お気に入り図書館</a>
+                        <a tabindex="0" href="/profile/source">高度な検索設定</a>
+                        
+                        <a tabindex="0" href="/login?redirect=/book/4901676032">ログイン</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="menu_sp" role="menu">
+        <div class="container">
+            <a class="logo" href="/">
+                <img src="/public/web-html/assets/logo-sp.svg" title="カーリル">
+            </a>
+            <a class="login" href="/login?redirect=/book/4901676032">ログイン</a>
+            <a class="setting" href="/settings">図書館の設定</a>
+            <a href="/popular/">今話題の本</a>
+            <a href="/library/">図書館マップ</a>
+            <a href="/recipe">本のレシピ</a>
+            <a href="/list">読みたいリスト</a>
+            <a href="/review/">書評</a>
+            <a href="/local/">ローカル</a>
+            <a href="/stamp">スタンプラリー</a> 
+        </div>
+    </div>
+    <nav class="navigation">
+        <button class="menu_icon" aria-label="メニュー" aria-haspopup="true" aria-controls="menu_sp"></button>
+        
+        <button class="search_icon" aria-label="検索フォームの表示">
+        
+    </nav>
+    <div id="next" class="page_hide">
+        <div class="container">
+            <a class="logo" href="/" title="カーリルのホームに戻る">
+            <picture>
+                <source media="(max-width: 1024px)" srcset="/public/web-html/assets/logo-mini.svg">
+                <img src="/public/web-html/assets/logo.svg" alt="日本最大の図書館蔵書検索・カーリル">
+            </picture>
+            </a>
+            <form action="/search" method="get"><input name="q" type="search" value="" placeholder="" autocomplete="off" autofocus="true"><button type="submit">さがす</button></form>
+        </div>
+    </div>
+<div id="book">
+    <style>
+    @media all and (display-mode: standalone) {
+        #book .back {
+            display: block;
+        }
+    }
+    </style>
+    <div class="back"><a href="javascript:history.back();">« 前にもどる</a></div>
+    <div class="container">
+        <main>
+            <div class="left">
+                <a class="cover" href="https://www.amazon.co.jp/dp/4901676032?tag=calil-22&amp;linkCode=ogi&amp;th=1&amp;psc=1" target="_blank">
+                    <img src="https://m.media-amazon.com/images/I/5103GGFMD3L._SL500_.jpg" alt="" itemprop="image" />
+                </a>
+                <div itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                    <span itemprop="price">
+                        <a class="amazon" target="_blank" href="https://www.amazon.co.jp/dp/4901676032?tag=calil-22&amp;linkCode=ogi&amp;th=1&amp;psc=1" title="amazon.co.jpで購入"></a>
+                        <span>(2026/04/13 22:39:15時点)</span>
+                    </span>
+                </div>
+            </div>
+            <div class="right">
+                <div class="findbox">
+                    <h3>近くの図書館から探してみよう</h3>
+                    <p>カーリルは全国の図書館から本を検索できるサービスです</p>
+                    <button class="geo" onclick="calil.geo.getGeoLib()" name="" value="">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512">
+                            <path
+                                d="M444.52 3.52L28.74 195.42c-47.97 22.39-31.98 92.75 19.19 92.75h175.91v175.91c0 51.17 70.36 67.17 92.75 19.19l191.9-415.78c15.99-38.39-25.59-79.97-63.97-63.97z">
+                            </path>
+                        </svg>現在位置から探す
+                    </button>
+                    <p class="library_search"><a href="/settings">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512" width="15" height="14">
+                                <path
+                                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z">
+                                </path>
+                            </svg> この本を図書館から検索する</a></p>
+                </div>
+                <h1 class="title" itemprop="name">
+                    PHPを使おう: PHPで広がるWebビジネス展開
+                </h1>
+                <div class="author" itemprop="author">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="11" height="13">
+                        <path fill="#999" d="M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z" />
+                    </svg>
+                        <a href="/search?q=author:Web%E3%83%93%E3%82%B8%E3%83%8D%E3%82%B9PHP%E7%A0%94%E7%A9%B6%E9%83%A8%E4%BC%9A">WebビジネスPHP研究部会</a><span>（著）</span>
+                </div>
+                <div class="share_wish">
+                    <ul class="share">
+                        <li class="facebook">
+                            <div class="fb-like" data-href="https://calil.jp/book/4901676032"
+                                data-layout="button" data-action="like" data-show-faces="true" data-share="true"></div>
+                        </li>
+                    </ul>
+                    <div class="wishlist">
+                        <div class="wishlist_count">
+                            読みたいリスト
+                        </div>
+                        <div class="yomitaiButton"></div>
+                    </div>
+                </div>
+                <div class="liblist">
+                </div>
+                <div class="more">
+                    <div class="area_title">
+                        <h3> <span id="find_more_txt">もっと</span>もっと探す</h3><a id="find_more_btn"
+                            href="javascript:showFindMore();">+もっと</a>
+                        <script>
+                            function showFindMore() {
+                                document.getElementById('find_more_txt').style.display = 'inline';
+                                var find_more_btn = document.getElementById('find_more_btn');
+                                find_more_btn.style.color = '#aaaaaa';
+                                find_more_btn.style.textDecoration = 'none';
+                                document.getElementById('find_more').style.display = 'block';
+                            }
+                            window.addEventListener('DOMContentLoaded', (event) => {
+                                showFindMore();
+                            });
+                        </script>
+                    </div>
+                    <form action="/book/4901676032/search" method="GET" id="pref_search">
+                        <select name="pref" onchange="document.getElementById('pref_search').submit()">
+                            <option value=""></option>
+                            <optgroup label="北海道・東北地方">
+                                <option value="北海道">北海道</option>
+                                <option value="青森県">青森県</option>
+                                <option value="岩手県">岩手県</option>
+                                <option value="秋田県">秋田県</option>
+                                <option value="宮城県">宮城県</option>
+                                <option value="山形県">山形県</option>
+                                <option value="福島県">福島県</option>
+                            </optgroup>
+                            <optgroup label="関東地方">
+                                <option value="茨城県">茨城県</option>
+                                <option value="栃木県">栃木県</option>
+                                <option value="群馬県">群馬県</option>
+                                <option value="埼玉県">埼玉県</option>
+                                <option value="千葉県">千葉県</option>
+                                <option value="東京都">東京都</option>
+                                <option value="東京都（大学）">東京都（大学）</option>
+                                <option value="神奈川県">神奈川県</option>
+                            </optgroup>
+                            <optgroup label="中部地方">
+                                <option value="新潟県">新潟県</option>
+                                <option value="長野県">長野県</option>
+                                <option value="山梨県">山梨県</option>
+                                <option value="富山県">富山県</option>
+                                <option value="石川県">石川県</option>
+                                <option value="福井県">福井県</option>
+                            </optgroup>
+                            <optgroup label="東海地方">
+                                <option value="岐阜県">岐阜県</option>
+                                <option value="三重県">三重県</option>
+                                <option value="静岡県">静岡県</option>
+                                <option value="愛知県">愛知県</option>
+                            </optgroup>
+                            <optgroup label="近畿地方">
+                                <option value="大阪府">大阪府</option>
+                                <option value="京都府">京都府</option>
+                                <option value="滋賀県">滋賀県</option>
+                                <option value="兵庫県">兵庫県</option>
+                                <option value="奈良県">奈良県</option>
+                                <option value="和歌山県">和歌山県</option>
+                            </optgroup>
+                            <optgroup label="中国地方">
+                                <option value="鳥取県">鳥取県</option>
+                                <option value="島根県">島根県</option>
+                                <option value="岡山県">岡山県</option>
+                                <option value="広島県">広島県</option>
+                                <option value="山口県">山口県</option>
+                            </optgroup>
+                            <optgroup label="四国地方">
+                                <option value="愛媛県">愛媛県</option>
+                                <option value="高知県">高知県</option>
+                                <option value="香川県">香川県</option>
+                                <option value="徳島県">徳島県</option>
+                            </optgroup>
+                            <optgroup label="九州地方">
+                                <option value="福岡県">福岡県</option>
+                                <option value="佐賀県">佐賀県</option>
+                                <option value="長崎県">長崎県</option>
+                                <option value="大分県">大分県</option>
+                                <option value="熊本県">熊本県</option>
+                                <option value="宮崎県">宮崎県</option>
+                                <option value="鹿児島県">鹿児島県</option>
+                                <option value="沖縄県">沖縄県</option>
+                            </optgroup>
+                        </select> の図書館をまとめて探す
+                    </form>   
+                    <p class="openbs">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M36.8 192H603.2c20.3 0 36.8-16.5 36.8-36.8c0-7.3-2.2-14.4-6.2-20.4L558.2 21.4C549.3 8 534.4 0 518.3 0H121.7c-16 0-31 8-39.9 21.4L6.2 134.7c-4 6.1-6.2 13.2-6.2 20.4C0 175.5 16.5 192 36.8 192zM64 224V384v80c0 26.5 21.5 48 48 48H336c26.5 0 48-21.5 48-48V384 224H320V384H128V224H64zm448 0V480c0 17.7 14.3 32 32 32s32-14.3 32-32V224H512z"/></svg>                      <a href="https://demo.openbs.jp/4901676032" target="_blank">近くの書店在庫を調べる</a>
+                    </p>
+                    <style>
+                      .openbs {
+                        display: flex;
+                        justify-content: flex-start;
+                        align-items: center;
+                        gap: 0.3rem;
+                      }
+                      .openbs svg {
+                        height: 16px;
+                        fill: #999999;
+                      }
+                      .openbs a {
+                        color: #1F9AFF;
+                        text-decoration: none;
+                        position: relative;
+                        top: 1px;
+                      }
+                      .openbs a:hover {
+                        text-decoration: underline;
+                      }
+                    </style>
+                    <div id="find_more">
+                        <hr>
+                        <form action="/book/4901676032/search" method="get" id="nearby">
+                            <input id="nearby" type="search" placeholder="" name="nearby" value="">
+                            <button>図書館を検索</button>
+                        </form>
+                        <p>
+                            <img src="https://calil.jp/public/img/icon/cinii.png" width="16" height="16">
+                            <a target="_blank" href="https://cir.nii.ac.jp/openurl/query?url_ver=Z39.88-2004&ctx_ver=Z39.88-2004&rft_val_fmt=info:ofi/fmt:kev:mtx:book&rft.genre=book&rft.isbn=9784901676038">
+                                CiNii Researchで大学図書館の所蔵を調べる
+                            </a>
+                        </p>
+                    </div>
+                </div>
+                <div class="detail" itemprop="description">
+                    <div class="area_title">
+                        <h3>詳しい情報</h3>
+                    </div>
+                    <p>出版社: <span itemprop="publisher">九天社</span><span itemprop="datePublished">(2002-02-01)</span></p>
+                    <p>単行本: 189
+                    ページ
+                    </p>
+                    <p><span itemprop="isbn">ISBN-10:</span> 4901676032
+                    &nbsp;<span itemprop="isbn">ISBN-13:</span> 9784901676038
+                    </p>
+                </div>
+            </div>
+        </main>
+        <aside>
+            <div class="other">
+                <h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512" width="12" height="12">
+                        <path
+                            d="M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z">
+                        </path>
+                    </svg>ほかのサービスで見る
+                </h4>
+                <div class="bottom_line"><a class="linkbutton" target="_blank" href="https://booklog.jp/item/1/4901676032"><img src="/public/img/gyazo/3a84e709fbf9419072b2768f6c8cf223.png">ブクログ</a><a class="linkbutton" target="_blank" href="https://bookmeter.com/b/4901676032"><img src="/public/img/gyazo/f8d5ff7e85b148cac2ac93a605563917.png">読書メーター</a><a class="linkbutton" target="_blank" href="https://www.librarything.com/isbn/4901676032"><img src="/public/img/gyazo/43d45cef4b83e16271c126dccb6bdeec.png">LibraryThing</a><a class="linkbutton" target="_blank" href="https://www.honzuki.jp/book/book/isbn9784901676038/index.html"><img src="/public/img/parts/honzuki.gif">本が好き!</a><a class="linkbutton" target="_blank" href="https://cir.nii.ac.jp/openurl/query?url_ver=Z39.88-2004&amp;ctx_ver=Z39.88-2004&amp;rft_val_fmt=info:ofi/fmt:kev:mtx:book&amp;rft.genre=book&amp;rft.isbn=9784901676038"><img src="/public/img/icon/cinii.png">CiNii Research</a><a class="linkbutton" target="_blank" href="https://ndlsearch.ndl.go.jp/api/openurl?isbn=9784901676038"><img src="/public/img/gyazo/cc01aedc5928c73652059a911c3badf0.png">国立国会図書館サーチ</a><a class="linkbutton" target="_blank" href="https://www.hanmoto.com/bd/isbn/9784901676038"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAACYktHRAD/h4/MvwAAAAd0SU1FB+kGGgYTC7/LRhkAAADWSURBVCjPbZGhdcMwGIQ/54UHhGsDZwKRYvOAkGLxEm1QUN4NsoEmqEG5Jqg3yARfgRXXTnN6epKe7r+7X4IF1Un+YQ+QnChdpAeyX6vr3FYRMFplMz7cbwUnIPC5nIduUchiMIvxSZJFMmwMotA1Qotz5G1b+mdRLEIRey9eXaKvLQZLswmO4iDs7pweuLVdz0QCXlgR3gEYgROvQOXAeSaMQmi0H+DIeX4DQgc7+OZOuFEAiABcucwhk5gt4qHNuRNk7mY0Wq0Gs6PVweQkJIen//uAX3zRhpm7tj6jAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI1LTA2LTI2VDA2OjE5OjEwKzAwOjAwDLBISwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNS0wNi0yNlQwNjoxOToxMCswMDowMH3t8PcAAAAodEVYdGRhdGU6dGltZXN0YW1wADIwMjUtMDYtMjZUMDY6MTk6MTErMDA6MDCMj9qcAAAAAElFTkSuQmCC">版元ドットコム</a><a class="linkbutton" href="/profile/coop?redirect=/book/4901676032"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M507.73 109.1c-2.24-9.03-13.54-12.09-20.12-5.51l-74.36 74.36-67.88-11.31-11.31-67.88 74.36-74.36c6.62-6.62 3.43-17.9-5.66-20.16-47.38-11.74-99.55.91-136.58 37.93-39.64 39.64-50.55 97.1-34.05 147.2L18.74 402.76c-24.99 24.99-24.99 65.51 0 90.5 24.99 24.99 65.51 24.99 90.5 0l213.21-213.21c50.12 16.71 107.47 5.68 147.37-34.22 37.07-37.07 49.7-89.32 37.91-136.73zM64 472c-13.25 0-24-10.75-24-24 0-13.26 10.75-24 24-24s24 10.74 24 24c0 13.25-10.75 24-24 24z"/></svg>カスタマイズ</a>
+                </div>                
+            </div>
+            <div class="openbd">
+            </div>
+
+            <div class="review_area">
+                <h4>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512" width="12" height="12">
+                        <path
+                            d="M256 32C114.6 32 0 125.1 0 240c0 49.6 21.4 95 57 130.7C44.5 421.1 2.7 466 2.2 466.5c-2.2 2.3-2.8 5.7-1.5 8.7S4.8 480 8 480c66.3 0 116-31.8 140.6-51.4 32.7 12.3 69 19.4 107.4 19.4 141.4 0 256-93.1 256-208S397.4 32 256 32z">
+                        </path>
+                    </svg>書評とコメント
+                </h4>
+                <div class="reviews">
+                    <div class="review_post">
+                    
+                    
+                    </div>
+                    <script>
+                        function post_like(id) {
+                            var url = '/review/like';
+                            var headers = {
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+                            }
+                            var params = {id: id};
+                            var body = Object.keys(params).map(function(key){return key+'='+encodeURIComponent(params[key])}).join('&');
+                            fetch(url, {
+                                method: 'POST',
+                                headers: headers,
+                                body: body
+                            }).then(function(r){ return r.json() }).then(function(data) {
+                                if (data.stat === 'ok') {
+                                    document.getElementById('like' + id).innerHTML = 'ありがとうございました。';
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(function() {
+                                alert('サーバーからの応答がありません。');
+                            });
+                        };
+
+                    </script>
+                </div>
+                <div class="lets_post">
+                    <span>この本の感想を書いてみよう。</span>
+                    <a href="/review/4901676032/post" class="post">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 576 512" width="12" height="12">
+                            <path
+                                d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z">
+                            </path>
+                        </svg>
+                        この本にコメントする
+                    </a>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+    <div class="footer">
+        <p>
+            <a href="/doc/about.html">カーリルについて</a> -
+            <a href="/doc/lib.html">図書館の方へ</a> -
+            <a href="/local/">ローカル</a> -
+            <a href="/doc/api.html">図書館 API</a> - 
+            <a href="/doc/download.html">バナー・素材</a> 
+        </p>
+        
+        <p>
+            <a href="/">ホーム</a> -
+            <a href="/company/">運営会社</a> -
+            <a href="https://blog.calil.jp/">ブログ</a> - 
+            <a href="https://twitter.com/caliljp">Twitter</a> -
+            <a href="/privacy/freedom.html">図書館の自由</a> -
+            <a href="/privacy/">プライバシーポリシー</a> -
+            <a href="/doc/contact.html">お問い合わせ</a>
+        </p>
+    </div>
+<script type="text/javascript" charset="utf-8">
+var calil = {};
+function get_query() {
+  var hash, hashes, i, vars;
+  vars = [];
+  hash = void 0;
+  hashes = window.location.href.slice(window.location.href.indexOf("?") + 1).split("&");
+  i = 0;
+  while (i < hashes.length) {
+    hash = hashes[i].split("=");
+    vars.push(hash[0]);
+    vars[hash[0]] = hash[1];
+    i++;
+  }
+  return vars;
+}
+
+function buildQueryString(params) {
+  var parts = [];
+  var add = function(key, value) {
+    parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+  }
+  for (var key in params) {
+      var param = params[key];
+      if (Array.isArray(param)) {
+        param.map(function(value) {
+          add(key, value);
+        });
+      }
+      else {
+        add(key, param);
+      }
+  }
+  return '?' + parts.join('&').replace(/%20/g, '+');
+}
+
+calil.library = {
+  add_mode: false,
+  setAddMode: function() {
+    this.add_mode = true;
+  },
+  addLibrary: function(sysid, func) {
+    this.setLibrary({
+      sysid: sysid,
+      add: true,
+      func: func
+    });
+  },
+  setLibrary: function(param) {
+    if (this.add_mode) param['add'] = true;
+    var url = '/set_place_json' + buildQueryString(param);
+    fetch(url).then(function(r) { return r.json()}).then((function(_this) {
+        return function(data) {
+          if (data.stat === "ok") {
+            if (location.search.match('from=settings')) {
+              return location.href = '/settings';
+            } else if (location.pathname === "/" || location.pathname.indexOf('/library') === 0) {
+              return location.href = '/start';
+            } else if (location.pathname === '/settings') {
+              if ((get_query().redirect != null) === true) {
+                return location.href = get_query().redirect;
+              } else {
+                return location.href = location.pathname + location.search;
+              }
+            } else {
+              return location.reload();
+            }
+          } else if (data.stat === 'confirm') {
+            if (!confirm(data.message)) {
+              return;
+            }
+            param['force'] = 'true';
+            return _this.setLibrary(param);
+          } else {
+            return alert('エラー: ' + data.message);
+          }
+        };
+      })(this)
+    )
+    .catch(function() {
+        alert('サーバーからの応答がありません。');
+    })
+  }
+};
+
+// 位置情報から探す
+calil.geo = {
+  getGeoLib: function() {
+    var callback;
+    callback = (function(_this) {
+      return function(lat, lng) {
+        var params = {
+          lat: lat,
+          lon: lng,
+          limit: 30
+        };
+        var url = '//api.calil.jp/mobile/recommend' + buildQueryString(params);
+        fetch(url).then(function(r) {return r.json()}).then(function(data) {
+          var j, len, message, n, nearest_lib, ref;
+          if (data.nearby.length <= 0) {
+            return alert('近くに図書館が見つかりません');
+          }
+          nearest_lib = null;
+          ref = data.nearby;
+          for (j = 0, len = ref.length; j < len; j++) {
+            n = ref[j];
+            if (n.icon !== 'school') {
+              nearest_lib = n;
+              break;
+            }
+          }
+          if (!nearest_lib) {
+            nearest_lib = data.nearby[0];
+          }
+          message = nearest_lib.name + 'が見つかりました。この図書館を設定しますか？';
+          if (confirm(message)) {
+            calil.library.setLibrary({
+              sysid: nearest_lib.id,
+              add: true
+            });
+          }
+        })
+        .catch(function() {
+          alert('読み込みに失敗しました。');
+        })
+      };
+    })(this);
+    return this._getGeolocation(callback);
+  },
+  _getGeolocation: function(callback, hideerror) {
+    var error;
+    if (!navigator.geolocation) {
+      return;
+    }
+    error = (hideerror ? function() {} : this._errorFunc);
+    return navigator.geolocation.getCurrentPosition((function(position) {
+      var lat, lng;
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+      return callback(lat, lng);
+    }), error, {
+      enableHighAccuracy: true
+    });
+  },
+  _errorFunc: function(error) {
+    var message = '';
+    switch (error.code) {
+      case error.POSITION_UNAVAILABLE:
+        message = '位置情報の取得ができませんでした。';
+        break;
+      case error.PERMISSION_DENIED:
+        message = '位置情報取得の使用許可がされませんでした。';
+        break;
+      case error.PERMISSION_DENIED_TIMEOUT:
+        message = '位置情報取得中にタイムアウトしました。';
+    }
+    alert(message);
+  }
+};
+
+var create_uuid = function() {
+  var S4;
+  S4 = function() {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+  };
+  return S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4();
+};
+
+// 蔵書検索
+calil.api = {
+  search: {
+    server: 'https://api.calil.jp',
+    appkey: '1f797b9d960207280336610120edb44a',
+    uuid: null,
+    session: false,
+    order: false,
+    systemid_list: [],
+    isbn_list: [],
+    api_url: false,
+    first_apiurl: false,
+    api_retry_count: 0,
+    api_pause: false,
+    api_call_count: 0,
+    api_complete: false,
+    api_timeout_timer: 0,
+    data_cache: "",
+    initialize: function() {
+      this.uuid = create_uuid();
+      this.order = false;
+      this.systemid_list = [];
+      this.isbn_list = [];
+      this.api_url = false;
+      this.first_apiurl = false;
+      this.api_retry_count = 0;
+      this.api_pause = false;
+      this.api_call_count = 0;
+      this.api_complete = false;
+      this.data_cache = "";
+    },
+    add_systemid: function(sytemid) {
+      return this.systemid_list = this.systemid_list.concat(sytemid.split(","));
+    },
+    add_isbn: function(isbn) {
+      return this.isbn_list = this.isbn_list.concat(isbn.split(","));
+    },
+    start: function() {
+      this.first_apiurl = this.server + '/check?appkey=' + this.appkey + '&systemid=' + this.systemid_list.join(',') + '&isbn=' + this.isbn_list.join(',');
+      if (this.order) {
+        this.first_apiurl += '&order=' + this.order;
+      }
+      return this.call_api(this.first_apiurl);
+    },
+    api_timeout: function() {
+      return calil.api.render.timeoutSearchProgress();
+    },
+    check_change_uuid: function(uuid) {
+      if (this.uuid !== uuid) {
+        log('uuidが変更');
+        return true;
+      }
+      return false;
+    },
+    call_api: function(url, uuid) {
+      var data;
+      if (uuid == null) {
+        uuid = this.uuid;
+      }
+      this.api_url = url;
+      url += '&callback=no' + '&' + new Date().getTime() // IE11 でキャッシュされる問題対策
+      fetch(url, {cache: 'no-cache'}).then(function(r) {return r.json()}).then((function(_this) {
+          return function(data) {
+            if (_this.check_change_uuid(uuid)) {
+              return;
+            }
+            _this.callback(data, uuid);
+          };
+      })(this))
+      .catch((function(_this) {
+          return function(data) {
+            if (_this.check_change_uuid(uuid)) {
+              return;
+            }
+            if (_this.api_url && _this.api_retry_count <= 2) {
+              _this.api_call_count = 0;
+              return setTimeout((function() {
+                _this.call_api(_this.api_url, uuid);
+                return _this.api_retry_count++;
+              }), 5000);
+            } else {
+              return _this.api_timeout();
+            }
+          };
+        })(this));
+    },
+    callback: function(data, uuid) {
+      var session = data['session'];
+      var conti = data['continue'];
+      this.data_cache = data;
+      if (conti === 1) {
+        this.api_call_count++;
+        var seconds;
+        if (this.api_call_count < 3) {
+          seconds = 1000;
+        } else if (this.api_call_count < 7) {
+          seconds = 1200;
+        } else {
+          seconds = 3000;
+        }
+        var newurl = this.server + '/check?appkey=' + this.appkey + '&session=' + session;
+        if (this.order) {
+          newurl += '&order=' + this.order;
+        }
+        setTimeout(((function(_this) {
+          return function() {
+            return _this.call_api(newurl, uuid, data);
+          };
+        })(this)), seconds);
+      } else {
+        this.api_complete = true;
+      }
+      calil.api.render.render_books(data);
+    },
+  },
+  render: {
+    filter_system_id: "all",
+    filter_libkey: "",
+    initialize: function() {
+      this.filter_system_id = "all";
+      this.filter_libkey = "";
+    },
+    timeoutSearchProgress: function() {
+        var i;
+        i = 0;
+        [].slice.call(document.querySelectorAll('.system_status')).map(function(item, i) {
+            item.innerHTML = '：タイムアウト';
+        });
+    },
+    render_books: function(data) {
+        for (isbn in data.books) {
+          for (systemid in data.books[isbn]) {
+            this.render_detail(systemid, data.books[isbn][systemid]);
+          }
+        }
+    },
+    render_detail: function(systemid, systemData) {
+        if (systemData.status === 'Running') return;
+        if (systemData.status === 'Error') {
+            return document.querySelector('#' + systemid + ' .system_status').innerHTML = '：検索失敗';            
+        }
+        var html = '<div class="wrap">';
+        var systemStatus = '蔵書なし';
+        for (i in systemData.libkey) {
+          systemStatus = systemData.libkey[i];
+          var statusId = this.getStatusId(systemStatus);
+          if (i === '電子書籍') {
+              html += '' + i;
+          } else {
+              html += '<a class="' + statusId + '" href="/library/search?s=' + systemid + '&k=' + (encodeURIComponent(i)) + '"><div class="lib"><div>' + i + '</div><div class="status">' + systemStatus + '</div></div></a>';
+          }
+        }
+        html += '</div>';
+        if (systemData.reserveurl !== '' && systemStatus !== '蔵書なし') {
+            html += '<a href="' + systemData.reserveurl + '" target="_blank" class="reservation">予約する</a>';
+        }
+        document.querySelector('#' + systemid + ' .system_status').innerHTML = '：' + systemStatus;
+        document.querySelector('#' + systemid + ' > .list').innerHTML = html;
+        // setTimeout((function() {
+        //     document.querySelector('#' + systemid + ' > .result').innerHTML = html;
+        // }), 100);
+    },
+    getStatusId: function(status) {
+        var statusId = '';
+        var statusIds = {
+            '': 'nostatus',
+            '貸出可': 'available',
+            '蔵書あり': 'collection',
+            '館内のみ': 'inside',
+            '貸出中': 'lending',
+            '予約中': 'reserved',
+            '準備中': 'ordering',
+            '蔵書なし': 'notfound',
+        };
+        if (statusIds[status]) {
+            statusId = statusIds[status];
+        } else {
+            // 知らないstatusがきたら、"蔵書あり"と同等に扱う 例) 長期延滞、行方不明
+            statusId = 'hold';
+        }
+        return statusId;
+    }
+  }
+};
+</script>
+<script type="text/javascript" charset="utf-8">
+    (new Image).src = '/public/img/icon/run.gif';
+    var book_title = 'PHPを使おう: PHPで広がるWebビジネス展開';
+</script>
+<script type="text/javascript" charset="utf-8">
+    var mode = 'single';
+    calil.api.search.notfound_func = showFindMore;
+</script>
+<script>
+    calil.api.search.initialize();
+    calil.api.render.initialize();
+    calil.api.search.add_isbn('4901676032');
+</script>
+<script>
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s);
+            js.id = id;
+            js.async = true;
+            js.src = "//connect.facebook.net/ja_JP/sdk.js#xfbml=1&version=v19.0&appId=270660792981320";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+</script>
+  <style>
+  .yomitaiButton {
+    width: 180px;
+    position: relative;
+    display: flex;
+    border: 1px solid #dddddd;
+    border-radius: 100px;
+    background: #ffffff;
+    background: linear-gradient(to bottom,  #ffffff 0%,#ffffff 68%,#e8e8e9 97%);
+    overflow: hidden;
+  }
+  .yomitaiButton button {
+    width: 70px;
+    cursor: pointer;
+    width: 50%;
+    padding: 5px 0;
+    display: block;
+    font-size: 1rem;
+    text-align: center;
+    color: #3E3E3E;
+    background: transparent;
+    z-index: 1;
+    border: none;
+  }
+  .yomitaiButton button.active {
+    position: relative;
+    color: #ffffff;
+    background: #F3AB00;
+  }
+  .yomitaiButton button.wish {
+    padding-left: 0.35rem;
+  }
+  .yomitaiButton button.read {
+    padding-right: 0.25rem;
+  }
+  .yomitaiButton.disabled button {
+    background-color: #E1E1E1;
+    cursor: not-allowed;
+  }
+  .yomitaiButton.disabled button.active {
+    background: #8B8B8B !important;
+  }
+  </style>
+  <script>
+    
+
+  /**
+   * @typedef State
+   * @property {boolean} wish 読みたいリストに入っているかどうか
+   * @property {boolean} read 読んだリストに入っているかどうか
+   * 
+   */
+  
+  /**
+   * 読みたいリストボタンのクラス
+   *
+   * @class YomitaiButton
+   */
+   class YomitaiButton {
+    /**
+     * コンストラクタ
+     *
+     * @param {State[]} states 各ボタンの状態
+     * @param {string} selector ボタンのセレクタ
+     * @param {string} activeClass アクティブ状態のクラス名
+     */
+    constructor(states, selector, activeClass, callback) {
+      this.states = states
+      this.selector = selector
+      this.activeClass = activeClass
+      this.callback = callback
+      this.render()
+    }
+    setStates(states) {
+      this.states = states
+      this.render()
+    }
+    /**
+     * ボタンを描画する
+     *
+     */
+    render() {
+      const buttons = document.querySelectorAll(this.selector)
+      Array.from(buttons).forEach((button, index) => {
+        button.textContent = ''
+        button.appendChild(this.createButton('wish', '読みたい', index))
+        button.appendChild(this.createButton('read', '読んだ', index))
+      })
+      this.addEvent()
+    }
+    /**
+     * ボタンのエレメントを作成する
+     * 
+     * @param {string} name リストの名前 wish or read
+     * @param {string} text ボタンのテキスト
+     * @param {number} index ボタンのインデックス
+     */
+    createButton(name, text, index) {
+      const button = document.createElement('button')
+      button.textContent = text
+      button.dataset.name = name
+      if (this.states[index][name]) button.classList.add(this.activeClass)
+      return button
+    }
+    addEvent() {
+      const buttons = document.querySelectorAll(this.selector + ' > button')
+      Array.from(buttons).forEach((button, i) => {
+        const index = Math.floor(i / 2)
+        'mousedown keydown'.split(' ').forEach((eventName)=>{
+          button.addEventListener(eventName, (event) => {
+            if (event.type!=='mousedown') {
+              console.log(event)
+              if (event.type==='keydown') {
+                if (event.key!=='Tab') event.preventDefault()
+                console.log(event.key)
+                if (event.key!=='Enter' && event.keyCode!==32) return
+              }
+            }
+            const name = button.dataset.name
+            const states = this.states.concat() // statesのコピーを作成
+            const prevState = Object.assign({}, states[index]) // states[index]のコピーを作成
+            let action
+            if (states[index][name]===true) {
+              // すでにリストに登録されている場合は削除
+              action = 'delete';
+            } else {
+              // 別のリストに登録されている場合は移動
+              const otherName = name==='wish' ? 'read' : 'wish';
+              if (states[index][otherName]===true) {
+                action = 'move';
+              } else {
+                action = 'add';
+              }
+            }
+            if (action==='add') {
+              states[index][name] = true
+            }
+            if (action==='move') {
+              states[index] = {
+                wish: !states[index].wish,
+                read: !states[index].read
+              }
+            }
+            if (action==='delete') {
+              states[index] = {
+                wish: false,
+                read: false
+              }
+            }
+            this.setStates(states)
+            // キャンセルやエラー時に状態を戻す関数
+            const revertState = () => {
+              const states = this.states.concat() // statesのコピーを作成
+              states[index] = prevState
+              this.setStates(states)
+            }
+            this.callback(name, action, index, revertState)
+          })
+        })
+      })
+    }
+  }
+  const bookJSON = [
+    {
+      id: '4901676032',
+      isbn: '4901676032',
+      title: 'PHPを使おう: PHPで広がるWebビジネス展開',
+      volume: '',
+      author: 'WebビジネスPHP研究部会',
+      pubdate: '2002-02-01',
+      publisher: '九天社',
+      source: 'amazon',
+    },
+  ]
+  new YomitaiButton([
+    {wish: false, read: false},
+  ], '.yomitaiButton', 'active', (name, action, index, revertState) => {
+    
+    return location.href = '/login?redirect=' + escape(location.pathname + location.search);
+    
+  })
+  </script>
+    <script type="text/javascript" charset="utf-8" src="/public/web-html/js/menusp.js"></script>
+</body>
+</html>

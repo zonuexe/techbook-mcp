@@ -2,6 +2,7 @@ import type { BookRecord } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import { checkRobotsTxt } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, openBDEntryToBookRecord } from "../adapters/openbd.js";
+import { fetchCalilBook } from "../adapters/calil.js";
 
 /**
  * ISBNから書籍情報を取得する。
@@ -9,6 +10,7 @@ import { fetchOpenBDBooks, openBDEntryToBookRecord } from "../adapters/openbd.js
  * 1. openBD で書誌情報と出版社ストアリンクを取得する
  * 2. ストアリンクが既知アダプターと一致する場合は出版社サイトから詳細取得を試みる
  * 3. 取得できない場合は openBD データをそのまま返す
+ * 4. openBD にも存在しない場合はカーリルから書誌情報を取得する（廃業出版社など）
  */
 export async function getBookByIsbn(
   isbn: string,
@@ -21,7 +23,10 @@ export async function getBookByIsbn(
   const entry = openBDMap.get(normalizedIsbn);
 
   if (!entry) {
-    throw new Error(`openBDに書誌情報が見つかりません: ${isbn}`);
+    // openBD にない場合はカーリルをフォールバックとして試みる（廃業出版社など）
+    const calilBook = await fetchCalilBook(normalizedIsbn, deps);
+    if (calilBook) return calilBook;
+    throw new Error(`書誌情報が見つかりません: ${isbn}`);
   }
 
   // hanmoto.storelink が既知アダプターの baseUrl と前方一致する場合は
