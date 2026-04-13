@@ -118,25 +118,13 @@ export const tatsuZineAdapter: PublisherAdapter = {
     const imgSrc = imgEl?.attr("src");
     const coverImageUrl = imgSrc ? resolveUrl(BASE_URL, imgSrc) : undefined;
 
-    // 著者・価格: dl > dd 構造を優先し、なければ p 要素を走査
-    let authors: string[] = [];
-    let price: number | undefined;
+    // 著者: <p itemprop="author"> を優先使用
+    const authorText = doc.selectOne("p[itemprop='author']")?.text().trim() ?? "";
+    const authors = authorText ? parseAuthors(authorText) : [];
 
-    const candidates = [
-      ...doc.select("dd"),
-      ...doc.select("p"),
-    ];
-
-    for (const el of candidates) {
-      const text = el.text().trim();
-      if (!authors.length && /[（(][著訳監編]/.test(text)) {
-        authors = parseAuthors(text);
-      }
-      if (price === undefined && /^\d/.test(text) && /円/.test(text)) {
-        price = parsePrice(text);
-      }
-      if (authors.length && price !== undefined) break;
-    }
+    // 価格: <span itemprop="price"> を優先使用
+    const priceText = doc.selectOne("span[itemprop='price']")?.text().trim() ?? "";
+    const price = priceText ? parsePrice(priceText) : undefined;
 
     // 達人出版会は全書籍で購入者情報を各ページに印字 (ソーシャルDRM)
     const ebookStores: EbookStore[] = [{ name: "達人出版会", url, drm: "social" }];
