@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-04-19
+
+### Added
+
+- 日科技連出版社 (`juse-p`) アダプターを追加
+- Google Books アダプター (`google-books`) を追加（APIキー未設定時は無効化）
+- `techbook-mcp setup` コマンドを追加: Google Books API キーを対話入力し OS 固有の設定ディレクトリに保存
+  - Linux: `$XDG_CONFIG_HOME/techbook-mcp/credentials.json`
+  - macOS: `~/Library/Application Support/techbook-mcp/credentials.json`
+  - Windows: `%APPDATA%\techbook-mcp\credentials.json`
+- ISBN出版者記号から出版社アダプターを特定するマッピング (`PUBLISHER_ISBN_CODES`) を追加（13出版社）
+- `get_book_by_isbn` が openBD の storelink に加え、ISBN出版者記号からも対応アダプターを特定して出版社サイトから直接取得を試みるよう改善
+
 ## [0.2.3] - 2026-04-13
 
 ### Added
@@ -47,7 +60,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.0...v0.2.1
