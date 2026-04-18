@@ -20,6 +20,7 @@ describe("findAdapterIdByIsbn()", () => {
     ["9784844309840", "impress",           "インプレス"],
     ["9784862463364", "born-digital",      "ボーンデジタル"],
     ["9784839998012", "manatee",           "マイナビ出版"],
+    ["9784902312782", "optronics",         "オプトロニクス社"],
   ];
 
   for (const [isbn, expectedId, label] of cases) {

@@ -8,7 +8,7 @@
  * 出典: JPO登録出版者照会 https://isbn.jpo.or.jp/index.php/fix__ref_pub/
  * および各出版社公式サイト・版元ドットコムにて確認済み（2026-04-19）。
  *
- * 電子書籍専業（達人出版会・PEAKS・オプトロニクスeBook）や
+ * 電子書籍専業（達人出版会・PEAKS）や
  * 書店プラットフォーム（BOOK TECH・技術書典）はISBN出版者記号なし。
  */
 
@@ -27,6 +27,7 @@ export const PUBLISHER_ISBN_CODES: ReadonlyMap<string, readonly string[]> = new 
   ["rutles",            ["89977"]],
   ["manatee",           ["8399"]],
   ["lambdanote",        ["908686"]],
+  ["optronics",         ["902312"]],
 ]);
 
 /**
