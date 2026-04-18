@@ -90,11 +90,15 @@ Claude が `list_publishers` ツールを呼び出し、出版社名と ID の�
 ISBN出版者記号（`978-4-XXXXX-...` の `XXXXX` 部分）が登録されている出版社は、ISBNだけで直接検索できます。
 「—」は電子書籍専業・同人誌マーケット等でISBN出版者記号を持たないソースです。
 
-### 外部 API
+### 外部 API・データソース
 
-| サービス | ID | 備考 |
-|---|---|---|
-| Google Books | `google-books` | APIキー必須（`techbook-mcp setup` で設定） |
+| サービス | ID | 用途 | 備考 |
+|---|---|---|---|
+| Google Books | `google-books` | 横断検索 | APIキー必須（`techbook-mcp setup` で設定） |
+| [openBD](https://openbd.jp/) | — | ISBN検索のバックボーン | 自動使用・設定不要 |
+| [カーリル](https://calil.jp/) | — | openBDにない書籍のフォールバック | 自動使用・設定不要 |
+
+**openBD** は `get_book_by_isbn` ツールで常に参照される書誌情報データベースです。ISBN で書籍を検索すると、まず openBD から書誌情報・出版社ストアリンクを取得し、対応する出版社アダプターがあればそのサイトから詳細情報を補完します。openBD にない書籍（絶版・廃業出版社など）はカーリルにフォールバックします。
 
 ## MCPツール
 
