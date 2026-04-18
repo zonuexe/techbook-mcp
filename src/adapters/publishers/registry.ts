@@ -1,9 +1,11 @@
 import type { PublisherAdapter } from "../../domain/publisher.js";
 import { bookTechAdapter } from "./book-tech.js";
+import { googleBooksAdapter } from "./google-books.js";
 import { bornDigitalAdapter } from "./born-digital.js";
 import { coronashaAdapter } from "./coronasha.js";
 import { gihyoAdapter } from "./gihyo.js";
 import { impressBooksAdapter } from "./impress.js";
+import { jusePAdapter } from "./juse-p.js";
 import { lambdanoteAdapter } from "./lambdanote.js";
 import { manateeAdapter } from "./manatee.js";
 import { maruzenPublishingAdapter } from "./maruzen-publishing.js";
@@ -23,6 +25,7 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   coronashaAdapter,
   gihyoAdapter,
   impressBooksAdapter,
+  jusePAdapter,
   lambdanoteAdapter,
   manateeAdapter,
   maruzenPublishingAdapter,
@@ -35,4 +38,5 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   seshopAdapter,
   tatsuZineAdapter,
   techbookfestAdapter,
+  googleBooksAdapter,
 ];

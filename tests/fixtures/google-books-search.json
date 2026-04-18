@@ -1,0 +1,49 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 2,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "abc123XYZ",
+      "volumeInfo": {
+        "title": "ゼロから作るDeep Learning",
+        "authors": ["斎藤康毅"],
+        "publisher": "オライリー・ジャパン",
+        "publishedDate": "2016-09-24",
+        "description": "Pythonとライブラリを使いDeep Learningを一から作ることで、その仕組みを理解する。",
+        "industryIdentifiers": [
+          { "type": "ISBN_13", "identifier": "9784873117584" },
+          { "type": "ISBN_10", "identifier": "4873117585" }
+        ],
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=abc123XYZ&printsec=frontcover&img=1&zoom=5",
+          "thumbnail": "http://books.google.com/books/content?id=abc123XYZ&printsec=frontcover&img=1&zoom=1"
+        },
+        "infoLink": "https://books.google.co.jp/books?id=abc123XYZ"
+      },
+      "saleInfo": {
+        "listPrice": { "amount": 3520, "currencyCode": "JPY" }
+      }
+    },
+    {
+      "kind": "books#volume",
+      "id": "def456UVW",
+      "volumeInfo": {
+        "title": "ゼロから作るDeep Learning 2",
+        "authors": ["斎藤康毅"],
+        "publisher": "オライリー・ジャパン",
+        "publishedDate": "2018-07",
+        "industryIdentifiers": [
+          { "type": "ISBN_13", "identifier": "9784873118369" }
+        ],
+        "imageLinks": {
+          "thumbnail": "http://books.google.com/books/content?id=def456UVW&printsec=frontcover&img=1&zoom=1"
+        },
+        "infoLink": "https://books.google.co.jp/books?id=def456UVW"
+      },
+      "saleInfo": {
+        "listPrice": { "amount": 3740, "currencyCode": "JPY" }
+      }
+    }
+  ]
+}
