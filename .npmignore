@@ -1,0 +1,12 @@
+# 開発・CI
+node_modules/
+src/
+tests/
+.github/
+.claude/
+.codex/
+*.config.ts
+tsconfig.json
+deno.json
+.oxlintrc.json
+AGENTS.md
