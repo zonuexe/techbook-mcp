@@ -60,26 +60,41 @@ Claude が `get_book_detail` ツールで著者・価格・ISBN・購入可能�
 
 Claude が `list_publishers` ツールを呼び出し、出版社名と ID の一覧を返します。
 
-## 対応出版社
+## 対応ソース
 
-| 出版社 | ID |
-|--------|-----|
-| BOOK TECH | `book-tech` |
-| ボーンデジタル | `born-digital` |
-| コロナ社 | `coronasha` |
-| 技術評論社 | `gihyo` |
-| ラムダノート | `lambdanote` |
-| マナティ（マイナビ出版直販） | `manatee` |
-| 丸善出版 | `maruzen-publishing` |
-| オプトロニクス社 | `optronics` |
-| オライリー・ジャパン | `oreilly-japan` |
-| PEAKS | `peaks` |
-| パーソナルメディア | `personal-media` |
-| ラトルズ | `rutles` |
-| サイエンス社 | `saiensu` |
-| SEshop（翔泳社） | `seshop` |
-| 達人出版会 | `tatsu-zine` |
-| 技術書典オンラインマーケット | `techbookfest` |
+### 出版社・書店
+
+`publisher` パラメータに ID を指定すると、その出版社のみを検索できます。
+
+| 出版社・書店 | ID | ISBN出版者記号 | 取得方式 |
+|---|---|---|---|
+| BOOK TECH | `book-tech` | — | HTML scraping |
+| ボーンデジタル | `born-digital` | `86246` | HTML scraping (EUC-JP) |
+| コロナ社 | `coronasha` | `339` | HTML scraping |
+| 技術評論社 | `gihyo` | `297` | JSON API |
+| インプレスブックス | `impress-books` | `8443` | HTML scraping |
+| 日科技連出版社 | `juse-p` | `8171` | HTML scraping |
+| ラムダノート | `lambdanote` | `908686` | HTML scraping (Shopify) |
+| マナティ（マイナビ出版直販） | `manatee` | `8399` | HTML scraping |
+| 丸善出版 | `maruzen-publishing` | `621` | HTML scraping |
+| オプトロニクス社 | `optronics` | `902312` | HTML scraping |
+| オライリー・ジャパン | `oreilly-japan` | `8144` | HTML scraping (ローカルフィルタ) |
+| PEAKS | `peaks` | — | HTML scraping (ローカルフィルタ) |
+| パーソナルメディア | `personal-media` | `89362` | HTML scraping (ローカルフィルタ) |
+| ラトルズ | `rutles` | `89977` | HTML scraping (EUC-JP) |
+| サイエンス社 | `saiensu` | `7819` | HTML scraping |
+| SEshop（翔泳社） | `seshop` | `7981` | HTML scraping |
+| 達人出版会 | `tatsu-zine` | — | HTML scraping |
+| 技術書典オンラインマーケット | `techbookfest` | — | GraphQL API |
+
+ISBN出版者記号（`978-4-XXXXX-...` の `XXXXX` 部分）が登録されている出版社は、ISBNだけで直接検索できます。
+「—」は電子書籍専業・同人誌マーケット等でISBN出版者記号を持たないソースです。
+
+### 外部 API
+
+| サービス | ID | 備考 |
+|---|---|---|
+| Google Books | `google-books` | APIキー必須（`techbook-mcp setup` で設定） |
 
 ## MCPツール
 
