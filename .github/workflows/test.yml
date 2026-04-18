@@ -34,6 +34,8 @@ jobs:
 
       - name: Run tests
         run: npm test
+        env:
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
 
       - name: Build
         run: npm run build
@@ -50,6 +52,8 @@ jobs:
 
       - name: Run tests
         run: bun test
+        env:
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
 
   deno:
     runs-on: ubuntu-latest
@@ -70,3 +74,5 @@ jobs:
 
       - name: Run tests
         run: deno test --allow-read --no-check --sloppy-imports tests/
+        env:
+          GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}
