@@ -157,6 +157,75 @@ describe("getBookByIsbn()", () => {
     assert.ok(deps.http.calls[0].includes("9784908686207"));
   });
 
+  it("storelink がなく ISBN出版者記号が一致する場合は search() を呼んで結果を返す", async () => {
+    const openBDBody = await readFile(join(FIXTURES_DIR, "openbd-response.json"), "utf-8");
+    const data = JSON.parse(openBDBody);
+    data[0].hanmoto = { isbn: "9784908686207" }; // storelink なし、ISBN = lambdanote (908686)
+    const http = new MockHttpClient().addResponse(
+      "https://api.openbd.jp/v1/get",
+      { status: 200, body: JSON.stringify(data) },
+    );
+    const deps = await makeOpenBDDeps(http);
+
+    const publisherBook: BookRecord = {
+      title: "型システムのしくみ（出版社サイト検索取得）",
+      authors: ["遠藤侑介"],
+      publisher: "ラムダノート",
+      url: "https://www.lambdanote.com/products/type-systems",
+      isbn: "9784908686207",
+    };
+    const adapter: PublisherAdapter = {
+      id: "lambdanote",
+      name: "ラムダノート",
+      baseUrl: LAMBDANOTE_BASE_URL,
+      search: mockFn(async () => [publisherBook]),
+      getDetail: mockFn(),
+    };
+
+    const result = await getBookByIsbn("9784908686207", [adapter], deps);
+
+    assert.strictEqual(result.title, "型システムのしくみ（出版社サイト検索取得）");
+    assert.strictEqual((adapter.search as ReturnType<typeof mockFn>).mock.callCount(), 1);
+    assert.strictEqual((adapter.getDetail as ReturnType<typeof mockFn>).mock.callCount(), 0);
+  });
+
+  it("ISBN出版者記号による search() がISBN一致する書籍を優先して返す", async () => {
+    const openBDBody = await readFile(join(FIXTURES_DIR, "openbd-response.json"), "utf-8");
+    const data = JSON.parse(openBDBody);
+    data[0].hanmoto = { isbn: "9784908686207" };
+    const http = new MockHttpClient().addResponse(
+      "https://api.openbd.jp/v1/get",
+      { status: 200, body: JSON.stringify(data) },
+    );
+    const deps = await makeOpenBDDeps(http);
+
+    const wrongBook: BookRecord = {
+      title: "別の書籍",
+      authors: [],
+      publisher: "ラムダノート",
+      url: "https://www.lambdanote.com/products/other",
+      isbn: "9784908686030",
+    };
+    const targetBook: BookRecord = {
+      title: "目的の書籍",
+      authors: ["著者"],
+      publisher: "ラムダノート",
+      url: "https://www.lambdanote.com/products/target",
+      isbn: "9784908686207",
+    };
+    const adapter: PublisherAdapter = {
+      id: "lambdanote",
+      name: "ラムダノート",
+      baseUrl: LAMBDANOTE_BASE_URL,
+      search: mockFn(async () => [wrongBook, targetBook]),
+      getDetail: mockFn(),
+    };
+
+    const result = await getBookByIsbn("9784908686207", [adapter], deps);
+
+    assert.strictEqual(result.title, "目的の書籍");
+  });
+
   it("openBD データから著者が分割される", async () => {
     const openBDBody = await readFile(join(FIXTURES_DIR, "openbd-response.json"), "utf-8");
     const data = JSON.parse(openBDBody);
