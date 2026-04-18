@@ -73,6 +73,6 @@ jobs:
       - run: npm ci
 
       - name: Run tests
-        run: deno test --allow-read --no-check --sloppy-imports tests/
+        run: deno test --allow-read --allow-env=GOOGLE_BOOKS_API_KEY --no-check --sloppy-imports tests/
         env:
           GOOGLE_BOOKS_API_KEY: ${{ secrets.GOOGLE_BOOKS_API_KEY }}

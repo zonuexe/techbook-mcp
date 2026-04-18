@@ -61,7 +61,9 @@ function volumeToBookRecord(vol: GoogleVolume): BookRecord {
 }
 
 export function makeGoogleBooksAdapter(apiKey?: string): PublisherAdapter {
-  const key = apiKey ?? process.env.GOOGLE_BOOKS_API_KEY ?? "";
+  // env アクセスはメソッド呼び出し時に遅延評価する。
+  // モジュールロード時に読むと Deno が --allow-env なしで権限エラーになる。
+  const resolveKey = () => apiKey ?? process.env.GOOGLE_BOOKS_API_KEY ?? "";
 
   return {
     id: "google-books",
@@ -69,6 +71,7 @@ export function makeGoogleBooksAdapter(apiKey?: string): PublisherAdapter {
     baseUrl: INFO_BASE,
 
     async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
+      const key = resolveKey();
       if (!key) return [];
 
       const word = [query.title, query.author].filter(Boolean).join(" ");
@@ -88,6 +91,7 @@ export function makeGoogleBooksAdapter(apiKey?: string): PublisherAdapter {
     },
 
     async getDetail(url: string, deps: PublisherDeps): Promise<BookRecord> {
+      const key = resolveKey();
       if (!key) throw new Error("GOOGLE_BOOKS_API_KEY が設定されていません");
 
       const idMatch = url.match(/[?&]id=([^&]+)/);
