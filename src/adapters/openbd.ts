@@ -1,6 +1,20 @@
 import type { PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord } from "../domain/book.js";
-import { fetchText } from "./publishers/base.js";
+import { fetchText, stripAuthorRole } from "./publishers/base.js";
+import { dedupeAuthors } from "../domain/authors.js";
+
+/**
+ * openBD の summary.author（"結城浩／著、北原かな／訳" 等）を著者名配列に分解する。
+ * 区切りで分割し、役割語（著・訳など）を除去して重複を除く。
+ */
+function parseOpenBDAuthors(author: string | undefined): string[] {
+  if (!author) return [];
+  const parts = author
+    .split(/[/／、,，]/)
+    .map(a => stripAuthorRole(a.trim()))
+    .filter(Boolean);
+  return dedupeAuthors(parts);
+}
 
 const OPENBD_API_URL = "https://api.openbd.jp/v1/get";
 
@@ -110,13 +124,9 @@ export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
   const { summary } = entry;
   const storelink = entry.hanmoto?.storelink;
 
-  const authors = summary.author
-    ? summary.author.split(/[\/／、,，]/).map(a => a.trim()).filter(Boolean)
-    : [];
-
   return {
     title: summary.title,
-    authors,
+    authors: parseOpenBDAuthors(summary.author),
     publisher: summary.publisher,
     isbn: summary.isbn,
     publishedAt: parsePubDate(summary.pubdate),
@@ -134,6 +144,8 @@ export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
 export function enrichWithOpenBD(book: BookRecord, entry: OpenBDEntry): BookRecord {
   return {
     ...book,
+    // 著者が空のとき openBD から補完する（出版社の検索APIが著者を返さない場合の救済）
+    authors: book.authors.length > 0 ? book.authors : parseOpenBDAuthors(entry.summary.author),
     publishedAt: book.publishedAt ?? parsePubDate(entry.summary.pubdate),
     price: book.price ?? getTaxIncludedPrice(entry),
     coverImageUrl: book.coverImageUrl ?? (entry.summary.cover || undefined),

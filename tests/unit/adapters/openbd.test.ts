@@ -114,6 +114,54 @@ describe("enrichWithOpenBD", () => {
     );
   });
 
+  it("authors が空のとき openBD の著者で補完する", async () => {
+    entry = await loadEntry();
+    const book: BookRecord = {
+      title: "型システムのしくみ",
+      authors: [],
+      publisher: "ラムダノート",
+      url: "https://www.lambdanote.com/products/type-systems",
+      isbn: "9784908686207",
+    };
+
+    const enriched = enrichWithOpenBD(book, entry);
+
+    assert.deepStrictEqual(enriched.authors, ["遠藤侑介"]);
+  });
+
+  it("補完時は役割語を除去し重複を除く", async () => {
+    entry = await loadEntry();
+    const entryWithRoles: OpenBDEntry = {
+      ...entry,
+      summary: { ...entry.summary, author: "結城浩／著、結城浩／著、北原かな／訳" },
+    };
+    const book: BookRecord = {
+      title: "x",
+      authors: [],
+      publisher: "x",
+      url: "https://example.com",
+    };
+
+    const enriched = enrichWithOpenBD(book, entryWithRoles);
+
+    assert.deepStrictEqual(enriched.authors, ["結城浩", "北原かな"]);
+  });
+
+  it("authors が非空なら上書きしない", async () => {
+    entry = await loadEntry();
+    const book: BookRecord = {
+      title: "型システムのしくみ",
+      authors: ["別の著者"],
+      publisher: "ラムダノート",
+      url: "https://www.lambdanote.com/products/type-systems",
+      isbn: "9784908686207",
+    };
+
+    const enriched = enrichWithOpenBD(book, entry);
+
+    assert.deepStrictEqual(enriched.authors, ["別の著者"]);
+  });
+
   it("既存フィールドは上書きしない", async () => {
     entry = await loadEntry();
     const book: BookRecord = {
