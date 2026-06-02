@@ -1,6 +1,7 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
 import { fetchText, parseJapanesePrice, extractEbookStoresFromDoc } from "./base.js";
+import { VERSION } from "../../version.js";
 
 const BASE_URL = "https://techbookfest.org";
 const GRAPHQL_URL = `${BASE_URL}/api/graphql`;
@@ -8,7 +9,7 @@ const XSRF_CACHE_KEY = "techbookfest:xsrf-token";
 const XSRF_TTL_SECONDS = 3600;
 
 const DEFAULT_HEADERS = {
-  "User-Agent": "techbook-mcp/0.1.0 (+https://github.com/zonuexe/techbook-mcp; bibliographic search bot)",
+  "User-Agent": `techbook-mcp/${VERSION} (+https://github.com/zonuexe/techbook-mcp; bibliographic search bot)`,
   "Accept": "application/json",
 };
 

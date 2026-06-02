@@ -24,6 +24,7 @@ Update these files together in one pass:
 - `CHANGELOG.md`
 - `package.json` — `"version"` field
 - `package-lock.json` — `"version"` field in the root object (same value as `package.json`)
+- `src/version.ts` — `VERSION` constant (single source of truth for the MCP server version and HTTP User-Agent; must match `package.json`)
 
 ### CHANGELOG.md Rules
 
@@ -82,7 +83,7 @@ All three must pass. Do not commit if any check fails.
 
 Prefer a single release-prep commit containing:
 
-- version bump in `package.json` and `package-lock.json`
+- version bump in `package.json`, `package-lock.json`, and `src/version.ts`
 - `CHANGELOG.md` update
 
 Use this commit message format:
@@ -97,7 +98,7 @@ Do not include other unrelated changes in the release commit.
 
 - Working tree starts clean or you understand every pending change.
 - `CHANGELOG.md` has a new `## [x.y.z] - YYYY-MM-DD` section with user-facing entries.
-- `package.json` and `package-lock.json` both show the new version.
+- `package.json`, `package-lock.json`, and `src/version.ts` all show the new version.
 - Bottom-of-file links in `CHANGELOG.md` are consistent.
 - `npm test` passed.
 - `npm run lint` passed.

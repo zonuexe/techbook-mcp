@@ -2,9 +2,10 @@ import iconv from "iconv-lite";
 import type { PublisherDeps } from "../../domain/publisher.js";
 import type { EbookStore, DrmType } from "../../domain/book.js";
 import type { HtmlDocument } from "../../ports/html-parser.js";
+import { VERSION } from "../../version.js";
 
 const DEFAULT_HEADERS = {
-  "User-Agent": "techbook-mcp/0.1.0 (+https://github.com/zonuexe/techbook-mcp; bibliographic search bot)",
+  "User-Agent": `techbook-mcp/${VERSION} (+https://github.com/zonuexe/techbook-mcp; bibliographic search bot)`,
   "Accept": "text/html,application/xhtml+xml,application/json",
   "Accept-Language": "ja,en;q=0.9",
 };

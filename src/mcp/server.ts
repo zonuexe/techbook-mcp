@@ -11,6 +11,7 @@ import type { SearchError } from "../application/search-books.js";
 import { getBookDetail } from "../application/get-book-detail.js";
 import { getBookByIsbn } from "../application/get-book-by-isbn.js";
 import { looksLikeIsbn } from "../domain/isbn.js";
+import { VERSION } from "../version.js";
 import { TOOLS } from "./tools.js";
 
 // --- 出力フォーマット ---
@@ -64,7 +65,7 @@ export function createServer(
   const server = new Server(
     {
       name: "@zonuexe/techbook-mcp",
-      version: "0.1.0",
+      version: VERSION,
     },
     {
       capabilities: { tools: {} },
