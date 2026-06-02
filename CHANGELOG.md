@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-06-03
+
+### Fixed
+
+- SEshop（翔泳社）の `search_books` 結果に著者・ISBN・紹介文が含まれていなかった問題を修正（検索結果の各書籍について詳細ページから著者・ISBN・紹介文を補完する。ISBN が付くことで openBD による補完も有効になる）
+
 ## [0.3.1] - 2026-06-02
 
 ### Fixed
@@ -95,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.3...v0.2.4
