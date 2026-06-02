@@ -92,7 +92,7 @@ const http = new MockHttpClient()
 
 ## よくある落とし穴
 
-- **EUC-JP サイト**: `shop.rutles.net` はクエリを EUC-JP エンコードしないとヒットしない → `iconv-lite` を使用
+- **EUC-JP サイト**: `shop.rutles.net`・`wgn-obs.shop-pro.jp`（ボーンデジタル）はクエリを EUC-JP エンコードしないとヒットしない → `encodeEucJp()` を使用。**レスポンスも EUC-JP**（`charset=EUC-JP`）。`fetch().text()` は常に UTF-8 解釈で文字化けするため、`FetchHttpClient.text()` が Content-Type の charset を見て `iconv-lite` でデコードし直す（非UTF-8レスポンス全般に対応）
 - **XSRF-TOKEN**: `techbookfest.org` GraphQL はダブルサブミットCookieパターン必須
 - **Referer 必須**: `maruzen-publishing.co.jp` の検索は Referer なしで 403
 - **機関向けストア除外**: `kw.maruzen.co.jp`（Knowledge Worker）は個人向けではないため除外

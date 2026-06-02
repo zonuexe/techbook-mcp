@@ -62,7 +62,7 @@ techbook-mcp/
 │   │   └── cache.ts         # CacheStore インターフェース
 │   ├── adapters/
 │   │   ├── http/
-│   │   │   ├── fetch-client.ts  # fetch() ベース実装
+│   │   │   ├── fetch-client.ts  # fetch() ベース実装 (charset を見て EUC-JP/Shift_JIS をデコード)
 │   │   │   └── mock-client.ts   # テスト用モック
 │   │   ├── html/
 │   │   │   └── cheerio-parser.ts
