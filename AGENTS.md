@@ -100,3 +100,4 @@ const http = new MockHttpClient()
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
 - **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与
+- **埋め込みストリームから価格取得**: `leanpub.com`（海外）は React Router アプリ。検索結果カードは静的HTMLだが、価格(`minimumPaidPrice`)・更新日(`lastPublishedAt`)は `<script>` 内のストリームから正規表現で取得する。静的な表示テキスト（"Last updated on …"）は CDN/SSR 状態で揺れるため使わない

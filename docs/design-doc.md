@@ -78,6 +78,7 @@ techbook-mcp/
 │   │       ├── cq-publishing.ts # CQ出版社 (Tech Village 書庫＆販売)
 │   │       ├── gihyo.ts         # 技術評論社
 │   │       ├── lambdanote.ts    # ラムダノート
+│   │       ├── leanpub.ts       # Leanpub (海外・セルフ出版・DRM-free)
 │   │       ├── manatee.ts       # マナティ (マイナビ出版直販)
 │   │       ├── maruzen-publishing.ts  # 丸善出版
 │   │       ├── optronics.ts     # オプトロニクス社
@@ -116,6 +117,7 @@ techbook-mcp/
 | `cq-publishing` | CQ出版社 | HTML scraping | 電子書籍直販サイト「Tech Village」・検索キーワードはパスに埋め込む |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
 | `lambdanote` | ラムダノート | HTML scraping | Shopify ストア |
+| `leanpub` | Leanpub | HTML scraping | 海外・セルフ出版・DRM-free・価格/日付は埋め込みJSONストリームから取得・USD |
 | `manatee` | マナティ (マイナビ出版直販) | HTML scraping | 複数出版社を委託販売 |
 | `maruzen-publishing` | 丸善出版 | HTML scraping | Referer ヘッダー必須 |
 | `optronics` | オプトロニクス社 | HTML scraping | EC-CUBE ベース |
@@ -274,6 +276,17 @@ GET https://pragprog.com/search/index.json   # 全書籍インデックス（lun
 - 著者: "A with B, C, and D" を `with`/`and`/カンマで分割（オックスフォードカンマの "and" 残りも除去）
 - 価格は **USD** なので `price` に数値・`currency: "USD"` を付与
 - DRM: `"free"`（PDF/epub/mobi 全フォーマット提供・技術的DRMなし）
+
+**Leanpub (leanpub)** — 海外（米国）・セルフ出版プラットフォーム
+```
+GET https://leanpub.com/store?search={keyword}   # サーバーレンダリングのストア検索
+```
+- 海外のセルフパブリッシング・プラットフォーム。React Router (Remix系) アプリだが、ストア検索結果は静的HTMLでレンダリングされる
+- 検索結果: 書影付き `<li>`（書影 `cloudfront.net/{slug}/s_featured`）を走査。slug は書影URLから取得し、`a[href="/{slug}"]` のテキストをタイトル、`.text-neutral-500` を著者、`.italic` をサブタイトルとして取得
+- 詳細 `/{slug}`: タイトル・著者・説明・書影は `<meta property="og:*">`・`<meta name="author">` から取得
+- **価格・更新日は埋め込み React Router ストリーム（`<script>`内）から正規表現で取得**: `minimumPaidPrice\",{数値}`（最低価格）・`lastPublishedAt\",\"{YYYY-MM-DD}`。静的HTMLの表示テキスト（"Last updated on ..." 等）は CDN/SSR 状態で揺れて不安定なため使わない
+- 価格は pay-what-you-want の**最低価格**・**USD**（`currency: "USD"`）。ISBN は持たない
+- DRM: `"free"`（PDF/EPUB、技術的DRMなし）。`publisher` はセルフ出版のため `"Leanpub"`
 
 **技術書典 (techbookfest)** — GraphQL
 ```

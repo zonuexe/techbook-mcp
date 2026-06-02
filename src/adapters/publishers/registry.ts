@@ -8,6 +8,7 @@ import { gihyoAdapter } from "./gihyo.js";
 import { impressBooksAdapter } from "./impress.js";
 import { jusePAdapter } from "./juse-p.js";
 import { lambdanoteAdapter } from "./lambdanote.js";
+import { leanpubAdapter } from "./leanpub.js";
 import { manateeAdapter } from "./manatee.js";
 import { maruzenPublishingAdapter } from "./maruzen-publishing.js";
 import { optronicsAdapter } from "./optronics.js";
@@ -30,6 +31,7 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   impressBooksAdapter,
   jusePAdapter,
   lambdanoteAdapter,
+  leanpubAdapter,
   manateeAdapter,
   maruzenPublishingAdapter,
   optronicsAdapter,
