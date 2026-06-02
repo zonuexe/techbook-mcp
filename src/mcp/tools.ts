@@ -76,4 +76,52 @@ export const TOOLS = [
       },
     },
   },
+  {
+    name: "resolve_book",
+    description:
+      "手元の手がかり（ISBN・書名・著者）から正規の1冊を確信度つきで同定します。" +
+      "PDF の奥付から抽出した曖昧なメタデータを書誌レコードに解決する用途に最適です。" +
+      "isbn があれば openBD→出版社サイト→カーリルの順で解決し、title も渡すと解決結果と照合して" +
+      "版違い・誤ISBN を検出します（validation.isbnTitleAgree）。isbn が無い／解決できない場合は" +
+      "横断検索の一致度でベストマッチを採ります。" +
+      "返り値: status（matched/ambiguous/not_found）・confidence（high/medium/low）・book・" +
+      "matchScore・source・候補（ambiguous時）。confidence=high はそのまま採用、low/ambiguous は要確認の目安です。" +
+      "isbn / title / author のいずれかは必須。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        isbn: { type: "string", description: "ISBN（ハイフン有無どちらでも可）" },
+        title: { type: "string", description: "書名（ISBN との照合・検索に使用）" },
+        author: { type: "string", description: "著者名" },
+        publisher: { type: "string", description: "出版社ID（検索経路の絞り込みヒント。任意）" },
+      },
+    },
+  },
+  {
+    name: "resolve_books",
+    description:
+      "複数の手がかりを一括で同定します（resolve_book のバッチ版）。" +
+      "ローカル蔵書への一括メタデータ付与に最適で、入力順に揃った結果配列を返します。" +
+      "各要素は resolve_book と同じ形（status/confidence/book/matchScore/source）です。" +
+      "ISBN 主体の入力は openBD 中心で軽量ですが、書名のみの項目は横断検索を伴うため項目数に注意してください。",
+    inputSchema: {
+      type: "object",
+      required: ["books"],
+      properties: {
+        books: {
+          type: "array",
+          description: "同定したい手がかりの配列。各要素に isbn / title / author / publisher のいずれかを指定",
+          items: {
+            type: "object",
+            properties: {
+              isbn: { type: "string" },
+              title: { type: "string" },
+              author: { type: "string" },
+              publisher: { type: "string" },
+            },
+          },
+        },
+      },
+    },
+  },
 ] as const;

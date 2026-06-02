@@ -10,6 +10,8 @@ import { searchBooks } from "../application/search-books.js";
 import type { SearchError } from "../application/search-books.js";
 import { getBookDetail } from "../application/get-book-detail.js";
 import { getBookByIsbn } from "../application/get-book-by-isbn.js";
+import { resolveBook, resolveBooks } from "../application/resolve-book.js";
+import type { ResolveQuery, ResolveResult } from "../application/resolve-book.js";
 import { looksLikeIsbn } from "../domain/isbn.js";
 import { VERSION } from "../version.js";
 import { TOOLS } from "./tools.js";
@@ -56,6 +58,26 @@ export function summarizeErrors(errors: SearchError[]): Record<string, unknown>[
     count: publishers.length,
     publishers,
   }));
+}
+
+/** MCP 引数オブジェクトを ResolveQuery に変換する（publisher → publisherId） */
+function toResolveQuery(o: Record<string, unknown>): ResolveQuery {
+  return {
+    isbn: typeof o["isbn"] === "string" ? o["isbn"] : undefined,
+    title: typeof o["title"] === "string" ? o["title"] : undefined,
+    author: typeof o["author"] === "string" ? o["author"] : undefined,
+    publisherId: typeof o["publisher"] === "string" ? o["publisher"] : undefined,
+  };
+}
+
+/** 解決結果内の book / candidates を出力フォーマットに通す */
+function formatResolveResult(result: ResolveResult): Record<string, unknown> {
+  const out: Record<string, unknown> = {
+    ...result,
+    book: result.book ? formatBook(result.book) : null,
+  };
+  if (result.candidates) out["candidates"] = result.candidates.map(formatBook);
+  return out;
 }
 
 export function createServer(
@@ -133,6 +155,26 @@ export function createServer(
         const book = await getBookByIsbn(isbn, publishers, deps);
         return {
           content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
+        };
+      }
+
+      case "resolve_book": {
+        const result = await resolveBook(toResolveQuery(args), publishers, deps);
+        return {
+          content: [{ type: "text", text: JSON.stringify(formatResolveResult(result), null, 2) }],
+        };
+      }
+
+      case "resolve_books": {
+        const booksArg = args["books"];
+        if (!Array.isArray(booksArg)) throw new Error("books は配列で指定してください");
+        const queries = booksArg.map(b => toResolveQuery((b ?? {}) as Record<string, unknown>));
+        const results = await resolveBooks(queries, publishers, deps);
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify({ results: results.map(formatResolveResult) }, null, 2),
+          }],
         };
       }
 
