@@ -95,9 +95,9 @@ export const jusePAdapter: PublisherAdapter = {
 
     for (const li of lis) {
       const text = li.text();
-      if (/^定価/.test(text)) {
+      if (text.startsWith("定価")) {
         price = parseJapanesePrice(text);
-      } else if (/^ISBN/.test(text)) {
+      } else if (text.startsWith("ISBN")) {
         isbn = parseIsbn(text);
       } else if (/^[A-Z][0-9]／/.test(text) || /在庫|品切/.test(text)) {
         // 判型・ページ数 または 在庫状況 → スキップ

@@ -1,7 +1,7 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
 import type { HtmlElement } from "../../ports/html-parser.js";
-import { fetchText, resolveUrl } from "./base.js";
+import { fetchText } from "./base.js";
 
 // 海外のセルフパブリッシング・プラットフォーム Leanpub（DRM-free PDF/EPUB）
 const BASE_URL = "https://leanpub.com";
