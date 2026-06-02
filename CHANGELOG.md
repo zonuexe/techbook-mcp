@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-02
+
+### Added
+
+- CQ出版社 (`cq-publishing`) アダプターを追加（電子書籍直販サイト Tech Village）
+- Pragmatic Bookshelf (`pragprog`) アダプターを追加（海外・DRM-free）
+- Leanpub (`leanpub`) アダプターを追加（海外・セルフ出版・DRM-free）
+- 海外出版社の価格に対応する `BookRecord.currency`（ISO 4217、省略時は JPY）を追加
+- 書籍の言語を表す `BookRecord.language`（ISO 639-1、省略時は `ja`）を追加
+- `search_books` が各候補にクエリとの一致度 `matchScore` を付与し、ベストマッチ順にソートするよう改善
+- `search_books` の `title` が ISBN 形式かつ `author` 未指定のとき `get_book_by_isbn` 経路へ振り分け（ISBN ショートカット）
+- `get_book_by_isbn` が openBD 未収録の旧刊でも、ISBN ベースの安定 URL を持つ出版社（O'Reilly の `/books/{isbn}/`）の詳細ページを直接取得して書誌を回収（電子書籍専売・販売終了タイトルの部分救済。価格は取得不可）
+
+### Changed
+
+- `search_books` は「該当なし」を空配列で返すようになり、検索サイトが該当なし時に返す無関係な新着フォールバックを除外（誤メタデータの混入を防止）
+- 書名の一致をトークン分割×包含割合で評価し、純日本語の部分一致（助詞を跨ぐ部分語）を拾えるよう改善
+- 検索結果の著者を search / detail / isbn の全経路で重複排除（表記ゆれも同一視）
+- 出版社の検索 API が著者を返さない場合でも、ISBN があれば openBD から `authors` を補完
+- 横断検索を並列度6・1社あたり12秒タイムアウトで高速化／静音化し、小規模サイトはカタログを長期キャッシュ（大規模出版社を優先）
+
+### Fixed
+
+- EUC-JP レスポンスをデコードし、ラトルズ・ボーンデジタルの検索結果が常に 0 件になる問題を修正（非 UTF-8 レスポンス全般に対応）
+
+### Security
+
+- 依存を最新メジャーへ更新し、SDK 経由の推移的脆弱性 5 件を解消
+
 ## [0.2.4] - 2026-04-19
 
 ### Added
@@ -60,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.1...v0.2.2

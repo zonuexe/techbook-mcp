@@ -1,6 +1,6 @@
 {
   "name": "@zonuexe/techbook-mcp",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "MCP server for searching Japanese technical book bibliographic information",
   "license": "AGPL-3.0-or-later",
   "type": "module",
