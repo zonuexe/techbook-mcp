@@ -1,4 +1,5 @@
 import iconv from "iconv-lite";
+import zlib from "node:zlib";
 import type { HttpClient, RequestOptions, HttpResponse } from "../../ports/http.js";
 
 /** Content-Type ヘッダーから charset を取り出す（小文字化）。なければ undefined */
@@ -20,17 +21,24 @@ class FetchHttpResponse implements HttpResponse {
 
   /**
    * レスポンスボディを文字列で返す。
-   * `fetch().text()` は常に UTF-8 として解釈するため、Content-Type が
-   * EUC-JP・Shift_JIS など非UTF-8の場合は iconv-lite でデコードし直す
-   * （ラトルズ・ボーンデジタル等の EUC-JP サイト対応）。
+   *
+   * - 一部のランタイム・プロキシ環境では `Content-Encoding: gzip` が自動解凍されず
+   *   gzip の生バイトが返ることがある（openBD で `JSON.parse` が壊れる等）。
+   *   gzip マジックバイト (0x1f 0x8b) を検出したら手動で解凍する。
+   * - `fetch().text()` は常に UTF-8 として解釈するため、Content-Type が
+   *   EUC-JP・Shift_JIS など非UTF-8の場合は iconv-lite でデコードし直す
+   *   （ラトルズ・ボーンデジタル等の EUC-JP サイト対応）。
    */
   async text(): Promise<string> {
     const charset = charsetFromContentType(this.response.headers.get("content-type"));
+    let buffer = Buffer.from(await this.response.arrayBuffer());
+    if (buffer.length >= 2 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
+      buffer = zlib.gunzipSync(buffer);
+    }
     if (charset && charset !== "utf-8" && charset !== "utf8" && iconv.encodingExists(charset)) {
-      const buffer = Buffer.from(await this.response.arrayBuffer());
       return iconv.decode(buffer, charset);
     }
-    return this.response.text();
+    return buffer.toString("utf-8");
   }
 
   header(name: string): string | null {

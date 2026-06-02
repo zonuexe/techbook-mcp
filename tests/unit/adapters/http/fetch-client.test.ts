@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import iconv from "iconv-lite";
+import zlib from "node:zlib";
 import { FetchHttpClient } from "../../../../src/adapters/http/fetch-client.js";
 
 const realFetch = globalThis.fetch;
@@ -49,6 +50,26 @@ describe("FetchHttpClient", () => {
   it("charset 指定なしは UTF-8 として扱う", async () => {
     const text = "no charset テスト";
     stubFetch(new TextEncoder().encode(text), "text/html");
+
+    const res = await new FetchHttpClient().get("https://example.com/");
+
+    assert.strictEqual(await res.text(), text);
+  });
+
+  it("自動解凍されなかった gzip レスポンスを手動で解凍する（openBD 対応）", async () => {
+    const json = JSON.stringify([{ summary: { title: "型システムのしくみ" } }]);
+    const gz = zlib.gzipSync(Buffer.from(json, "utf-8"));
+    stubFetch(new Uint8Array(gz), "application/json");
+
+    const res = await new FetchHttpClient().get("https://api.openbd.jp/v1/get");
+
+    assert.strictEqual(await res.text(), json);
+  });
+
+  it("gzip された非UTF-8レスポンスは解凍後に charset デコードする", async () => {
+    const text = "【電子版】テスト";
+    const gz = zlib.gzipSync(iconv.encode(text, "euc-jp"));
+    stubFetch(new Uint8Array(gz), "text/html; charset=EUC-JP");
 
     const res = await new FetchHttpClient().get("https://example.com/");
 
