@@ -223,6 +223,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   { pattern: /shop\.rutles\.net\//, name: "ラトルズ", drm: "free" },
   { pattern: /peaks\.cc\/books\//, name: "PEAKS", drm: "free" },
   { pattern: /optronics-ebook\.com\/products\//, name: "オプトロニクス社", drm: "free" },
+  { pattern: /pragprog\.com\/titles\//, name: "Pragmatic Bookshelf", drm: "free" },
   { pattern: /gihyo\.jp\/dp\/ebook\//, name: "Gihyo Digital Publishing", drm: "social" },
   { pattern: /seshop\.com\/product\//, name: "SEshop", drm: "social" },
   { pattern: /book-tech\.com\/books\//, name: "BOOK TECH", drm: "social" },

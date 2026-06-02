@@ -14,6 +14,7 @@ import { optronicsAdapter } from "./optronics.js";
 import { oreillyJapanAdapter } from "./oreilly-japan.js";
 import { peaksAdapter } from "./peaks.js";
 import { personalMediaAdapter } from "./personal-media.js";
+import { pragprogAdapter } from "./pragprog.js";
 import { rutlesAdapter } from "./rutles.js";
 import { saiensuAdapter } from "./saiensu.js";
 import { seshopAdapter } from "./seshop.js";
@@ -35,6 +36,7 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   oreillyJapanAdapter,
   peaksAdapter,
   personalMediaAdapter,
+  pragprogAdapter,
   rutlesAdapter,
   saiensuAdapter,
   seshopAdapter,

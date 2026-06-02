@@ -1,0 +1,61 @@
+{
+ "results": [
+  {
+   "record_type": "book",
+   "href": "/titles/gwpy4/practical-programming-fourth-edition-4th-edition/",
+   "subtitle": "An Introduction to Computer Science Using Python 3.14",
+   "author": "Dmitry Zinoviev with Paul Gries, Jennifer Campbell, and Jason Montojo ",
+   "title": "Practical Programming, Fourth Edition (4th edition)",
+   "code": "gwpy4",
+   "image": "/titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-125.jpg"
+  },
+  {
+   "record_type": "book",
+   "href": "/titles/jkelixir/advanced-functional-programming-with-elixir/",
+   "subtitle": "Model Behavior, Manage Complexity, and Maximize Maintainability",
+   "author": "Joseph Koski",
+   "keywords": [
+    "elixir;functional",
+    "programming;functional",
+    "programming",
+    "with",
+    "elixir;domain-driven",
+    "design;monoids;monads;composing",
+    "logic;modeling",
+    "data;software",
+    "modeling;composing",
+    "software",
+    "patterns;BEAM;erlang;real-world",
+    "elixir;production-ready",
+    "elixir;"
+   ],
+   "title": "Advanced Functional Programming with Elixir",
+   "code": "jkelixir",
+   "image": "/titles/jkelixir/advanced-functional-programming-with-elixir/jkelixir-125.jpg"
+  },
+  {
+   "record_type": "book",
+   "href": "/titles/ruby6/programming-ruby-4-6th-edition/",
+   "subtitle": "The Pragmatic Programmers' Guide",
+   "author": "Noel Rappin with Dave Thomas",
+   "title": "Programming Ruby 4 (6th edition)",
+   "code": "ruby6",
+   "image": "/titles/ruby6/programming-ruby-4-6th-edition/ruby6-125.jpg"
+  },
+  {
+   "record_type": "book",
+   "href": "/titles/eruby2/eloquent-ruby-second-edition/",
+   "author": "Russ Olsen",
+   "title": "Eloquent Ruby, Second Edition",
+   "code": "eruby2",
+   "image": "/titles/eruby2/eloquent-ruby-second-edition/eruby2-125.jpg"
+  },
+  {
+   "record_type": "errata",
+   "href": "/cms/errata/ec101di-errata/",
+   "title": "Errata for 101 Design Ingredients to Solve Big Tech Problems",
+   "code": null,
+   "image": ""
+  }
+ ]
+}

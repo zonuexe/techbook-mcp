@@ -28,7 +28,7 @@ npm run build      # TypeScript コンパイル → dist/
 - `fetchText()` はキャッシュ・ヘッダーを内包するため、アダプター内では直接 `deps.http.get()` を呼ばない
 - Referer ヘッダーが必要なサイトは `fetchText(url, deps, { Referer: "..." })` の第3引数を使う
 - 著者名から役割語（著・訳・編・監修・監訳など）を除去すること
-- 価格は税込み整数（円）で `BookRecord.price` に格納する
+- 価格は税込み整数（円）で `BookRecord.price` に格納する。海外出版社など円以外の通貨は `price` に当該通貨の数値、`currency` に ISO 4217 コード（例 `"USD"`）を入れる（`currency` 省略時は JPY とみなす）
 - `publisher` フィールドには実際の出版社名を入れる（ストアプラットフォーム名ではない）
 
 ## 新しい出版社アダプターを追加するとき
@@ -99,3 +99,4 @@ const http = new MockHttpClient()
 - **ローカルフィルタ型**: `oreilly-japan` と `peaks` は検索APIがなくトップページ/一覧をローカルフィルタ
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
+- **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与

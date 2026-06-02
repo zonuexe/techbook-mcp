@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-5B3LMK9H');</script>
+
+  <title>Practical Programming, Fourth Edition (4th edition): An Introduction to Computer Science Using Python 3.14 by Dmitry Zinoviev with Paul Gries, Jennifer Campbell, and Jason Montojo </title>
+<meta name="description" content="Detailed and approachable introduction to programming and to the Python language ">
+<meta name="keywords" content="software development project management pragmatic dave thomas pragdave agility books free learn career">
+
+
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:site" content="@pragprog" />
+<meta name="twitter:image" content="https://pragprog.com/titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4.jpg" />
+<meta name="twitter:image:" content="Book cover image." />
+<meta name="twitter:title" content="Practical Programming, Fourth Edition (4th edition)" />
+<meta name="twitter:description" content="Detailed and approachable introduction to programming and to the Python language " />
+
+
+<meta property="og:title" content="Practical Programming, Fourth Edition (4th edition)" />
+<meta property="og:url" content="https://pragprog.com/titles/gwpy4/practical-programming-fourth-edition-4th-edition" />
+<meta property="og:image" content="https://pragprog.com/titles/gwpy4/gwpy4-large.jpg" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Detailed and approachable introduction to programming and to the Python language " />
+<meta property="book:author" content="Dmitry Zinoviev with Paul Gries, Jennifer Campbell, and Jason Montojo " />
+<meta property="book:isbn" content="9798888652046" />
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://pragprog.com/css/style.min.84ea731fa45bb9530036ae97137f295791f8d5368c3845ef088bd4a3f29e190a.css">
+
+<link rel="stylesheet" href="https://pragprog.com/css/balloon.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.css" />
+<script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script src="https://pragprog.com/js/jquery-3.5.1.min.js"></script>
+
+<script src="https://pragprog.com/js/dynamo.min.js?v=4.25.1"></script>
+<script>
+    $(document).ready(function() {
+        var sku = ('gwpy4') ? 'gwpy4' : '';
+        dynamo({
+            'dynamoPermalink': 'https:\/\/pragprog.com\/js\/dynamo.min.js',
+            'sku': sku,
+            
+            'slug': 'index',
+            
+        });
+    });
+</script>
+
+<script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_G886zhPw8uIs6rk1nUwZmmjRW91Bi6l7a7T0Fh3Wkgj',{api_host:'https://us.i.posthog.com', person_profiles: 'identified_only'})
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body>
+<div class="title-container">
+  
+<header>
+  <div class="logo">
+    <a href="/" name="Home page" aria-label="return to pragprog home">
+      <div id="logo-svg-container">
+  <svg version="1.1"
+       id="logo-svg"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     x="0px" y="0px"
+     viewBox="0 8.5 275 108.5"
+     preserveAspectRatio="xMinYMin meet"
+     xml:space="preserve">
+
+  <style type="text/css">
+   .logo_letters{fill:#e0e0f0;}
+  </style>
+
+  <g id="Trapezoid">
+    <polygon class="trapezoid" points="247,108.5 24,108.5 0,0 275,0"/>
+  </g>
+
+  <g id="The">
+    <g>
+      <g>
+	<path class="logo_letters" d="M61.3,26.4l-0.8,0.3c-0.9-1.8-2.6-3.1-4.6-3.1c-0.8,0-0.8,0.4-0.8,0.9V34c0,0.5,0,1.2,0.2,1.6
+				      c0.3,0.7,1,0.7,1.6,0.7h0.4V37h-6.5v-0.6l0.4,0c0.6,0,1.3-0.1,1.6-0.7c0.2-0.4,0.2-1.2,0.2-1.7v-9.4c0-0.7,0-1.1-0.9-1.1
+				      c-2.1,0-3.7,1.3-4.7,3.1l-0.7-0.3l1.2-3.7h12.2L61.3,26.4z"/>
+	<path class="logo_letters" d="M72.3,34.3c0,1.2,0.2,1.9,1.5,2H74V37h-5.6v-0.6h0.3c1.4-0.1,1.6-0.7,1.6-2v-4.5
+				      c0-0.5,0-1.1-0.3-1.5c-0.3-0.4-0.9-0.6-1.4-0.6c-1.2,0-2.9,0.8-3.7,1.7v5c0,1.2,0.1,2,1.4,2h0.3V37h-5.6v-0.6h0.2
+				      c1.4-0.1,1.7-0.7,1.7-2v-9c0-1.1-0.1-1.9-1.6-2l-0.3,0v-0.6c1-0.1,2.1-0.3,3-0.7h0.8v6.4c1.2-1,2.6-1.8,4.3-1.8
+				      c0.8,0,1.7,0.2,2.4,0.7c0.8,0.6,0.8,1.5,0.8,2.4v0.1V34.3z"/>
+	<path class="logo_letters" d="M77.4,30.9l0,1.1c0,1,0.4,2.1,0.9,2.9c0.6,0.9,1.6,1.3,2.7,1.3c1.4,0,2.4-0.7,3.1-1.9l0.7,0.4
+				      c-0.8,1.7-2.5,2.5-4.3,2.5c-1.4,0-2.6-0.4-3.7-1.4c-1-1-1.6-2.5-1.6-3.9c0-3,1.9-5.2,5-5.2h0c2.5,0,4.5,1.7,4.5,4.2v0.1H77.4z
+				      M82.5,30.1c0-1.6-1-2.6-2.4-2.6c-1.5,0-2.5,1.2-2.6,2.6H82.5z"/>
+      </g>
+    </g>
+  </g>
+  <g id="Pragmatic">
+    <g>
+      <g>
+	<path class="logo_letters" d="M29.9,53.7c0,0.8,0,1.8,0.3,2.4c0.5,1.1,1.7,1.2,2.7,1.3l0.7,0v1.1H23.1v-1.1l0.3,0
+				      c1-0.1,2-0.2,2.4-1.2c0.4-0.8,0.4-2,0.4-3V38.6c0-1.9-0.2-3.3-2.7-3.5l-0.5,0V34h11.8c2.1,0,4.2,0.2,6,1.3c2,1.2,3.1,3.2,3.1,5.5
+				      c0,2.1-0.9,4.1-2.6,5.4c-1.8,1.4-4.4,1.6-6.6,1.6h-5V53.7z M34.3,46.4c1.8,0,3.4-0.1,4.7-1.5c1.1-1.2,1.4-2.5,1.4-4.1
+				      c0-1.5-0.5-3.1-1.7-4.1c-1.2-1-2.8-1.3-4.3-1.3c-0.9,0-3.3,0.1-4,0.7c-0.5,0.3-0.5,1.1-0.5,1.7v8.6H34.3z"/>
+	<path class="logo_letters" d="M51.7,53.9c0.1,2.1,0.4,3.3,2.7,3.5l0.6,0v1.1h-9.9v-1.1h0.4c2.4-0.1,2.8-1.3,2.8-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5H45v-1.1l5.5-0.8h1.2v2.7c1.6-1.6,3.6-3.1,6-3.1c1.2,0,2.7,0.5,2.7,1.9c0,1.2-0.9,1.9-2,1.9
+				      c-1.7,0-2.1-1.2-3.2-1.2c-1.2,0-2.7,1.1-3.5,2V53.9z"/>
+	<path class="logo_letters" d="M81.3,57.6c-0.9,0.8-2.3,1.2-3.5,1.2h-0.1c-1.8,0-3.4-0.8-3.9-2.6c-2.1,1.7-4.1,2.6-6.8,2.6
+				      c-2.5,0-5.5-1.4-5.5-4.2c0-2.4,1.5-3.6,3.6-4.5c1.9-0.9,4-1.3,6-1.5l2.7-0.3v-2.6c-0.1-1.1-0.3-2.1-1.3-2.7
+				      c-0.9-0.6-2.2-0.8-3.2-0.8c-1.1,0-3.5,0.5-3.5,1.9v0.5c0,1.2-0.5,2.2-1.8,2.2c-0.9,0-1.7-0.7-1.7-1.6c0-1.5,1.7-2.8,2.9-3.4
+				      c1.5-0.6,3.5-1,5.1-1h0.1c1.5,0,3.4,0.5,4.7,1.2c1.9,1,2.1,2.4,2.1,4.4v7.1c0,1.5,0.2,3.8,2,3.8c0.5,0,1-0.3,1.5-0.5L81.3,57.6z
+				      M73.7,49.5c-2.7,0.3-8.6,1-8.6,4.6c0,1.8,1.5,2.9,3.3,2.9c1.9,0,3.9-1.2,5.4-2.4V49.5z"/>
+	<path class="logo_letters" d="M94.6,56.8c2.7,0.4,5.8,0.9,5.8,4.4c0,4.9-5.8,6-9.7,6c-2.9,0-9.1-0.7-9.1-4.6
+				      c0-2.1,2.1-3.2,3.7-3.8v-0.1c-1.4-0.4-2.6-1.3-2.6-2.9c0-2,1.7-3.3,3.5-3.7c-1.8-1-2.8-2.9-2.8-4.9v-0.2c0.1-4,3.5-6.3,7.2-6.3
+				      c1.1,0,2.2,0.2,3.3,0.6c0.9-1.7,2.5-3.2,4.5-3.2c1,0,2.1,0.4,2.1,1.5c0,0.7-0.5,1.4-1.3,1.4c-0.8,0-1.5-0.6-2.3-0.6
+				      s-1.4,0.8-1.9,1.4c1.8,1.3,3,3.1,3,5.4c0,1.7-0.9,3.5-2.2,4.5c-1.4,1.2-3.4,1.5-5.3,1.5c-1.2,0-2.2-0.2-3.2-0.6
+				      c-0.7,0.3-1.7,1.1-1.7,1.9c0,1.3,2,1.4,2.8,1.5L94.6,56.8z M86.7,59.2c-1.4,0.4-2.9,1.7-2.9,3.2c0,3.2,4.8,3.7,7.1,3.7
+				      c2.3,0,6.9-0.5,6.9-3.6c0-2-2.6-2.2-4.1-2.4L86.7,59.2z M86.9,47c0,2.7,0.7,5,3.9,5c1.2,0,2.6-0.6,3.1-1.7
+				      c0.5-0.9,0.6-2.4,0.6-3.4c0-2.6-0.6-4.9-3.7-4.9C87.8,42,86.9,44.5,86.9,47z"/>
+	<path class="logo_letters" d="M107.7,53.9c0,2,0.3,3.3,2.6,3.5h0.4v1.1h-9.2v-1.1c2.4-0.2,2.8-1.4,2.8-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5h-0.6v-1.1l5.5-0.8h1.2v2.5c1.6-1.7,4-2.8,6.8-2.8c2.3,0,3.9,0.6,5,2.8c1.8-1.6,4.3-2.8,6.6-2.8h0.1
+				      c1.5,0,3.1,0.5,4.1,1.8c0.8,1,0.9,2.3,0.9,3.5v7.9c0,1.9,0.3,3.3,2.7,3.5v1.1h-9.1v-1.1h0.3c2.3-0.2,2.7-1.4,2.7-3.5v-7.1
+				      c0-0.8,0-1.7-0.3-2.4c-0.4-1.1-1.4-1.8-2.6-1.8c-1.9,0-3.8,1.2-5.4,2.4v9c0,2.1,0.4,3.3,2.7,3.5h0.3v1.1H113v-1.1h0.3
+				      c2.3-0.2,2.7-1.4,2.7-3.5v-7.2c0-2-0.1-4.1-2.7-4.1c-2.1,0-4.1,1.2-5.5,2.4V53.9z"/>
+	<path class="logo_letters" d="M155.4,57.6c-0.9,0.8-2.3,1.2-3.5,1.2h-0.1c-1.8,0-3.4-0.8-3.9-2.6c-2.1,1.7-4.1,2.6-6.8,2.6
+				      c-2.5,0-5.5-1.4-5.5-4.2c0-2.4,1.5-3.6,3.6-4.5c1.9-0.9,4-1.3,6-1.5l2.7-0.3v-2.6c-0.1-1.1-0.3-2.1-1.3-2.7
+				      c-0.9-0.6-2.2-0.8-3.2-0.8c-1.1,0-3.5,0.5-3.5,1.9v0.5c0,1.2-0.5,2.2-1.8,2.2c-0.9,0-1.7-0.7-1.7-1.6c0-1.5,1.7-2.8,2.9-3.4
+				      c1.5-0.6,3.5-1,5.1-1h0.1c1.5,0,3.4,0.5,4.7,1.2c1.9,1,2.1,2.4,2.1,4.4v7.1c0,1.5,0.2,3.8,2,3.8c0.5,0,1-0.3,1.5-0.5L155.4,57.6z
+				      M147.9,49.5c-2.7,0.3-8.6,1-8.6,4.6c0,1.8,1.5,2.9,3.3,2.9c1.9,0,3.9-1.2,5.4-2.4V49.5z"/>
+	<path class="logo_letters" d="M167.5,42.2h-5.1v10.1c0,2,0,4.9,2.7,4.9c1.3,0,2.3-0.7,3.1-1.6l0.9,0.8c-1.2,1.6-3.1,2.3-5.1,2.3
+				      c-1.2,0-2.6-0.3-3.6-0.9c-1.4-0.9-1.6-2.3-1.6-3.9V42.2h-3v-1.2c4.1-0.1,4.9-3.1,4.9-6.6h1.5v6.6h5.1V42.2z"/>
+	<path class="logo_letters" d="M176.3,53.9c0,2,0.3,3.3,2.6,3.5h0.4v1.1h-9.5v-1.1h0.3c2.4-0.1,2.7-1.3,2.7-3.5v-7.5
+				      c0-2-0.4-3.3-2.6-3.5h-0.6v-1.1l5.5-0.8h1.2V53.9z M174.5,39.3c-1.3,0-2.1-1-2.1-2.2c0-1.1,1-2.1,2.2-2.1c1.3,0,2.2,1,2.2,2.2
+				      C176.7,38.4,175.7,39.3,174.5,39.3z"/>
+	<path class="logo_letters" d="M197.6,54.8c-1.8,2.8-4.4,4-7.7,4c-5.4,0-8.9-3.5-8.9-8.9c0-5.4,3.3-9.2,8.9-9.2
+				      c1.7,0,3.3,0.3,4.8,1.3c1.2,0.8,2.4,2,2.4,3.5c0,1.1-0.7,2-1.8,2c-1,0-1.8-0.7-1.8-1.7c0-0.5,0.1-0.9,0.1-1.4
+				      c0-1.6-2.3-2.3-3.6-2.3c-4.1,0-4.9,4.5-4.9,7.7v0.1c0,3.6,1.6,7.5,5.8,7.5c2.5,0,4.1-1.4,5.6-3.3L197.6,54.8z"/>
+      </g>
+    </g>
+  </g>
+  <g id="Bookshelf">
+    <g>
+      <g>
+	<path class="logo_letters" d="M68.6,86v-1.1l0.4,0c1-0.1,2.1-0.2,2.6-1.2c0.3-0.6,0.4-1.7,0.4-2.6V66.1c0-1.9-0.2-3.3-2.7-3.5
+				      l-0.6-0.1v-1.1H81c1.9,0,4.7,0.1,6.5,0.7c2.3,0.8,4,2.6,4,5.1c0,3.1-2.4,4.6-5.2,5.1v0.1c3.3,0.5,6.5,2.5,6.5,6.2
+				      c0,2.7-1.4,4.9-3.8,6.1c-2.2,1.1-5.2,1.2-7.6,1.2H68.6z M79.5,72c3.3,0,8.3,0,8.3-4.6c0-4.1-4.2-4.6-7.4-4.6c-1,0-3.3,0-4.2,0.8
+				      c-0.6,0.6-0.7,1.7-0.7,2.6V72H79.5z M75.5,80.3c0,1,0,2.6,0.6,3.3c0.8,0.8,3.1,0.9,4.2,0.9c1.8,0,4.2-0.2,5.8-1.1
+				      c1.7-1,2.6-2.8,2.6-4.8c0-2.2-1-4.2-3.3-4.8c-1.5-0.4-3.6-0.4-5.3-0.4h-4.6V80.3z"/>
+	<path class="logo_letters" d="M110.4,70.5c1.8,1.7,2.6,4.4,2.6,6.8c0,5.4-3.4,9-8.8,9c-5.3,0-8.8-3.5-8.8-8.8
+				      c0-5.4,3.1-9.3,8.7-9.3C106.4,68.2,108.8,68.9,110.4,70.5z M104.3,69.7c-4.1,0-5.1,4.4-5.1,7.7c0,3.5,1,7.5,5.3,7.5
+				      c3.9,0,4.8-4.1,4.8-7.2c0-1.7-0.1-3.7-0.9-5.3c-0.8-1.5-2.3-2.7-4-2.7H104.3z"/>
+	<path class="logo_letters" d="M130.6,70.5c1.8,1.7,2.6,4.4,2.6,6.8c0,5.4-3.4,9-8.8,9c-5.3,0-8.8-3.5-8.8-8.8
+				      c0-5.4,3.1-9.3,8.7-9.3C126.5,68.2,129,68.9,130.6,70.5z M124.5,69.7c-4.1,0-5.1,4.4-5.1,7.7c0,3.5,1,7.5,5.3,7.5
+				      c3.9,0,4.8-4.1,4.8-7.2c0-1.7-0.1-3.7-0.9-5.3c-0.8-1.5-2.3-2.7-4-2.7H124.5z"/>
+	<path class="logo_letters" d="M141.8,77l5.1-4.5c0.4-0.4,1.3-1,1.3-1.7c0-1-1.2-1.1-2-1.2v-1.1h9.6v1.1c-3.2,0.3-5.4,1.7-7.7,3.8
+				      l-0.9,0.8l5,7.3c1.2,1.7,2.6,3.1,4.8,3.4V86h-9.8v-1.1h0.4c0.7,0,1.6,0,1.6-1c0-0.8-0.8-1.8-1.2-2.4l-3.4-4.9l-2.9,2.6v2.3
+				      c0,2.1,0.2,3.4,2.5,3.5h0.6V86h-9.8v-1.1h0.4c2.4-0.1,2.8-1.2,2.8-3.5V66c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1
+				      c1.8-0.2,3.5-0.5,5.2-1.2h1.4V77z"/>
+	<path class="logo_letters" d="M173,74.1h-1.2c-0.9-2.4-3.7-4.4-6.3-4.4c-1.6,0-3.7,0.7-3.7,2.6c0,1.8,2.1,2.1,3.4,2.4l4.1,1
+				      c2.7,0.6,5,1.6,5,4.8c0,4-4,5.8-7.5,5.8c-2.1,0-4.1-0.5-5.8-1.8l-0.4,1.5h-1.2l-1.3-6.4h1.3c1,3.2,4,5.2,7.3,5.2
+				      c1.8,0,4.5-0.9,4.5-3.2c0-1.8-1.6-2.2-3-2.5l-3.7-1c-2.7-0.7-5.8-1.4-5.8-4.8c0-3.3,3.7-5.1,6.6-5.1c1.8,0,3.7,0.5,5.1,1.6
+				      l0.4-1.3h1L173,74.1z"/>
+	<path class="logo_letters" d="M195.7,81.4c0,2,0.3,3.3,2.5,3.5h0.4V86H189v-1.1h0.4c2.4-0.1,2.8-1.2,2.8-3.5v-7.7
+				      c0-0.9,0-1.8-0.6-2.6c-0.6-0.7-1.5-1-2.4-1c-2.1,0-4.9,1.4-6.3,2.8v8.5c0,2,0.3,3.3,2.4,3.5h0.5V86h-9.6v-1.1h0.4
+				      c2.4-0.1,2.8-1.2,2.8-3.5V66c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1c1.8-0.2,3.5-0.5,5.2-1.2h1.4v11.1c2.1-1.8,4.5-3,7.3-3
+				      c1.3,0,3,0.4,4,1.2c1.4,1.1,1.4,2.6,1.4,4.1v0.3V81.4z"/>
+	<path class="logo_letters" d="M204.4,75.6l-0.1,1.8c0,1.7,0.6,3.6,1.5,5c1,1.5,2.8,2.2,4.6,2.2c2.4,0,4.1-1.2,5.3-3.3l1.2,0.6
+				      c-1.3,2.8-4.3,4.3-7.3,4.3c-2.4,0-4.5-0.6-6.3-2.3c-1.8-1.8-2.7-4.3-2.7-6.7c0-5.2,3.3-9,8.6-9h0.1c4.2,0,7.7,2.8,7.7,7.2v0.1
+				      H204.4z M213.1,74.1c0-2.7-1.7-4.4-4.1-4.4c-2.6,0-4.2,2.1-4.5,4.4H213.1z"/>
+	<path class="logo_letters" d="M225.4,81.4c0,1.9,0.3,3.3,2.5,3.5l0.4,0V86h-9.4v-1.1h0.3c2.3-0.2,2.7-1.3,2.7-3.5V66
+				      c0-1.9-0.2-3.3-2.7-3.5l-0.5,0v-1.1c1.8-0.2,3.5-0.5,5.2-1.2h1.4V81.4z"/>
+	<path class="logo_letters" d="M239.6,69.7H236v11.7c0,2,0.3,3.3,2.5,3.5l0.5,0V86h-9.5v-1.1h0.3c2.3-0.1,2.7-1.3,2.7-3.5V69.7
+				      h-3.1v-1.2h3.1v-1.5c0-1.9,0.1-3.6,1.5-5.1c1.6-1.6,4.3-2.4,6.5-2.4c1.2,0,3.1,0.6,3.1,2.1c0,0.9-0.8,1.6-1.7,1.6
+				      c-1.7,0-1.7-2.1-3.4-2.1c-0.6,0-1.3,0.4-1.8,0.8c-0.8,0.8-0.8,1.7-0.8,2.8v3.9h3.6V69.7z"/>
+      </g>
+    </g>
+  </g>
+</svg>
+</div>
+    </a>
+  </div>
+
+  <div class="top-bar" id="top-bar">
+    <nav id="page-nav">
+      
+      <label for="hamburger">&#9776;</label>
+      <input type="checkbox" id="hamburger" />
+      <ul class="top-bar">
+        <li><a href="/">Home</a></li>
+        <li><a href="/titles">Books</a></li>
+        <li><a href="/authors">Authors</a></li>
+        <li><a href="/publish-with-us">Publish with Us</a></li>
+        <li><a href="/support">Support</a></li>
+        <li>
+          <a
+            href="https://www.giftya.com/brands/1568049/pragmatic-bookshelf"
+            target="_blank"
+          >
+            eGifts
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.redbubble.com/people/PragProg/shop"
+            target="_blank"
+          >
+            Swag
+          </a>
+        </li>
+        
+        <li>
+          <a href="https://transactions.sendowl.com/customer_accounts/164668">
+            My Orders
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="search-bar">
+    <div class="search-wrapper">
+      <form action="/search">
+        <div class="search">
+          <input
+            type="text"
+            class="searchTerm"
+            name="q"
+            placeholder="Search titles..."
+          />
+          <button aria-label="Search" type="submit" class="searchButton">
+            <i class="fa fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+    <span id="sendowl-hitch" class="sendowl-hitch"></span>
+    <script>
+      sendOwl.cartWidget({
+        merchantID: 164668,
+        parent: document.getElementById("sendowl-hitch"),
+      });
+      var sendowl_carter = document.getElementsByClassName("cart-icon");
+      sendowl_carter[0].alt = "Shopping cart";
+    </script>
+  </div>
+
+  <div
+    class="tag"
+    
+  >
+    <ul>
+      <li><a href="#prereqs">Prereqs</a></li>
+      <li><a href="#resources">Resources</a></li>
+      <li><a href="#extracts">Extracts</a></li>
+      <li><a href="#author">Author</a></li>
+    </ul>
+  </div>
+</header>
+
+
+  
+<div class="titlepage-left">
+  <div class="book-about book-about-cover">
+    <a href="gwpy4.jpg" aria-label="book cover image">
+    <div>
+      
+      
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage book-title-image centered"  alt="" src="/titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-250.jpg" srcset="/titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-250.jpg 1x, /titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-375.jpg 1.5x, /titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-500.jpg 2x, /titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-750.jpg 3x, /titles/gwpy4/practical-programming-fourth-edition-4th-edition/gwpy4-beta-1000.jpg 4x" />
+
+
+
+
+
+
+
+
+
+    </div>
+    </a>
+
+    <p><a target="_blank" href="https://twitter.com/intent/tweet?text=Practical%20Programming%2c%20Fourth%20Edition%20%284th%20edition%29%3a%20An%20Introduction%20to%20Computer%20Science%20Using%20Python%203.14%20https%3a%2f%2fpragprog.com%2ftitles%2fgwpy4%2fpractical-programming-fourth-edition-4th-edition%2f"><img src="/img/twitter.png" width="10%" alt="" style="vertical-align: middle;"/><span class="tweet_text">Tweet this</span></a></p>
+  </div>
+
+  <div class="book-about book-about-text">
+    <h3>About This Title</h3>
+
+    <p>
+      <strong>Pages:</strong> 400<br/>
+      
+      <strong>Published:</strong> July 2026<br/>
+      
+      <strong>ISBN:</strong> 9798888652046<br/>
+      
+      In Beta<br/>
+      
+    </p>
+  </div>
+</div>
+
+<div class="titlepage-main">
+  <section class="book-main" markdown="1">
+
+  <h1 class="title">Practical Programming, Fourth Edition (4th edition)</h1>
+  <h2 class="subtitle"> An Introduction to Computer Science Using Python 3.14 </h2>
+  <h2 class="author">by Dmitry Zinoviev with Paul Gries, Jennifer Campbell, and Jason Montojo </a></h2>
+
+  <p>
+  Classroom-tested by generations of students, this new edition of the
+popular intro to programming book is for anyone who wants to understand
+computer science. Learn about design, algorithms, testing, and
+debugging. Discover the fundamentals of programming with Python: a
+language that&rsquo;s used across industries and platforms. Write programs to
+solve real-world problems, and come away with everything you need to
+produce quality code. This edition has been updated to use the new
+language features in Python 3.14.
+  </p>
+  
+
+  
+  
+  <div class="buy-container-small">
+    <div class="buy-container">
+      
+<div class="buybox">
+
+
+<h3>eBook Formats:</h3>
+
+<ul class="compact">
+<li><p>PDF for desktop/tablets</p></li>
+<li><p>epub for Apple Books, e-readers</p></li>
+<li><p>mobi for Kindle readers</p></li>
+</ul>
+
+<p>
+Get all eBook formats here for <strong>$39.95</strong> (USD)
+</p>
+
+<p>
+
+<a href="https://transactions.sendowl.com/packages/871843/D59CF66D/add_to_cart" rel="nofollow" class="buynowbtn">Add to Cart</a><script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<img src="/img/cclogos.png" alt="we accept visa, mastercard, amex, discover, paypal" style="padding-top: 10px;"/>
+
+</p>
+
+<p>
+
+<strong><i>This book is in Beta, final version expected
+Jul 2026</i></strong>
+</p>
+<p>
+<a href="/support/#beta-books" target="_blank">Beta Books: What do I get?</a>
+<br/>
+
+</div>
+
+      
+    </div>
+  </div>
+  <hr/>
+
+  <p>No programming experience required! Incremental examples show you the
+steps and missteps that happen while developing programs, so you know
+what to expect when you tackle a problem on your own. Inspired by &ldquo;How
+to Design Programs&rdquo; (HtDP), discover a five-step recipe for designing
+functions, which helps you learn the concepts&mdash;and becomes an integral
+part of writing programs.</p>
+<p>In this detailed introduction to Python and to computer programming,
+find out exactly what happens when your programs are executed. Work with
+numbers, text, sequences, and files using real-world examples. Create
+and use your own data types. Make your programs robust and reliable;
+develop an idiomatic programming style; download data from the web
+automatically. As you use the fundamental programming tools in this
+book, you&rsquo;ll see how to document and organize your code so that you and
+other programmers can more easily read and understand it. This new
+edition takes advantage of Python 3.14&rsquo;s new features, including
+f-strings, the walrus operator, and richer type annotations on
+parameters, return types, and variable declarations.</p>
+<p>Most importantly, you&rsquo;ll learn how to think like a professional
+programmer.</p>
+
+
+  <h3 id="prereqs">What You Need</h3>
+
+  You&rsquo;ll need to download Python 3.14, available from <a href="https://python.org">https://python.org</a>.
+With that download comes IDLE, the editor we use for writing and running
+Python programs. (If you use Linux, you may need to install Python 3.14
+and IDLE separately.)
+
+
+  <h3 id="resources">Resources</h3>
+
+  <ul>
+  <li><p><a href="https://media.pragprog.com/titles/gwpy4/code/gwpy4-code.zip">Source Code (zip file)</a></p></li>
+  </ul>
+
+
+
+    <p>
+      <strong>Releases:</strong>
+      <div class="release-list">
+      <div class="a-release">
+        <div class="release-date">2026/01/04</div>
+        <div class="release-name">B1.0</div>
+        <div class="release-notes"></div>
+      </div>
+      </div>
+    </p>
+
+
+  <h3 id="extracts">Contents & Extracts</h3>
+  <p>
+  Note: Contents and extracts of beta books will change as the book is developed.
+  </p>
+
+  <p><a href="https://media.pragprog.com/titles/gwpy4/extract-TOC.pdf" class="pdf-link"><strong>Table of
+Contents</strong><img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a></p>
+<ul>
+<li>Changes History
+<ul>
+<li>B1.0: January 7, 2026</li>
+</ul>
+</li>
+<li>Acknowledgments
+<ul>
+<li>From Paul, Jennifer, and Jason:</li>
+<li>From Dmitry:</li>
+</ul>
+</li>
+<li>Preface
+<ul>
+<li>Our Approach</li>
+<li>Further Reading</li>
+<li>What You&rsquo;ll See</li>
+</ul>
+</li>
+<li>What&rsquo;s Programming?
+<ul>
+<li>Programs and Programming</li>
+<li>What&rsquo;s a Programming Language?</li>
+<li>What&rsquo;s a Bug?</li>
+<li>The Difference Between Brackets, Braces, and Parentheses</li>
+<li>Installing Python</li>
+</ul>
+</li>
+<li><a href="https://media.pragprog.com/titles/gwpy4/extract-hello.pdf" class="pdf-link">Hello,
+Python<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a>
+<ul>
+<li>How Does a Computer Run a Python Program?</li>
+<li>Expressions and Values: Arithmetic in Python</li>
+<li>What Is a Type?</li>
+<li>Variables and Computer Memory: Remembering Values</li>
+<li>How Python Tells You Something Went Wrong</li>
+<li>A Single Statement That Spans Multiple Lines</li>
+<li>Describing Code</li>
+<li>Making Code Readable</li>
+<li>The Object of This Chapter</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Designing and Using Functions
+<ul>
+<li>Functions That Python Provides</li>
+<li>Identities: How Python Keeps Track of Values</li>
+<li>Defining Custom Functions</li>
+<li>Using Local Variables for Temporary Storage</li>
+<li>Tracing Function Calls in the Memory Model</li>
+<li>Designing New Functions: A Recipe</li>
+<li>Writing and Running a Program</li>
+<li>Omitting a return Statement: None</li>
+</ul>
+</li>
+</ul>
+<p>Dealing with Situations That Your Code Doesn&rsquo;t Handle</p>
+<p>What Did You Call That?</p>
+<p>Exercises</p>
+<ul>
+<li>&ldquo;Working with
+Text:https://media.pragprog.com/titles/gwpy4/extract-text.pdf
+<ul>
+<li>Creating Strings of Characters</li>
+<li>Using Special Characters in Strings</li>
+<li>Creating a Multiline String</li>
+<li>Printing Information</li>
+<li>Getting Information from the Keyboard</li>
+<li>Formatted Strings</li>
+<li>Quotes About Strings</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Making Choices
+<ul>
+<li>A Boolean Type</li>
+<li>Choosing Which Statements to Execute</li>
+<li>Nested if Statements</li>
+<li>Memorizing Results of a Boolean Expression Evaluation</li>
+<li>You Learned About Booleans: True or False?</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>A Modular Approach to Program Organization
+<ul>
+<li>Importing Modules</li>
+<li>Defining Your Modules</li>
+<li>Testing Your Code Semiautomatically</li>
+<li>Tips for Grouping Your Functions</li>
+<li>Organizing Your Thoughts</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Using Methods
+<ul>
+<li>Modules, Classes, and Methods</li>
+<li>Calling Methods</li>
+<li>Exploring String Methods</li>
+<li>What Are Those Underscores?</li>
+<li>A Methodical Review</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Storing Collections of Data Using Lists
+<ul>
+<li>Storing and Accessing Data in Lists</li>
+<li>Type Annotations for Lists</li>
+<li>Modifying Lists</li>
+<li>Operations on Lists</li>
+<li>Slicing Lists</li>
+<li>Aliasing: What&rsquo;s in a Name?</li>
+<li>List Methods</li>
+<li>Working with a List of Lists</li>
+<li>Splitting Strings</li>
+<li>A Summary List</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Repeating Code Using Loops
+<ul>
+<li>Processing Items in a List</li>
+<li>Processing Characters in Strings</li>
+<li>Looping Over a Range of Numbers</li>
+<li>Processing Lists Using Indices</li>
+<li>Nesting Loops in Loops</li>
+<li>Looping Until a Condition Is Reached</li>
+<li>Repetition Based on User Input</li>
+<li>Controlling Loops Using break and continue</li>
+</ul>
+</li>
+</ul>
+<p>Repeating What You&rsquo;ve Learned</p>
+<p>Exercises</p>
+<ul>
+<li>Reading and Writing Files
+<ul>
+<li>What Kinds of Files Are There?</li>
+<li>Opening a File</li>
+<li>Techniques for Reading Files</li>
+<li>Files over the Internet</li>
+<li>Writing Files</li>
+<li>Writing Example Calls Using StringIO</li>
+<li>Writing Algorithms That Use the File-Reading Techniques</li>
+<li>Multiline Records</li>
+<li>Looking Ahead</li>
+<li>Notes to File Away</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Storing Data Using Other Collection Types
+<ul>
+<li>Storing Data Using Sets</li>
+<li>Storing Data Using Tuples</li>
+<li>Storing Data Using Dictionaries</li>
+<li>Inverting a Dictionary</li>
+<li>Using the in Operator on Tuples, Sets, and Dictionaries</li>
+<li>Comparing Collections</li>
+<li>Creating New Type Annotations</li>
+<li>A Collection of New Information</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Designing and Benchmarking Algorithms
+<ul>
+<li>Searching for the Two Smallest Values</li>
+<li>Timing the Functions</li>
+<li>At a Minimum, You Saw This</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li><a href="https://media.pragprog.com/titles/gwpy4/extract-search.pdf" class="pdf-link">Searching and
+Sorting<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a>
+<ul>
+<li>Searching a List</li>
+<li>Binary Search</li>
+<li>Sorting</li>
+<li>More Efficient Sorting Algorithms</li>
+<li>Merge Sort: A Faster Sorting Algorithm</li>
+<li>Sorting Out What You Learned</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Object-Oriented Programming
+<ul>
+<li>Understanding a Problem Domain</li>
+<li>Function isinstance, Class object, and Class Book</li>
+<li>Writing a Method in Class Book</li>
+</ul>
+</li>
+</ul>
+<p>Plugging into Python Syntax: More Special Methods</p>
+<p>A Little Bit of OO Theory</p>
+<p>A Case Study: Molecules, Atoms, and PDB Files</p>
+<p>Classifying What You&rsquo;ve Learned</p>
+<p>Exercises</p>
+<ul>
+<li>Testing and Debugging
+<ul>
+<li>Why Do You Need to Test?</li>
+<li>Case Study: Testing above_freezing</li>
+<li>Case Study: Testing running_sum</li>
+<li>Choosing Test Cases</li>
+<li>Hunting Bugs</li>
+<li>Bugs We&rsquo;ve Put in Your Ear</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li><a href="https://media.pragprog.com/titles/gwpy4/extract-iteration-tools.pdf" class="pdf-link">Mastering Iteration
+Tools<img aria-label="PDF icon" class="pdf-icon" src="/img/pdf_icon.png"/></a>
+<ul>
+<li>Core Idioms</li>
+<li>Functional Programming</li>
+<li>Built-In and Standard Library Helpers</li>
+<li>Let&rsquo;s Reiterate</li>
+<li>Exercises</li>
+</ul>
+</li>
+<li>Handling Exceptions
+<ul>
+<li>Core Idioms</li>
+<li>Accessing Exception Details</li>
+<li>Common Built-in Exceptions</li>
+<li>Raising and Chaining Exceptions</li>
+<li>Defining Custom Exceptions</li>
+<li>Exceptionally Important!</li>
+<li>Exercises</li>
+</ul>
+</li>
+</ul>
+
+
+  <h3 id="author">Author</h3>
+
+  Dmitry Zinoviev is a professor of Computer Science at Suffolk University
+in Boston and has a dual degree in Physics and Computer Science. He is
+passionate about modern C and Python programming, complex network
+analysis, computational social science, digital humanities, computer
+simulation and modeling, and software archeology and retrocomputing. He
+is the sole author of four more Pragmatic books.
+
+  </section>
+</div>
+
+<div class="titlepage-right">
+  <div class="buy-container-large">
+    <div class="buy-container">
+      
+<div class="buybox">
+
+
+<h3>eBook Formats:</h3>
+
+<ul class="compact">
+<li><p>PDF for desktop/tablets</p></li>
+<li><p>epub for Apple Books, e-readers</p></li>
+<li><p>mobi for Kindle readers</p></li>
+</ul>
+
+<p>
+Get all eBook formats here for <strong>$39.95</strong> (USD)
+</p>
+
+<p>
+
+<a href="https://transactions.sendowl.com/packages/871843/D59CF66D/add_to_cart" rel="nofollow" class="buynowbtn">Add to Cart</a><script src="https://transactions.sendowl.com/assets/sendowl.js"></script>
+<img src="/img/cclogos.png" alt="we accept visa, mastercard, amex, discover, paypal" style="padding-top: 10px;"/>
+
+</p>
+
+<p>
+
+<strong><i>This book is in Beta, final version expected
+Jul 2026</i></strong>
+</p>
+<p>
+<a href="/support/#beta-books" target="_blank">Beta Books: What do I get?</a>
+<br/>
+
+</div>
+
+      
+    </div>
+  </div>
+
+  <section class="newsletter-container">
+    <div class="newsletterbox">
+  	    <h2>Releases, Offers &amp; More</h2>
+
+<p>
+Be the first to hear about our newest content, best promotions and upcoming events. Plus get <span style="font-weight: bold; font-size: 1.1em;">25% off</span> your next purchase.
+</p>
+
+<p>
+	<a class="loginbtn" href="/newsletter">Newsletter Sign Up</a>
+</p>
+
+    </div>
+  </section>
+
+  <section class="related-container">
+  	<div class="buybox">
+
+<h3>Related categories:</h3>
+
+<ul>
+
+	<li><p><a href="/categories/beta">Beta</a></p></li>
+
+</ul>
+
+</div>
+  </section>
+
+  <section class="book-ads">
+  	<h3>Related Titles:</h3>
+
+<ul>
+	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/d-sgperfin"><i>Tracking Personal Finances Using Python</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-125.jpg" srcset="/titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-125.jpg 1x, /titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-188.jpg 1.5x, /titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-250.jpg 2x, /titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-375.jpg 3x, /titles/d-sgperfin/tracking-personal-finances-using-python/d-sgperfin-500.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/bopytest2"><i>Python Testing with pytest, Second Edition</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-125.jpg" srcset="/titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-125.jpg 1x, /titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-188.jpg 1.5x, /titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-250.jpg 2x, /titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-375.jpg 3x, /titles/bopytest2/python-testing-with-pytest-second-edition/bopytest2-500.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/mrpython"><i>Portable Python Projects</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/mrpython/portable-python-projects/mrpython-125.jpg" srcset="/titles/mrpython/portable-python-projects/mrpython-125.jpg 1x, /titles/mrpython/portable-python-projects/mrpython-188.jpg 1.5x, /titles/mrpython/portable-python-projects/mrpython-250.jpg 2x, /titles/mrpython/portable-python-projects/mrpython-375.jpg 3x, /titles/mrpython/portable-python-projects/mrpython-500.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/dzpythonic"><i>Pythonic Programming</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/dzpythonic/pythonic-programming/dzpythonic-125.jpg" srcset="/titles/dzpythonic/pythonic-programming/dzpythonic-125.jpg 1x, /titles/dzpythonic/pythonic-programming/dzpythonic-188.jpg 1.5x, /titles/dzpythonic/pythonic-programming/dzpythonic-250.jpg 2x, /titles/dzpythonic/pythonic-programming/dzpythonic-375.jpg 3x, /titles/dzpythonic/pythonic-programming/dzpythonic-500.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	        
+	    	
+	    	    
+
+	    		
+
+	    		
+				   <li><p><a href="/titles/d-pybrain"><i>Python Brain Teasers</i>
+				   	
+      				
+      				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<img class="bookimage related-title-img"  alt="" src="/titles/d-pybrain/python-brain-teasers/d-pybrain-125.jpg" srcset="/titles/d-pybrain/python-brain-teasers/d-pybrain-125.jpg 1x, /titles/d-pybrain/python-brain-teasers/d-pybrain-188.jpg 1.5x, /titles/d-pybrain/python-brain-teasers/d-pybrain-250.jpg 2x, /titles/d-pybrain/python-brain-teasers/d-pybrain-375.jpg 3x, /titles/d-pybrain/python-brain-teasers/d-pybrain-500.jpg 4x" />
+
+
+
+
+
+
+
+
+
+
+
+				   </a></p></li>
+				
+	    	
+	    
+	
+</ul>
+
+  </section>
+</div>
+
+<div class="book-about-small">
+    
+    <h3>About This Title</h3>
+    <p>
+      <strong>Pages:</strong> 400<br/>
+      
+      <strong>Published:</strong> July 2026<br/>
+      
+      <strong>ISBN:</strong> 9798888652046<br/>
+      <strong>Edition:</strong> 4<br/>
+      In Beta<br/>
+    </p>
+</div>
+
+
+  <footer class="footer">
+  <ul style="margin-block-end: 0.5em">
+    <li><a href="/contact">Contact</a></li>
+    <li><a href="/about">About Us</a></li>
+    <li><a href="/privacy">Privacy</a></li>
+    <li><a href="/terms-of-use">Terms of Use</a></li>
+    <li><a href="/security">Security</a></li>
+    <li><a href="/newsletter">Newsletter</a></li>
+    <li><a href="https://www.giftya.com/brands/1568049/pragmatic-bookshelf" target="_blank">eGifts</a></li>
+    
+    <li><a href="/promotions">Partnerships &amp; Promotions</a></li>
+    <li><a href="/careers">Careers</a></li>
+  </ul>
+
+  <div style="font-size: 70%; color: #C2CBC2">
+    &copy; 1999-2026 The Pragmatic Programmers, LLC. All Rights Reserved.
+  </div>
+
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+<script>
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#915465",
+      "text": "#ffdddd"
+    },
+    "button": {
+      "background": "#93535B"
+    }
+  },
+  "theme": "classic",
+  "content": {
+    "message": "This website uses cookies for navigation, order transactions, and general analytics. ",
+    "href": "https://pragprog.com/privacy"
+  }
+});
+</script>
+
+</div>
+</body>
+</html>

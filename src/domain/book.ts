@@ -20,7 +20,8 @@ export interface BookRecord {
   isbn?: string;          // ISBN-13、ハイフンなし数字のみ
   asin?: string;          // Amazon ASIN (Amazonリンクが存在する場合)
   url: string;            // 出版社公式ページURL
-  price?: number;         // 税込価格（円）
+  price?: number;         // 価格（currency の単位。省略時は税込円・整数）
+  currency?: string;      // ISO 4217 通貨コード（省略時は "JPY" とみなす。海外出版社用）
   coverImageUrl?: string;
   description?: string;
   tags?: string[];

@@ -5,8 +5,9 @@
 
 ## 概要
 
-日本語技術書の書誌情報を出版社公式サイト・APIから取得するMCPサーバー。
+日本語技術書（および一部の海外技術書）の書誌情報を出版社公式サイト・APIから取得するMCPサーバー。
 書名・著者名での検索と、URLからの詳細情報取得を提供する。
+価格は原則 税込円（整数）だが、海外出版社は当該通貨の数値と `BookRecord.currency`（ISO 4217）で表す。
 
 ## アーキテクチャ
 
@@ -83,6 +84,7 @@ techbook-mcp/
 │   │       ├── oreilly-japan.ts # オライリー・ジャパン
 │   │       ├── peaks.ts         # PEAKS
 │   │       ├── personal-media.ts  # パーソナルメディア
+│   │       ├── pragprog.ts      # Pragmatic Bookshelf (海外・DRM-free)
 │   │       ├── rutles.ts        # ラトルズ
 │   │       ├── saiensu.ts       # サイエンス社
 │   │       ├── seshop.ts        # SEshop (翔泳社)
@@ -120,6 +122,7 @@ techbook-mcp/
 | `oreilly-japan` | オライリー・ジャパン | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `peaks` | PEAKS | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `personal-media` | パーソナルメディア | HTML scraping | 検索APIなし・ローカルフィルタ |
+| `pragprog` | Pragmatic Bookshelf | JSON index | 海外(米)・`/search/index.json` をローカルフィルタ・DRM-free・USD |
 | `rutles` | ラトルズ | HTML scraping | クエリを EUC-JP エンコード必須 |
 | `saiensu` | サイエンス社 | HTML scraping | 電子書籍のみ (`mediaName === "電子"`) |
 | `seshop` | SEshop (翔泳社) | HTML scraping | `category_id=327` で電子書籍に絞り込み |
@@ -260,6 +263,18 @@ GET https://tatsu-zine.com/books/?search={keyword}
 ```
 複数出版社の電子書籍を委託販売。全書籍ソーシャルDRM。
 
+**Pragmatic Bookshelf (pragprog)** — 海外（米国）・JSONインデックス
+```
+GET https://pragprog.com/search/index.json   # 全書籍インデックス（lunr.js 用）
+```
+- 唯一の海外（英語）出版社。サイト内検索は lunr.js のクライアントサイド検索なので、インデックス JSON を取得して**ローカルフィルタ**する
+- インデックスの各レコード: `record_type`（`"book"`/`"errata"`）・`href`・`title`・`subtitle`・`author`・`keywords[]`・`code`・`image`。`"book"` のみ対象
+- 検索: タイトル語は title+subtitle+keywords に全トークン一致、著者は `author` 部分一致。インデックスに価格・ISBN・発行日はない
+- 詳細: `/titles/{code}/{slug}/`。`<meta property="book:isbn|book:author|og:*">` と `.book-about-text`（"Published: July 2026" → `2026-07-01`）・`.buybox`（"$39.95 (USD)"）から取得
+- 著者: "A with B, C, and D" を `with`/`and`/カンマで分割（オックスフォードカンマの "and" 残りも除去）
+- 価格は **USD** なので `price` に数値・`currency: "USD"` を付与
+- DRM: `"free"`（PDF/epub/mobi 全フォーマット提供・技術的DRMなし）
+
 **技術書典 (techbookfest)** — GraphQL
 ```
 POST https://techbookfest.org/api/graphql
@@ -291,6 +306,7 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 | ラトルズ | `free` | 購入・確認済み |
 | PEAKS | `free` | 利用規約に明記 |
 | オプトロニクス社 | `free` | 購入・確認済み |
+| Pragmatic Bookshelf | `free` | PDF/epub/mobi 全フォーマット提供・DRMなし |
 | Gihyo Digital Publishing | `social` | 公式方針 |
 | SEshop (翔泳社) | `social` | メールアドレス埋め込み透かし |
 | BOOK TECH | `social` | 購入者情報透かし |
