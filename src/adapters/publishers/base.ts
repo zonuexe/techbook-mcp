@@ -227,6 +227,7 @@ const EBOOK_STORE_PATTERNS: StorePattern[] = [
   { pattern: /seshop\.com\/product\//, name: "SEshop", drm: "social" },
   { pattern: /book-tech\.com\/books\//, name: "BOOK TECH", drm: "social" },
   { pattern: /wgn-obs\.shop-pro\.jp\/\?pid=/, name: "ボーンデジタル", drm: "social" },
+  { pattern: /cc\.cqpub\.co\.jp\/lib\/system\/doclib_item\//, name: "CQ出版 Tech Village", drm: "social" },
   // ソーシャルDRM (購入時生成IDまたは購入者情報を透かし刻印、技術的制限なし)
   { pattern: /book\.mynavi\.jp\/manatee\//, name: "マナティ", drm: "social" },
   { pattern: /www\.lambdanote\.com\/products\//, name: "ラムダノート", drm: "social" },

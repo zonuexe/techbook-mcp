@@ -98,3 +98,4 @@ const http = new MockHttpClient()
 - **機関向けストア除外**: `kw.maruzen.co.jp`（Knowledge Worker）は個人向けではないため除外
 - **ローカルフィルタ型**: `oreilly-japan` と `peaks` は検索APIがなくトップページ/一覧をローカルフィルタ
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
+- **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）

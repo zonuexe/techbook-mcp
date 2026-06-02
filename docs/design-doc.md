@@ -74,6 +74,7 @@ techbook-mcp/
 │   │       ├── book-tech.ts     # BOOK TECH
 │   │       ├── born-digital.ts  # ボーンデジタル
 │   │       ├── coronasha.ts     # コロナ社
+│   │       ├── cq-publishing.ts # CQ出版社 (Tech Village 書庫＆販売)
 │   │       ├── gihyo.ts         # 技術評論社
 │   │       ├── lambdanote.ts    # ラムダノート
 │   │       ├── manatee.ts       # マナティ (マイナビ出版直販)
@@ -110,6 +111,7 @@ techbook-mcp/
 | `book-tech` | BOOK TECH | HTML scraping | カラーミーショップ |
 | `born-digital` | ボーンデジタル | HTML scraping | カラーミーショップ・EUC-JP エンコード必須 |
 | `coronasha` | コロナ社 | HTML scraping | 電子版フラグで絞り込み・外部ストアへ委託販売 |
+| `cq-publishing` | CQ出版社 | HTML scraping | 電子書籍直販サイト「Tech Village」・検索キーワードはパスに埋め込む |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
 | `lambdanote` | ラムダノート | HTML scraping | Shopify ストア |
 | `manatee` | マナティ (マイナビ出版直販) | HTML scraping | 複数出版社を委託販売 |
@@ -157,6 +159,17 @@ GET https://www.coronasha.co.jp/np/result.html?q={keyword}
 - 価格は詳細ページのサイドバー `.price` から取得（`.book-info dl` には含まれない）
 - 電子書籍ストアは `extractEbookStoresFromDoc()` で自動検出（Kindle, Kinoppy, VarsityWave eBooks 等）
 - Knowledge Worker (`kw.maruzen.co.jp`) はパターン未登録のため自動除外
+
+**CQ出版社 (cq-publishing)** — Tech Village 書庫＆販売
+```
+GET https://cc.cqpub.co.jp/lib/system/doclib_search/q={UTF-8 percent-encoded keyword}/
+```
+- CQ出版の電子書籍直販サイト（`cc.cqpub.co.jp/lib/`）。物販サイト `shop.cqpub.co.jp` とは別ドメインで、後者は紙の書籍・雑誌のみ・ネイティブ検索なし
+- 検索キーワードは CakePHP の名前付きパラメータとして**パスに埋め込む**（`?q=` ではない）。複数語はスペース区切り（OR検索）
+- 検索結果: `ul.itemList.books04 li` の `.mainTitle a`（タイトル・リンク）・`.subTitle`・`.price span`・`dt img`
+- 詳細ページ: `/lib/system/doclib_item/{id}/`。`table[summary='商品詳細']` の th/td から著者・発行元・価格（ライセンス料金）・発行日を取得。**ISBN は持たず**コンテンツコード（例 `DP45551`）のみ
+- タイトル末尾の形式マーカー `【PDF版】`（重複表記あり）・`【EPUB版】` 等を除去
+- DRM: `"social"`（2017年導入の電子透かしで購入者情報を埋め込み、標準PDFビューアで閲覧可）
 
 **技術評論社 (gihyo)** — JSON API
 ```
@@ -282,6 +295,7 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 | SEshop (翔泳社) | `social` | メールアドレス埋め込み透かし |
 | BOOK TECH | `social` | 購入者情報透かし |
 | ボーンデジタル | `social` | PDFにメールアドレス印字 |
+| CQ出版 Tech Village | `social` | 2017年導入の電子透かしで購入者情報を埋め込み |
 | マナティ | `social` | 公式 about ページに明記 |
 | ラムダノート | `social` | 公式方針 |
 | 達人出版会 | `social` | 公式方針 |
