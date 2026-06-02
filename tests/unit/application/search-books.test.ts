@@ -54,7 +54,7 @@ describe("searchBooks()", () => {
     const book2 = makeBook({ title: "本B", url: "https://b.example.com/1" });
     const publishers = [makeAdapter("a", [book1]), makeAdapter("b", [book2])];
 
-    const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
+    const { books, errors } = await searchBooks({ title: "本" }, publishers, makeDeps());
 
     assert.strictEqual(books.length, 2);
     assert.strictEqual(books[0].title, "本A");
@@ -68,7 +68,7 @@ describe("searchBooks()", () => {
     const adapterB = makeAdapter("b", []);
     const publishers = [adapterA, adapterB];
 
-    const { books } = await searchBooks({ title: "テスト", publisherId: "a" }, publishers, makeDeps());
+    const { books } = await searchBooks({ title: "本", publisherId: "a" }, publishers, makeDeps());
 
     assert.strictEqual(books.length, 1);
     assert.strictEqual((adapterA.search as ReturnType<typeof mockFn>).mock.callCount(), 1);
@@ -86,7 +86,7 @@ describe("searchBooks()", () => {
     };
     const publishers = [failingAdapter, makeAdapter("ok", [book])];
 
-    const { books, errors } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
+    const { books, errors } = await searchBooks({ title: "成功" }, publishers, makeDeps());
 
     assert.strictEqual(books.length, 1);
     assert.strictEqual(books[0].title, "成功");
@@ -159,7 +159,7 @@ describe("searchBooks()", () => {
     assert.strictEqual(byId.get("h"), "http");
   });
 
-  it("matchScore を付与しベストマッチ順に並べる", async () => {
+  it("matchScore を付与しベストマッチ順に並べ、無関係本は除外する", async () => {
     const exact = makeBook({ title: "Rust入門", url: "https://a.example.com/1" });
     const partial = makeBook({ title: "実践Rust入門ガイド", url: "https://b.example.com/1" });
     const unrelated = makeBook({ title: "Python超入門", url: "https://c.example.com/1" });
@@ -171,12 +171,31 @@ describe("searchBooks()", () => {
 
     const { books } = await searchBooks({ title: "Rust入門" }, publishers, makeDeps());
 
+    // 一致度ゼロの "Python超入門" は除外される
     assert.deepStrictEqual(
       books.map(b => b.title),
-      ["Rust入門", "実践Rust入門ガイド", "Python超入門"],
+      ["Rust入門", "実践Rust入門ガイド"],
     );
     assert.strictEqual(books[0].matchScore, 1);
-    assert.ok(books[1].matchScore > books[2].matchScore);
+    assert.ok(books[1].matchScore < 1 && books[1].matchScore > 0);
+  });
+
+  it("一致する書籍がなければ空配列を返す（無関係本でフォールバックしない）", async () => {
+    const fallback = makeBook({ title: "ゲームを進化させるデータ分析完全ガイド" });
+    const publishers = [makeAdapter("a", [fallback])];
+
+    const { books } = await searchBooks({ title: "コマンドラインの黒い画面" }, publishers, makeDeps());
+
+    assert.deepStrictEqual(books, []);
+  });
+
+  it("著者の重複を除く", async () => {
+    const book = makeBook({ title: "詳解本", authors: ["吉川 邦夫", "吉川邦夫", "別人"] });
+    const publishers = [makeAdapter("a", [book])];
+
+    const { books } = await searchBooks({ title: "詳解本" }, publishers, makeDeps());
+
+    assert.deepStrictEqual(books[0].authors, ["吉川 邦夫", "別人"]);
   });
 
   it("language 未設定の書籍に既定言語 \"ja\" を刻む", async () => {

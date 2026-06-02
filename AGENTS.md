@@ -103,7 +103,8 @@ const http = new MockHttpClient()
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
 - **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与
-- **検索結果は matchScore 降順**: `search_books` はアプリ層で各候補に `matchScore`（0〜1）を付与しベストマッチ順にソートする（`src/domain/text-match.ts`）。アダプターの返却順には依存しない
+- **検索結果は matchScore 降順＋ゼロ関連度を除外**: `search_books` はアプリ層で各候補に `matchScore`（0〜1）を付与しベストマッチ順にソートする（`src/domain/text-match.ts`）。アダプターの返却順には依存しない。クエリ語があるのに一致度ゼロの候補（検索サイトが該当なし時に返す新着フォールバック）は除外し、該当なしは空配列で返す。書名スコアはトークン分割した包含割合（純日本語の部分語が助詞を跨いでも拾える）
+- **著者は dedup 済み**: search/detail/isbn の全経路で `dedupeAuthors()`（`src/domain/authors.ts`）により著者配列の重複を除く（表記ゆれも `normalizeForMatch` で同一視）。アダプター側で重複排除を頑張る必要はない
 - **ISBN ショートカット**: `search_books` の `title` が ISBN 形式（`looksLikeIsbn`）かつ `author` 未指定だと、横断検索せず `get_book_by_isbn` 経路に振り分けられる（MCP ハンドラ `src/mcp/server.ts`）
 - **遅いサイトはタイムアウト**: 横断検索は 1社あたり `SEARCH_TIMEOUT_MS`(12s) で打ち切り部分結果を返す。並列度は `SEARCH_CONCURRENCY`(6)。`scale: "minor"` は大規模出版社の後に回る（`src/application/search-books.ts` / `concurrency.ts`）
 - **埋め込みストリームから価格取得**: `leanpub.com`（海外）は React Router アプリ。検索結果カードは静的HTMLだが、価格(`minimumPaidPrice`)・更新日(`lastPublishedAt`)は `<script>` 内のストリームから正規表現で取得する。静的な表示テキスト（"Last updated on …"）は CDN/SSR 状態で揺れるため使わない

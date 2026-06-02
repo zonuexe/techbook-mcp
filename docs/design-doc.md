@@ -373,7 +373,11 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 - **ベストマッチ順ソート**: 各候補にクエリとの一致度 `matchScore`（0〜1、1が完全一致）を付与し降順に並べる。
   先頭ほど本命候補なので、PDF奥付から推定した曖昧な title/author でも候補選びに迷わない。
   スコアは `src/domain/text-match.ts` の `normalizeForMatch()`（NFKC で全半角統一・装飾括弧/長音/約物/空白を除去）＋
-  包含スコアで算出する。`matchScore` はクエリ相対値のためドメインの `BookRecord` には載せず、検索結果境界の `ScoredBook` 型に限定する
+  書名はクエリを空白でトークン分割して候補書名への包含割合で算出する（純日本語の部分語が助詞を跨いでも拾える）。
+  `matchScore` はクエリ相対値のためドメインの `BookRecord` には載せず、検索結果境界の `ScoredBook` 型に限定する
+- **ゼロ関連度のフォールバックを除外**: クエリ語があるのに `matchScore` が 0 の候補（検索サイトが「該当なし」時に返す新着順の無関係本）は除外する。
+  「該当なし」を空配列で表し、「該当なし」と「誤ヒット」を呼び出し側が区別できるようにする（誤メタデータ混入を防ぐ）
+- **著者の重複排除**: `src/domain/authors.ts` の `dedupeAuthors()` で著者配列の重複を除く（`normalizeForMatch` をキーに表記ゆれも同一視）。search/detail/isbn の全経路に適用
 - **大規模出版社を優先スケジュール**: `PublisherAdapter.scale === "minor"` の小規模・専門/ローカルフィルタ型サイトは大規模出版社の後に回す。
   小規模サイトのカタログは変動が少ないため `CATALOG_CACHE_TTL_SECONDS`（24時間）で全キャッシュし、ライブ負荷を抑える
 - **並列度制限・タイムアウト**: `src/application/concurrency.ts` の `mapWithConcurrency`（`SEARCH_CONCURRENCY = 6`）と

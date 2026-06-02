@@ -30,9 +30,25 @@ function containmentScore(a: string, b: string): number {
   return 0;
 }
 
-/** クエリ書名と候補書名の一致度（0..1） */
+/**
+ * クエリ書名と候補書名の一致度（0..1）。
+ *
+ * 正規化後に完全一致すれば 1。そうでなければクエリを空白でトークン分割し、
+ * 候補書名に含まれるトークンの割合でスコアを付ける（完全一致を上回らないよう 0.9 で頭打ち）。
+ * トークン方式により純日本語の部分文字列（"メール技術 教科書" → "メール技術の教科書"）も拾える。
+ * どのトークンも含まれなければ 0 ＝ 無関係（フォールバック書籍の除外に使う）。
+ */
 export function titleMatchScore(query: string, candidate: string): number {
-  return containmentScore(normalizeForMatch(query), normalizeForMatch(candidate));
+  const cand = normalizeForMatch(candidate);
+  const q = normalizeForMatch(query);
+  if (!q || !cand) return 0;
+  if (q === cand) return 1;
+
+  const tokens = query.split(/\s+/).map(normalizeForMatch).filter(Boolean);
+  if (tokens.length === 0) return 0;
+  const matched = tokens.filter(t => cand.includes(t)).length;
+  if (matched === 0) return 0;
+  return Math.min(0.9, 0.9 * (matched / tokens.length));
 }
 
 /** クエリ著者名と候補著者リストの一致度（0..1）。最も一致する1名を採用 */

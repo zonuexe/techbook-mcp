@@ -26,14 +26,25 @@ describe("titleMatchScore()", () => {
     assert.strictEqual(titleMatchScore("Ｒｕｓｔ入門", "Rust入門"), 1);
   });
 
-  it("部分一致は 0.5〜1 の範囲で長さ比に応じて割り引く", () => {
+  it("単一トークンが含まれれば高スコア（完全一致は上回らない）", () => {
     const score = titleMatchScore("Rust", "実践Rustプログラミング入門");
     assert.ok(score > 0.5 && score < 1, `score=${score}`);
   });
 
   it("装飾マーカー付きでも高いスコアで一致する", () => {
-    // "go言語入門"(6) が "電子版go言語入門"(9) に包含 → 0.5 + 0.5*(6/9) ≈ 0.83
     assert.ok(titleMatchScore("Go言語入門", "【電子版】Go言語入門") > 0.8);
+  });
+
+  it("純日本語の複数トークン部分一致を拾う（の等の助詞を跨ぐ）", () => {
+    // 全文字列包含だと "メール技術の教科書" に "メール技術教科書" は含まれず 0 になるが、
+    // トークン方式なら "メール技術"・"教科書" の両方が含まれ高スコアになる
+    assert.ok(titleMatchScore("メール技術 教科書", "メール技術の教科書") > 0.8);
+  });
+
+  it("一部トークンのみ一致なら中間スコア", () => {
+    const full = titleMatchScore("メール技術 教科書", "メール技術の教科書");
+    const partial = titleMatchScore("メール技術 図鑑", "メール技術の教科書");
+    assert.ok(partial > 0 && partial < full, `partial=${partial} full=${full}`);
   });
 
   it("無関係なら 0", () => {

@@ -7,7 +7,11 @@ export const TOOLS = [
       "各書籍の publishedAt は YYYY-MM-DD 形式（riida の release_date に対応）、" +
       "language は ISO 639-1（省略時は \"ja\"）です。" +
       "結果はクエリとの一致度 matchScore（0〜1、1が完全一致）の降順で並んでおり、" +
-      "先頭ほど本命候補です。",
+      "先頭ほど本命候補です。一致する書籍がなければ空配列を返します" +
+      "（無関係な新着本でフォールバックしません）。" +
+      "検索語は ASCII 語・正確なフルタイトルが最も当たりやすく、" +
+      "日本語の部分語は空白区切りの複数トークンにすると拾われやすくなります。" +
+      "版違いを厳密に当てたい場合は title に ISBN を渡すと ISBN 検索に切り替わります。",
     inputSchema: {
       type: "object",
       properties: {

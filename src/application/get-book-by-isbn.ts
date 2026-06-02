@@ -4,6 +4,7 @@ import { checkRobotsTxt } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, openBDEntryToBookRecord } from "../adapters/openbd.js";
 import { fetchCalilBook } from "../adapters/calil.js";
 import { findAdapterIdByIsbn } from "../adapters/publishers/isbn-publisher-codes.js";
+import { dedupeAuthors } from "../domain/authors.js";
 
 /**
  * ISBNから書籍情報を取得する。
@@ -21,9 +22,10 @@ export async function getBookByIsbn(
 ): Promise<BookRecord> {
   const normalizedIsbn = isbn.replace(/-/g, "");
 
-  // 言語が未設定の書籍に既定言語を刻む（openBD/カーリル/国内出版社はいずれも日本語）
+  // 言語の既定を刻み、著者の重複を除く（openBD/カーリル/国内出版社はいずれも日本語）
   const stamp = (book: BookRecord, lang = "ja"): BookRecord => {
     book.language ??= lang;
+    book.authors = dedupeAuthors(book.authors);
     return book;
   };
 

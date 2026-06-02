@@ -3,6 +3,7 @@ import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import { checkRobotsTxt } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, enrichWithOpenBD } from "../adapters/openbd.js";
 import { matchScore } from "../domain/text-match.js";
+import { dedupeAuthors } from "../domain/authors.js";
 import { mapWithConcurrency, withTimeout, TimeoutError } from "./concurrency.js";
 
 /** 1出版社あたりの検索タイムアウト。遅い1社が全体をブロックしないための上限 */
@@ -93,9 +94,17 @@ export async function searchBooks(
     }
   }
 
-  // クエリとの一致度を付与し、ベストマッチ順に並べる
+  // クエリとの一致度を付与し、著者の重複を除いて、ベストマッチ順に並べる
+  const hasQuery = Boolean(query.title || query.author);
   const scored: ScoredBook[] = books
-    .map(book => ({ ...book, matchScore: Math.round(matchScore(query, book) * 1000) / 1000 }))
+    .map(book => ({
+      ...book,
+      authors: dedupeAuthors(book.authors),
+      matchScore: Math.round(matchScore(query, book) * 1000) / 1000,
+    }))
+    // クエリ語があるのに一致度ゼロ＝検索サイトが返す新着フォールバック等の無関係本。
+    // 「該当なし」と「誤ヒット」を呼び出し側が区別できるよう、ここで除外して空にする。
+    .filter(book => !hasQuery || book.matchScore > 0)
     .sort((a, b) => b.matchScore - a.matchScore);
 
   return { books: scored, errors };
