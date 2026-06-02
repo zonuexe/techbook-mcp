@@ -21,13 +21,19 @@ export async function getBookByIsbn(
 ): Promise<BookRecord> {
   const normalizedIsbn = isbn.replace(/-/g, "");
 
+  // 言語が未設定の書籍に既定言語を刻む（openBD/カーリル/国内出版社はいずれも日本語）
+  const stamp = (book: BookRecord, lang = "ja"): BookRecord => {
+    book.language ??= lang;
+    return book;
+  };
+
   const openBDMap = await fetchOpenBDBooks([normalizedIsbn], deps);
   const entry = openBDMap.get(normalizedIsbn);
 
   if (!entry) {
     // openBD にない場合はカーリルをフォールバックとして試みる（廃業出版社など）
     const calilBook = await fetchCalilBook(normalizedIsbn, deps);
-    if (calilBook) return calilBook;
+    if (calilBook) return stamp(calilBook);
     throw new Error(`書誌情報が見つかりません: ${isbn}`);
   }
 
@@ -40,7 +46,7 @@ export async function getBookByIsbn(
       const allowed = await checkRobotsTxt(storelink, deps);
       if (allowed) {
         try {
-          return await publisher.getDetail(storelink, deps);
+          return stamp(await publisher.getDetail(storelink, deps), publisher.language ?? "ja");
         } catch {
           // 出版社サイトからの取得失敗は無視して次のフォールバックへ
         }
@@ -57,12 +63,12 @@ export async function getBookByIsbn(
         const results = await publisher.search({ title: normalizedIsbn, limit: 5 }, deps);
         const matched = results.find(r => r.isbn && r.isbn.replace(/-/g, "") === normalizedIsbn)
           ?? results[0];
-        if (matched) return matched;
+        if (matched) return stamp(matched, publisher.language ?? "ja");
       } catch {
         // 出版社サイトからの取得失敗は無視して openBD データで返す
       }
     }
   }
 
-  return openBDEntryToBookRecord(entry);
+  return stamp(openBDEntryToBookRecord(entry));
 }

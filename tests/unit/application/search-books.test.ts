@@ -91,7 +91,7 @@ describe("searchBooks()", () => {
     assert.strictEqual(books.length, 1);
     assert.strictEqual(books[0].title, "成功");
     assert.strictEqual(errors.length, 1);
-    assert.deepStrictEqual(errors[0], { publisherId: "fail", message: "network error" });
+    assert.deepStrictEqual(errors[0], { publisherId: "fail", type: "other", message: "network error" });
   });
 
   it("全アダプターが失敗した場合は books が空で errors に全件入る", async () => {
@@ -121,6 +121,87 @@ describe("searchBooks()", () => {
     const { books, errors } = await searchBooks({ title: "テスト" }, [], makeDeps());
     assert.deepStrictEqual(books, []);
     assert.deepStrictEqual(errors, []);
+  });
+
+  it("scale: \"minor\" の出版社を大規模出版社より後に呼ぶ", async () => {
+    const order: string[] = [];
+    const makeTracked = (id: string, scale?: "minor"): PublisherAdapter => ({
+      id,
+      name: `${id}社`,
+      baseUrl: `https://${id}.example.com`,
+      scale,
+      search: mockFn(async () => {
+        order.push(id);
+        return [];
+      }),
+      getDetail: mockFn(),
+    });
+    // 並列度1相当に十分な順序保証のため minor を先頭に置いても後回しになることを確認
+    const publishers = [makeTracked("minor1", "minor"), makeTracked("major1"), makeTracked("major2")];
+
+    await searchBooks({ title: "x" }, publishers, makeDeps());
+
+    // major が minor より前に呼ばれている
+    assert.ok(order.indexOf("major1") < order.indexOf("minor1"), `order=${order.join(",")}`);
+    assert.ok(order.indexOf("major2") < order.indexOf("minor1"), `order=${order.join(",")}`);
+  });
+
+  it("失敗理由を type で分類する", async () => {
+    const publishers: PublisherAdapter[] = [
+      { id: "r", name: "R", baseUrl: "https://r.example.com", search: mockFn(() => Promise.reject(new Error("robots.txt によりアクセスが禁止されています: x"))), getDetail: mockFn() },
+      { id: "h", name: "H", baseUrl: "https://h.example.com", search: mockFn(() => Promise.reject(new Error("HTTP 503: x"))), getDetail: mockFn() },
+    ];
+
+    const { errors } = await searchBooks({ title: "x" }, publishers, makeDeps());
+    const byId = new Map(errors.map(e => [e.publisherId, e.type]));
+
+    assert.strictEqual(byId.get("r"), "robots");
+    assert.strictEqual(byId.get("h"), "http");
+  });
+
+  it("matchScore を付与しベストマッチ順に並べる", async () => {
+    const exact = makeBook({ title: "Rust入門", url: "https://a.example.com/1" });
+    const partial = makeBook({ title: "実践Rust入門ガイド", url: "https://b.example.com/1" });
+    const unrelated = makeBook({ title: "Python超入門", url: "https://c.example.com/1" });
+    const publishers = [
+      makeAdapter("a", [unrelated]),
+      makeAdapter("b", [partial]),
+      makeAdapter("c", [exact]),
+    ];
+
+    const { books } = await searchBooks({ title: "Rust入門" }, publishers, makeDeps());
+
+    assert.deepStrictEqual(
+      books.map(b => b.title),
+      ["Rust入門", "実践Rust入門ガイド", "Python超入門"],
+    );
+    assert.strictEqual(books[0].matchScore, 1);
+    assert.ok(books[1].matchScore > books[2].matchScore);
+  });
+
+  it("language 未設定の書籍に既定言語 \"ja\" を刻む", async () => {
+    const publishers = [makeAdapter("a", [makeBook()])];
+
+    const { books } = await searchBooks({ title: "テスト" }, publishers, makeDeps());
+
+    assert.strictEqual(books[0].language, "ja");
+  });
+
+  it("アダプターの language を使い、書籍が持つ language は上書きしない", async () => {
+    const enAdapter: PublisherAdapter = {
+      ...makeAdapter("en", [makeBook()]),
+      language: "en",
+    };
+    const explicitAdapter = makeAdapter("x", [makeBook({ language: "fr" })]);
+
+    const { books } = await searchBooks(
+      { title: "テスト" },
+      [enAdapter, explicitAdapter],
+      makeDeps(),
+    );
+
+    assert.strictEqual(books[0].language, "en");
+    assert.strictEqual(books[1].language, "fr");
   });
 
   it("クエリをそのまま各アダプターの search() に渡す", async () => {

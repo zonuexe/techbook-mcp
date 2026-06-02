@@ -13,6 +13,14 @@ export interface PublisherAdapter {
   readonly id: string;
   readonly name: string;
   readonly baseUrl: string;
+  /** この出版社の書籍の既定言語（ISO 639-1）。省略時はアプリ層で "ja" とみなす */
+  readonly language?: string;
+  /**
+   * 検索時のスケジューリング/キャッシュ戦略のヒント。
+   * - 省略 = 大規模出版社（優先的にスケジュールし、通常 TTL でキャッシュ）
+   * - "minor" = 小規模・専門/ローカルフィルタ型（大規模の後に回し、カタログを長 TTL で全キャッシュ）
+   */
+  readonly scale?: "minor";
   search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]>;
   getDetail(url: string, deps: PublisherDeps): Promise<BookRecord>;
 }

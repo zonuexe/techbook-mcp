@@ -54,6 +54,7 @@ export const leanpubAdapter: PublisherAdapter = {
   id: "leanpub",
   name: "Leanpub",
   baseUrl: BASE_URL,
+  language: "en",
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     const word = [query.title, query.author].filter(Boolean).join(" ");

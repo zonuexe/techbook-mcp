@@ -30,6 +30,9 @@ npm run build      # TypeScript コンパイル → dist/
 - 著者名から役割語（著・訳・編・監修・監訳など）を除去すること
 - 価格は税込み整数（円）で `BookRecord.price` に格納する。海外出版社など円以外の通貨は `price` に当該通貨の数値、`currency` に ISO 4217 コード（例 `"USD"`）を入れる（`currency` 省略時は JPY とみなす）
 - `publisher` フィールドには実際の出版社名を入れる（ストアプラットフォーム名ではない）
+- 日本語以外の書籍を扱うアダプターは `language`（ISO 639-1）をレコードまたはアダプターに設定する。国内出版社は省略可（アプリ層が `"ja"` を補う）
+- 小規模・ローカルフィルタ型アダプターは `scale: "minor"` を宣言し、全カタログ取得を `fetchText(url, deps, undefined, CATALOG_CACHE_TTL_SECONDS)` で長期キャッシュする（大規模出版社の後にスケジュールされる）
+- 検索結果の `matchScore` はアプリ層（`search-books.ts`）で付与する。クエリ相対値なのでアダプターでは設定しない（`BookRecord` ではなく `ScoredBook` の責務）
 
 ## 新しい出版社アダプターを追加するとき
 
@@ -100,4 +103,7 @@ const http = new MockHttpClient()
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
 - **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与
+- **検索結果は matchScore 降順**: `search_books` はアプリ層で各候補に `matchScore`（0〜1）を付与しベストマッチ順にソートする（`src/domain/text-match.ts`）。アダプターの返却順には依存しない
+- **ISBN ショートカット**: `search_books` の `title` が ISBN 形式（`looksLikeIsbn`）かつ `author` 未指定だと、横断検索せず `get_book_by_isbn` 経路に振り分けられる（MCP ハンドラ `src/mcp/server.ts`）
+- **遅いサイトはタイムアウト**: 横断検索は 1社あたり `SEARCH_TIMEOUT_MS`(12s) で打ち切り部分結果を返す。並列度は `SEARCH_CONCURRENCY`(6)。`scale: "minor"` は大規模出版社の後に回る（`src/application/search-books.ts` / `concurrency.ts`）
 - **埋め込みストリームから価格取得**: `leanpub.com`（海外）は React Router アプリ。検索結果カードは静的HTMLだが、価格(`minimumPaidPrice`)・更新日(`lastPublishedAt`)は `<script>` 内のストリームから正規表現で取得する。静的な表示テキスト（"Last updated on …"）は CDN/SSR 状態で揺れるため使わない

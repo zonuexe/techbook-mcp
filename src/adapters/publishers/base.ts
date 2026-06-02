@@ -11,6 +11,8 @@ const DEFAULT_HEADERS = {
 
 export const CACHE_TTL_SECONDS = 3600; // 1時間
 export const ROBOTS_CACHE_TTL_SECONDS = 6 * 3600; // 6時間
+// 小規模・ローカルフィルタ型サイトの全カタログは変動が少ないため長くキャッシュする
+export const CATALOG_CACHE_TTL_SECONDS = 24 * 3600; // 24時間
 
 // --- robots.txt チェック ---
 
@@ -135,6 +137,7 @@ export async function fetchText(
   url: string,
   deps: PublisherDeps,
   extraHeaders?: Record<string, string>,
+  ttlSeconds: number = CACHE_TTL_SECONDS,
 ): Promise<string> {
   const cached = await deps.cache.get(url);
   if (cached !== null) return cached;
@@ -149,7 +152,7 @@ export async function fetchText(
   }
 
   const text = await response.text();
-  await deps.cache.set(url, text, CACHE_TTL_SECONDS);
+  await deps.cache.set(url, text, ttlSeconds);
   return text;
 }
 

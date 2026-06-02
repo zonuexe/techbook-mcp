@@ -3,7 +3,11 @@ export const TOOLS = [
     name: "search_books",
     description:
       "書名・著者名から日本語技術書を検索し、書誌情報の一覧を返します。" +
-      "複数の出版社を横断して検索します。",
+      "複数の出版社を横断して検索します。" +
+      "各書籍の publishedAt は YYYY-MM-DD 形式（riida の release_date に対応）、" +
+      "language は ISO 639-1（省略時は \"ja\"）です。" +
+      "結果はクエリとの一致度 matchScore（0〜1、1が完全一致）の降順で並んでおり、" +
+      "先頭ほど本命候補です。",
     inputSchema: {
       type: "object",
       properties: {

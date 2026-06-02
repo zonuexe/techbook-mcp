@@ -62,6 +62,7 @@ export const pragprogAdapter: PublisherAdapter = {
   id: "pragprog",
   name: "Pragmatic Bookshelf",
   baseUrl: BASE_URL,
+  language: "en",
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     const titleQ = query.title?.trim().toLowerCase();

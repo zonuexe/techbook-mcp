@@ -8,6 +8,11 @@
 日本語技術書（および一部の海外技術書）の書誌情報を出版社公式サイト・APIから取得するMCPサーバー。
 書名・著者名での検索と、URLからの詳細情報取得を提供する。
 価格は原則 税込円（整数）だが、海外出版社は当該通貨の数値と `BookRecord.currency`（ISO 4217）で表す。
+言語は `BookRecord.language`（ISO 639-1、省略時 `"ja"`）で表す。
+
+書籍管理アプリ [Riida](https://github.com/zonuexe/riida) の `riida-mcp` とシームレスに連携することを目標とし、
+利用エージェント側の試行錯誤を減らしてスムーズに書誌を取得できることを重視する。
+`publishedAt`（YYYY-MM-DD）は riida の `release_date` に対応する。
 
 ## アーキテクチャ
 
@@ -50,13 +55,14 @@ techbook-mcp/
 ├── flake.nix              # Nix flake (devShell + package build)
 ├── package.json
 ├── tsconfig.json
-├── vitest.config.ts
 ├── docs/
 │   └── design-doc.md      # 本ドキュメント
 ├── src/
 │   ├── domain/
 │   │   ├── book.ts          # BookRecord, SearchQuery, DrmType 型定義
-│   │   └── publisher.ts     # PublisherAdapter インターフェース
+│   │   ├── publisher.ts     # PublisherAdapter インターフェース (language, scale)
+│   │   ├── text-match.ts    # 照合用テキスト正規化・matchScore 算出
+│   │   └── isbn.ts          # ISBN 正規化・looksLikeIsbn 判定
 │   ├── ports/
 │   │   ├── http.ts          # HttpClient インターフェース
 │   │   ├── html-parser.ts   # HtmlParser インターフェース
@@ -93,8 +99,10 @@ techbook-mcp/
 │   │       ├── techbookfest.ts  # 技術書典
 │   │       └── registry.ts      # 出版社リスト (DEFAULT_PUBLISHERS)
 │   ├── application/
-│   │   ├── search-books.ts
-│   │   └── get-book-detail.ts
+│   │   ├── search-books.ts   # 横断検索・スケジューリング・matchScore 付与
+│   │   ├── get-book-detail.ts
+│   │   ├── get-book-by-isbn.ts
+│   │   └── concurrency.ts    # mapWithConcurrency / withTimeout
 │   ├── mcp/
 │   │   ├── server.ts
 │   │   └── tools.ts
@@ -109,6 +117,8 @@ techbook-mcp/
 
 ## 対応出版社
 
+### 国内出版社
+
 | ID | 名称 | 取得方式 | 備考 |
 |----|------|---------|------|
 | `book-tech` | BOOK TECH | HTML scraping | カラーミーショップ |
@@ -117,19 +127,26 @@ techbook-mcp/
 | `cq-publishing` | CQ出版社 | HTML scraping | 電子書籍直販サイト「Tech Village」・検索キーワードはパスに埋め込む |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
 | `lambdanote` | ラムダノート | HTML scraping | Shopify ストア |
-| `leanpub` | Leanpub | HTML scraping | 海外・セルフ出版・DRM-free・価格/日付は埋め込みJSONストリームから取得・USD |
 | `manatee` | マナティ (マイナビ出版直販) | HTML scraping | 複数出版社を委託販売 |
 | `maruzen-publishing` | 丸善出版 | HTML scraping | Referer ヘッダー必須 |
 | `optronics` | オプトロニクス社 | HTML scraping | EC-CUBE ベース |
 | `oreilly-japan` | オライリー・ジャパン | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `peaks` | PEAKS | HTML scraping | 検索APIなし・ローカルフィルタ |
 | `personal-media` | パーソナルメディア | HTML scraping | 検索APIなし・ローカルフィルタ |
-| `pragprog` | Pragmatic Bookshelf | JSON index | 海外(米)・`/search/index.json` をローカルフィルタ・DRM-free・USD |
 | `rutles` | ラトルズ | HTML scraping | クエリを EUC-JP エンコード必須 |
 | `saiensu` | サイエンス社 | HTML scraping | 電子書籍のみ (`mediaName === "電子"`) |
 | `seshop` | SEshop (翔泳社) | HTML scraping | `category_id=327` で電子書籍に絞り込み |
 | `tatsu-zine` | 達人出版会 | HTML scraping | 複数出版社を委託販売 |
 | `techbookfest` | 技術書典オンラインマーケット | GraphQL POST API | XSRF-TOKEN 必須 |
+
+### 海外出版社
+
+価格は USD（`BookRecord.currency: "USD"`）、`language: "en"`。
+
+| ID | 名称 | 取得方式 | 備考 |
+|----|------|---------|------|
+| `pragprog` | Pragmatic Bookshelf | JSON index | 米国・`/search/index.json` をローカルフィルタ・DRM-free |
+| `leanpub` | Leanpub | HTML scraping | 米国・セルフ出版・DRM-free・価格/日付は埋め込みJSONストリームから取得 |
 
 ### 各アダプターの実装メモ
 
@@ -346,13 +363,33 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 |---------|------|---------|
 | `search_books` | 書名・著者名で検索 | `title?`, `author?`, `publisher?`, `limit?` |
 | `get_book_detail` | URLから詳細情報取得 | `url` |
+| `get_book_by_isbn` | ISBNから書誌情報取得（openBD→出版社サイト→カーリル） | `isbn` |
 | `list_publishers` | 対応出版社一覧 | なし |
+
+## 検索の挙動
+
+利用エージェント側の試行錯誤を減らすため、`search_books` は以下の前処理・後処理を行う。
+
+- **ベストマッチ順ソート**: 各候補にクエリとの一致度 `matchScore`（0〜1、1が完全一致）を付与し降順に並べる。
+  先頭ほど本命候補なので、PDF奥付から推定した曖昧な title/author でも候補選びに迷わない。
+  スコアは `src/domain/text-match.ts` の `normalizeForMatch()`（NFKC で全半角統一・装飾括弧/長音/約物/空白を除去）＋
+  包含スコアで算出する。`matchScore` はクエリ相対値のためドメインの `BookRecord` には載せず、検索結果境界の `ScoredBook` 型に限定する
+- **大規模出版社を優先スケジュール**: `PublisherAdapter.scale === "minor"` の小規模・専門/ローカルフィルタ型サイトは大規模出版社の後に回す。
+  小規模サイトのカタログは変動が少ないため `CATALOG_CACHE_TTL_SECONDS`（24時間）で全キャッシュし、ライブ負荷を抑える
+- **並列度制限・タイムアウト**: `src/application/concurrency.ts` の `mapWithConcurrency`（`SEARCH_CONCURRENCY = 6`）と
+  `withTimeout`（`SEARCH_TIMEOUT_MS = 12s`）で、遅い1社が全体をブロックしないようにする（部分結果を返す）
+- **errors の集約**: 失敗理由を `type`（`robots` / `timeout` / `http` / `other`）に分類し、MCP 層で種別×出版社に集約して静音化する
+- **ISBN ショートカット**: `title` が ISBN 形式（`src/domain/isbn.ts` の `looksLikeIsbn`）かつ `author` 未指定なら、
+  全社横断をやめて `get_book_by_isbn` 経路に振り分ける
 
 ## 新しいアダプターの追加手順
 
 1. `src/adapters/publishers/{id}.ts` を作成し `PublisherAdapter` を実装
    - `search()`: 検索APIまたはHTMLスクレイピングで `BookRecord[]` を返す
    - `getDetail()`: 詳細ページをスクレイピングして `BookRecord` を返す
+   - 海外出版社など日本語以外なら `language`（ISO 639-1）を宣言する（省略時はアプリ層で `"ja"` とみなす）
+   - ラインナップが小さい/検索APIがなく全カタログをローカルフィルタするサイトは `scale: "minor"` を宣言し、
+     カタログ取得を `fetchText(url, deps, undefined, CATALOG_CACHE_TTL_SECONDS)` で長期キャッシュする
 2. `tests/fixtures/{id}-search.html` (または `.json`) を作成
 3. `tests/fixtures/{id}-detail.html` を作成
 4. `tests/unit/adapters/publishers/{id}.test.ts` を作成
@@ -360,7 +397,7 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 6. `src/adapters/publishers/registry.ts` に登録
 
 よく使う共通ユーティリティ (`base.ts`):
-- `fetchText(url, deps, extraHeaders?)` — キャッシュ付きHTTP GET
+- `fetchText(url, deps, extraHeaders?, ttlSeconds?)` — キャッシュ付きHTTP GET（`ttlSeconds` 省略時 1時間、小規模カタログは `CATALOG_CACHE_TTL_SECONDS`）
 - `parseJapanesePrice(text)` — "3,740円（税込）" → 3740
 - `resolveUrl(base, path)` — 相対URLを絶対URLに解決
 - `extractEbookStoresFromDoc(doc)` — ページ内リンクから電子書籍ストアを自動検出

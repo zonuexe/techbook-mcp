@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl, parseJapaneseDateToISO, stripAuthorRole } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, parseJapaneseDateToISO, stripAuthorRole, CATALOG_CACHE_TTL_SECONDS } from "./base.js";
 
 const BASE_URL = "https://www.oreilly.co.jp";
 const EBOOK_LIST_URL = `${BASE_URL}/ebook/`;
@@ -27,6 +27,7 @@ export const oreillyJapanAdapter: PublisherAdapter = {
   id: "oreilly-japan",
   name: "オライリー・ジャパン",
   baseUrl: BASE_URL,
+  scale: "minor",
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     // 検索APIがないためタイトルでローカルフィルタリングする
@@ -36,7 +37,7 @@ export const oreillyJapanAdapter: PublisherAdapter = {
     const keyword = query.title.toLowerCase();
     const limit = query.limit ?? 10;
 
-    const html = await fetchText(EBOOK_LIST_URL, deps);
+    const html = await fetchText(EBOOK_LIST_URL, deps, undefined, CATALOG_CACHE_TTL_SECONDS);
     const doc = deps.parser.parse(html);
 
     const results: BookRecord[] = [];

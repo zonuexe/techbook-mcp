@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, EbookStore, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, CATALOG_CACHE_TTL_SECONDS } from "./base.js";
 
 const BASE_URL = "https://www.personal-media.co.jp";
 const WEBSHOP_URL = `${BASE_URL}/webshop/book/`;
@@ -27,12 +27,13 @@ export const personalMediaAdapter: PublisherAdapter = {
   id: "personal-media",
   name: "パーソナルメディア",
   baseUrl: BASE_URL,
+  scale: "minor",
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     // ローカルフィルタ型：タイトルなし検索は非対応
     if (!query.title) return [];
 
-    const html = await fetchText(WEBSHOP_URL, deps);
+    const html = await fetchText(WEBSHOP_URL, deps, undefined, CATALOG_CACHE_TTL_SECONDS);
     const doc = deps.parser.parse(html);
 
     const results: BookRecord[] = [];

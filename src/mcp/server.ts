@@ -7,8 +7,10 @@ import {
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, EbookStore, DrmType, SearchQuery } from "../domain/book.js";
 import { searchBooks } from "../application/search-books.js";
+import type { SearchError } from "../application/search-books.js";
 import { getBookDetail } from "../application/get-book-detail.js";
 import { getBookByIsbn } from "../application/get-book-by-isbn.js";
+import { looksLikeIsbn } from "../domain/isbn.js";
 import { TOOLS } from "./tools.js";
 
 // --- 出力フォーマット ---
@@ -27,6 +29,32 @@ function formatEbookStore(store: EbookStore): Record<string, unknown> {
 function formatBook(book: BookRecord): Record<string, unknown> {
   if (!book.ebookStores) return book as unknown as Record<string, unknown>;
   return { ...book, ebookStores: book.ebookStores.map(formatEbookStore) };
+}
+
+const ERROR_TYPE_LABELS: Record<SearchError["type"], string> = {
+  robots:  "robots.txt によりアクセス禁止",
+  timeout: "タイムアウト",
+  http:    "HTTPエラー",
+  other:   "その他のエラー",
+};
+
+/**
+ * 出版社ごとのエラーを種別でまとめて静音化する。
+ * 18社横断で大量に並ぶ errors を、種別×対象出版社の数件に集約する。
+ */
+export function summarizeErrors(errors: SearchError[]): Record<string, unknown>[] {
+  const byType = new Map<SearchError["type"], string[]>();
+  for (const e of errors) {
+    const list = byType.get(e.type) ?? [];
+    list.push(e.publisherId);
+    byType.set(e.type, list);
+  }
+  return [...byType.entries()].map(([type, publishers]) => ({
+    type,
+    label: ERROR_TYPE_LABELS[type],
+    count: publishers.length,
+    publishers,
+  }));
 }
 
 export function createServer(
@@ -52,15 +80,27 @@ export function createServer(
 
     switch (name) {
       case "search_books": {
+        const title = typeof args["title"] === "string" ? args["title"] : undefined;
+        const author = typeof args["author"] === "string" ? args["author"] : undefined;
+
+        // title に ISBN が入力された場合は全社横断せず ISBN 経路へ振り分ける（最短・確実）
+        if (title && !author && looksLikeIsbn(title)) {
+          const book = await getBookByIsbn(title, publishers, deps);
+          const output = { books: [{ ...formatBook(book), matchScore: 1 }] };
+          return {
+            content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
+          };
+        }
+
         const query: SearchQuery = {
-          title: typeof args["title"] === "string" ? args["title"] : undefined,
-          author: typeof args["author"] === "string" ? args["author"] : undefined,
+          title,
+          author,
           publisherId: typeof args["publisher"] === "string" ? args["publisher"] : undefined,
           limit: typeof args["limit"] === "number" ? Math.min(args["limit"], 50) : 10,
         };
         const { books, errors } = await searchBooks(query, publishers, deps);
         const output: Record<string, unknown> = { books: books.map(formatBook) };
-        if (errors.length > 0) output["errors"] = errors;
+        if (errors.length > 0) output["errors"] = summarizeErrors(errors);
         return {
           content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
         };

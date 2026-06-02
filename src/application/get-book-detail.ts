@@ -22,6 +22,7 @@ export async function getBookDetail(
   }
 
   const book = await publisher.getDetail(url, deps);
+  book.language ??= publisher.language ?? "ja";
 
   // ISBNが特定できる場合はopenBDで欠損フィールドを補完
   if (book.isbn !== undefined) {

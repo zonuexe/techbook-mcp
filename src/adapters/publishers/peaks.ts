@@ -1,6 +1,6 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
-import { fetchText, parseJapanesePrice } from "./base.js";
+import { fetchText, parseJapanesePrice, CATALOG_CACHE_TTL_SECONDS } from "./base.js";
 
 const BASE_URL = "https://peaks.cc";
 
@@ -8,6 +8,7 @@ export const peaksAdapter: PublisherAdapter = {
   id: "peaks",
   name: "PEAKS",
   baseUrl: BASE_URL,
+  scale: "minor",
 
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     // 検索APIなし。タイトルでトップページの全書籍をローカルフィルタリング。
@@ -15,7 +16,7 @@ export const peaksAdapter: PublisherAdapter = {
     if (!query.title) return [];
 
     const keyword = query.title.toLowerCase();
-    const html = await fetchText(BASE_URL, deps);
+    const html = await fetchText(BASE_URL, deps, undefined, CATALOG_CACHE_TTL_SECONDS);
     const doc = deps.parser.parse(html);
     const limit = query.limit ?? 10;
 

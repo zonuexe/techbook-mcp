@@ -13,6 +13,7 @@ interface GoogleVolume {
     publisher?: string;
     publishedDate?: string;
     description?: string;
+    language?: string;
     industryIdentifiers?: Array<{ type: string; identifier: string }>;
     imageLinks?: { thumbnail?: string; smallThumbnail?: string };
     infoLink?: string;
@@ -52,6 +53,7 @@ function volumeToBookRecord(vol: GoogleVolume): BookRecord {
     authors: info.authors ?? [],
     publisher: info.publisher ?? "",
     publishedAt: info.publishedDate ? parsePublishedDate(info.publishedDate) : undefined,
+    language: info.language,
     isbn: isbn13,
     url,
     price,

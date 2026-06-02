@@ -66,6 +66,8 @@ Claude が `list_publishers` ツールを呼び出し、出版社名と ID の�
 
 `publisher` パラメータに ID を指定すると、その出版社のみを検索できます。
 
+#### 国内出版社
+
 | 出版社・書店 | ID | ISBN出版者記号 | 取得方式 |
 |---|---|---|---|
 | BOOK TECH | `book-tech` | — | HTML scraping |
@@ -90,6 +92,15 @@ Claude が `list_publishers` ツールを呼び出し、出版社名と ID の�
 ISBN出版者記号（`978-4-XXXXX-...` の `XXXXX` 部分）が登録されている出版社は、ISBNだけで直接検索できます。
 「—」は電子書籍専業・同人誌マーケット等でISBN出版者記号を持たないソースです。
 
+#### 海外出版社
+
+DRM-free の英語技術書を扱う出版社です。価格は USD、`language` は `"en"` を返します。
+
+| 出版社・書店 | ID | 取得方式 |
+|---|---|---|
+| Pragmatic Bookshelf | `pragprog` | JSON index（ローカルフィルタ） |
+| Leanpub | `leanpub` | HTML scraping |
+
 ### 外部 API・データソース
 
 | サービス | ID | 用途 | 備考 |
@@ -108,10 +119,12 @@ ISBN出版者記号（`978-4-XXXXX-...` の `XXXXX` 部分）が登録されて�
 
 | パラメータ | 型 | 説明 |
 |------------|-----|------|
-| `title` | string | 書名（部分一致） |
+| `title` | string | 書名（部分一致）。ISBN を渡すと自動的に ISBN 検索に振り分けます |
 | `author` | string | 著者名（部分一致） |
 | `publisher` | string | 出版社ID（省略時は全社検索） |
 | `limit` | number | 1出版社あたりの最大件数（デフォルト: 10、最大: 50） |
+
+結果は各書籍にクエリとの一致度 `matchScore`（0〜1、1が完全一致）が付与され、**ベストマッチ順（降順）**で返ります。先頭ほど本命候補です。各書籍の `publishedAt` は `YYYY-MM-DD`（書籍管理アプリ Riida の `release_date` に対応）、`language` は ISO 639-1（省略時 `"ja"`）です。大規模出版社を優先的に検索し、遅い・応答しないサイトはタイムアウトしてスキップするため、部分的な結果でも速やかに返ります。
 
 ### `get_book_detail`
 
@@ -156,7 +169,7 @@ claude mcp add techbook-mcp -- npx -y @zonuexe/techbook-mcp
 
 ```bash
 npm install
-npm test        # ユニットテスト実行（Vitest）
+npm test        # ユニットテスト実行（node:test）
 npm run build   # TypeScript コンパイル → dist/
 ```
 

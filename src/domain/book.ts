@@ -16,7 +16,8 @@ export interface BookRecord {
   title: string;
   authors: string[];
   publisher: string;
-  publishedAt?: string;   // "YYYY-MM-DD"
+  publishedAt?: string;   // "YYYY-MM-DD"（riida-mcp の release_date に対応）
+  language?: string;      // ISO 639-1 言語コード（省略時は "ja" とみなす）
   isbn?: string;          // ISBN-13、ハイフンなし数字のみ
   asin?: string;          // Amazon ASIN (Amazonリンクが存在する場合)
   url: string;            // 出版社公式ページURL
