@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CSS3の値、単位、色 - O'Reilly Japan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/assets/css/font-face.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/layout.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/layout-books.css">
+    <link rel="icon" type="image/png" href="https://www.oreilly.com/favicon.ico">
+
+    <meta name="format-detection" content="telephone=no">
+    <meta property="og:title" content="CSS3の値、単位、色" />
+    <meta property="og:type" content="article" />
+    <meta property="og:image"
+      content="https://www.oreilly.co.jp/books/images/picture_large978-4-87311-626-6.jpeg" />
+    <meta property="og:image:secure_url"
+      content="https://www.oreilly.co.jp/books/images/picture_large978-4-87311-626-6.jpeg" />
+    <meta property="og:url"
+      content="https://www.oreilly.co.jp/books/9784873116266/" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="O'Reilly Japan" />
+    <meta name="twitter:creator" content="oreilly_japan" />
+    <link href="http://www.oreilly.co.jp/sales/atom.xml" type="application/atom+xml" rel="alternate"
+      title="Sales Information" />
+    <meta property="og:description"
+      content="CSSにおける各プロパティの色、長さ、サイズの「値」と、それらの値を定めるための「単位」、またスタイルを作成するうえで大きな要素である「色」についてコンパクトに解説する書籍です。『セレクタ、詳細度、カスケード』と同様、&quot;CSS: The Definitive Guide 4th Edition&quot;（未刊行）の一部となるべく書かれたテキストを、コンパクトな分量で抽出し、簡便なテキストとしてまとめたものです。
+なお本書はEbook版のみの販売となります。" />
+    <link rel="canonical"
+      href="https://www.oreilly.co.jp//books/9784873116266/" />
+    <link rel="amphtml"
+      href="https://www.oreilly.co.jp//books/9784873116266/mobile.html">
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) { w[l] = w[l] || []; w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' }); var f = d.getElementsByTagName(s)[0], j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f); })(window, document, 'script', 'dataLayer', 'GTM-KR9JFVC');</script>
+    <!-- End Google Tag Manager -->
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M7QE72H4KS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-M7QE72H4KS');
+    </script>
+    <style>
+      .collapsible {
+        background-color: white;
+        border: 0;
+        border-bottom: 1px solid rgb(246, 246, 246);
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        outline: none;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.5em;
+      }
+
+      .collapsible:after {
+        content: '\02795';
+        /* Unicode character for "plus" sign (+) */
+        font-size: 1.0rem;
+        margin-left: 5px;
+        float: right;
+      }
+
+      .collapsible-active:after {
+        content: "\2796";
+        /* Unicode character for "minus" sign (-) */
+      }
+
+      .collapsible:hover {
+        box-shadow: 2px0 4px 8px rgb(0, 0, 0, .1);
+        transition: box-shadow .2s;
+        cursor: pointer;
+      }
+
+      .collapsible+section {
+        padding: 0;
+        margin-bottom: 30px;
+        background-color: white;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.05s ease-out;
+      }
+    </style>
+</head>
+
+<body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KR9JFVC" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+  <div id="skipToMain" class="nav__SkipToMain"><a href="#maincontent">Skip to main content</a></div>
+
+  <header role="banner" class="nav__GlboalHeader">
+    <div class="pageWidth">
+      <nav role="navigation" aria-label="site sections" class="nav__GlobalNav">
+        <a aria-current="page" title="Go to home page" class="nav__Logo" href="/"><img
+            src="/assets/images/logo_oreilly_japan.svg" alt="O'Reilly logo"></a>
+        <div class="nav__NavItems" id="nav__NavItems">
+          <div class="nav__NavGroup">
+            <a class="nav__Link" href="/blog/">Blog</a>
+            <a class="nav__Link active" href="/books/">Books</a>
+            <a class="nav__Link" href="/ebook/">Ebooks</a>
+            <a class="nav__Link" href="/online-learning/">Learning platform</a>
+            <a class="nav__Link" href="/order/">Order</a>
+            <a class="nav__Link" href="/company/">About</a>
+          </div>
+          <div class="nav__CTA">
+            <a href="/ebook/cart" class="nav__Cart">Cart</a>
+          </div>
+        </div>
+        <button id="nav__MobileBtn" aria-expanded="false" aria-controls="menuList"
+          class="nav__MobileBtn"><span><span></span></span></button>
+      </nav>
+    </div>
+  </header>
+
+
+  <main id="maincontent">
+    <div class="pageWidth">
+      <h1 itemprop="name">
+        CSS3の値、単位、色
+      </h1>
+      
+      <span itemprop="publisher" content="オライリー・ジャパン"></span>
+      <div class="contributers">
+        <span itemprop="author">
+          Eric A. Meyer　著、福嶋雅子、株式会社トップスタジオ　訳
+        </span>
+      </div>
+
+      <section class="detail" itemscope itemtype="http://schema.org/Book">
+        <div class="detail-cover">
+          <img src="https://www.oreilly.co.jp/books/images/picture_large978-4-87311-626-6.jpeg"
+            class="cover-photo" alt="[cover photo]" />
+        </div>
+
+        <dl class="item-props">
+          <dt>TOPICS</dt>
+          <dd>
+        
+          <a href="/books/inet/">
+            Web
+          </a>
+        , 
+          <a href="/books/html/">
+            HTML/CSS
+          </a>
+        
+          </dd>
+
+          <dt>発行年月日</dt>
+        
+          <dd itemprop="datePublished" content="2013-06-28">
+            2013年06月28日
+          </dd>
+        
+
+        
+
+          <dt>ISBN</dt>
+          <dd itemprop="isbn">
+            978-4-87311-626-6
+          </dd>
+
+        
+          <dt>原書</dt>
+          <dd><a href="http://shop.oreilly.com/product/0636920027621.do">
+              Values, Units, and Colors
+            </a></dd>
+        
+
+          <dt>FORMAT</dt>
+          <dd>
+            
+            
+            
+
+            <div class="buying-options">
+              
+
+              
+
+              
+                <div class="option-item">
+                </div>
+              
+            </div>
+          </dd>
+        </dl>
+
+        <div id="detail" class="content">
+          <p itemprop="description">
+            CSSにおける各プロパティの色、長さ、サイズの「値」と、それらの値を定めるための「単位」、またスタイルを作成するうえで大きな要素である「色」についてコンパクトに解説する書籍です。『<a href="http://www.oreilly.co.jp/books/9784873116037/">セレクタ、詳細度、カスケード</a>』と同様、"CSS: The Definitive Guide 4th Edition"（未刊行）の一部となるべく書かれたテキストを、コンパクトな分量で抽出し、簡便なテキストとしてまとめたものです。
+なお本書はEbook版のみの販売となります。
+          </p>
+        </div>
+
+      
+
+      
+
+        <h2 class="collapsible">目次</h2>
+        <section>
+          <div id="toc">
+            <pre>まえがき
+    本書で使用されている表記規則
+    サンプルコードの使用について
+    本書に関するお問い合わせ
+
+1章　CSS 3の値、単位、色
+    キーワード、文字列、その他のテキスト値
+    URL
+    数とパーセント
+    長さ
+    色
+    角度
+    時間と周波数
+    位置
+    まとめ
+    名前付きカラーの定義一覧
+    著者紹介
+    オライリー・ジャパンの関連書籍
+    奥付</pre>
+          </div>
+        </section>
+      </section>
+
+    
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer__FooterSection">
+    <div class="pageWidth">
+      <div class="footer__FooterTop">
+        <div class="footer__List">
+          <h3><a href="https://www.oreilly.co.jp/company/">About</a></h3>
+          <a href="https://www.oreilly.co.jp/company/">会社概要</a>
+          <a href="https://www.oreilly.co.jp/orj/privacypolicy.shtml">個人情報について</a>
+          <a href="http://www.oreilly.com/">O’Reilly Media</a>
+        </div>
+
+        <div class="footer__List">
+          <h3><a href="https://www.oreilly.co.jp/company/">Support</a></h3>
+          <a href="https://www.oreilly.co.jp/feedback/">Contact us</a>
+          <a href="https://www.oreilly.co.jp/bookclub/">Bookclub</a>
+          <a href="https://www.oreilly.co.jp/order/">書籍注文</a>
+        </div>
+
+        <div class="footer__Apps">
+          <h3>Download the O’Reilly app</h3>
+
+          <p>Take O’Reilly with you and learn anywhere, anytime on your phone <span class="nowrap">and tablet.</span>
+          </p>
+
+          <div class="footer__DownloadLinks">
+            <a href="https://itunes.apple.com/us/app/safari-to-go/id881697395"><img
+                src="https://cdn.oreillystatic.com/oreilly/images/app-store-logo.png" alt="Apple app store"></a>
+
+            <a href="https://play.google.com/store/apps/details?id=com.safariflow.queue"><img
+                src="https://cdn.oreillystatic.com/oreilly/images/google-play-logo.png" alt="Google play store"></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer__FooterBase">
+        <a aria-current="page" class="footer__Logo" title="Go to home page" href="/"><img
+            src="/assets/images/logo_oreilly_japan.svg" alt="O'Reilly logo"></a>
+        <p>© 2026, O’Reilly Japan, Inc. oreilly.co.jpに掲載されているすべてのトレードマークおよび登録商標は、それぞれの所有者に帰属します。</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <script src="/assets/scripts/cookies-policy.6d8dcbae.js"></script>
+  <script>
+    let coll = document.getElementsByClassName('collapsible');
+    for (let i = 0; i < coll.length; i++) {
+      let button = document.createElement('button');
+      button.setAttribute('type', 'button');
+      button.setAttribute('class', 'collapsible');
+      button.textContent = coll[i].textContent;
+      coll[i].replaceWith(button)
+
+      coll[i].addEventListener('click', function () {
+        this.classList.toggle('collapsible-active');
+        let content = this.nextElementSibling;
+        if (content.style.maxHeight) {
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = content.scrollHeight + 'px';
+        }
+      });
+    }
+  </script>
+  <script src="/assets/scripts/scripts.js"></script>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-6009404-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-6009404-1');
+  </script>
+</body>
+
+</html>

@@ -29,6 +29,12 @@ export const oreillyJapanAdapter: PublisherAdapter = {
   baseUrl: BASE_URL,
   scale: "minor",
 
+  // 詳細ページは ISBN ベースの安定 URL。/ebook/ 一覧から外れた旧刊（電子書籍専売・販売終了）でも
+  // 詳細ページ自体は生存しているため、ISBN から直接引けるようにする（get_book_by_isbn のフォールバック用）。
+  detailUrlForIsbn(isbn: string): string {
+    return `${BASE_URL}/books/${isbn.replace(/-/g, "")}/`;
+  },
+
   async search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]> {
     // 検索APIがないためタイトルでローカルフィルタリングする
     // 著者のみの検索は各書籍詳細ページを全取得しないと不可能なため非対応

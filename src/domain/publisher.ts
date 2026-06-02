@@ -23,4 +23,12 @@ export interface PublisherAdapter {
   readonly scale?: "minor";
   search(query: SearchQuery, deps: PublisherDeps): Promise<BookRecord[]>;
   getDetail(url: string, deps: PublisherDeps): Promise<BookRecord>;
+  /**
+   * ISBN から詳細ページの URL を決定的に構成できるアダプター向け（任意）。
+   * 詳細ページが ISBN ベースの安定 URL を持つサイト（例 O'Reilly の `/books/{isbn}/`）で実装する。
+   * openBD・カーリル未収録かつ検索一覧にも出ない旧刊（販売終了・電子書籍専売）を
+   * `get_book_by_isbn` のフォールバックで直接引くために使う（[[docs/design-doc.md「カバレッジの制約」]]）。
+   * URL を構成できない ISBN は undefined を返す。
+   */
+  detailUrlForIsbn?(isbn: string): string | undefined;
 }

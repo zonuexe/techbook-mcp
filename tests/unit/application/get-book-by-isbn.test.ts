@@ -147,6 +147,66 @@ describe("getBookByIsbn()", () => {
     );
   });
 
+  it("openBD 未収録でも detailUrlForIsbn を実装するアダプターから詳細を取得する", async () => {
+    // O'Reilly 旧刊（電子書籍専売・販売終了）の救済経路: openBD・カーリル・検索一覧いずれにも無いが
+    // ISBN出版者記号(87311)→アダプター→/books/{isbn}/ で詳細ページを直接引く
+    const isbn = "9784873116266";
+    const http = new MockHttpClient().addResponse(
+      "https://api.openbd.jp/v1/get",
+      { status: 200, body: JSON.stringify([null]) },
+    );
+    const deps = await makeOpenBDDeps(http);
+
+    const detailBook: BookRecord = {
+      title: "CSS3の値、単位、色",
+      authors: ["Eric A. Meyer", "福嶋雅子", "株式会社トップスタジオ"],
+      publisher: "オライリー・ジャパン",
+      url: `https://www.oreilly.co.jp/books/${isbn}/`,
+      isbn,
+      publishedAt: "2013-06-28",
+    };
+    const getDetail = mockFn(async () => detailBook);
+    const adapter: PublisherAdapter = {
+      id: "oreilly-japan",
+      name: "オライリー・ジャパン",
+      baseUrl: "https://www.oreilly.co.jp",
+      search: mockFn(),
+      getDetail,
+      detailUrlForIsbn: (i: string) => `https://www.oreilly.co.jp/books/${i.replace(/-/g, "")}/`,
+    };
+
+    const result = await getBookByIsbn(isbn, [adapter], deps);
+
+    assert.strictEqual(result.title, "CSS3の値、単位、色");
+    assert.strictEqual(result.language, "ja");
+    assert.strictEqual(getDetail.mock.callCount(), 1);
+    assert.strictEqual(getDetail.mock.calls[0].arguments[0], `https://www.oreilly.co.jp/books/${isbn}/`);
+  });
+
+  it("detailUrlForIsbn の取得が失敗した場合はカーリルにフォールバックする", async () => {
+    const isbn = "9784873116266";
+    const http = new MockHttpClient().addResponse(
+      "https://api.openbd.jp/v1/get",
+      { status: 200, body: JSON.stringify([null]) },
+    );
+    const deps = await makeOpenBDDeps(http);
+
+    const adapter: PublisherAdapter = {
+      id: "oreilly-japan",
+      name: "オライリー・ジャパン",
+      baseUrl: "https://www.oreilly.co.jp",
+      search: mockFn(),
+      getDetail: mockFn(async () => { throw new Error("詳細取得失敗"); }),
+      detailUrlForIsbn: (i: string) => `https://www.oreilly.co.jp/books/${i.replace(/-/g, "")}/`,
+    };
+
+    // detailUrlForIsbn 経路が失敗 → カーリルへ。カーリルもモック未登録で失敗 → エラー
+    await assert.rejects(
+      getBookByIsbn(isbn, [adapter], deps),
+      /書誌情報が見つかりません/,
+    );
+  });
+
   it("ISBNのハイフンを除去して正規化する", async () => {
     const http = await makeHttpWithOpenBD();
     const deps = await makeOpenBDDeps(http);

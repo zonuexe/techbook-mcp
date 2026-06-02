@@ -19,7 +19,7 @@ export const PUBLISHER_ISBN_CODES: ReadonlyMap<string, readonly string[]> = new 
   ["gihyo",             ["297"]],
   ["saiensu",           ["7819"]],
   ["seshop",            ["7981"]],
-  ["oreilly-japan",     ["8144"]],
+  ["oreilly-japan",     ["8144", "87311"]],
   ["juse-p",            ["8171"]],
   ["impress-books",     ["8443"]],
   ["born-digital",      ["86246"]],

@@ -387,6 +387,41 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 - **ISBN ショートカット**: `title` が ISBN 形式（`src/domain/isbn.ts` の `looksLikeIsbn`）かつ `author` 未指定なら、
   全社横断をやめて `get_book_by_isbn` 経路に振り分ける
 
+## カバレッジの制約
+
+各アダプターは出版社の**現行ストアの生カタログ**（検索結果ページ・電子書籍一覧・JSON索引）をスクレイプする。
+このため、出版社がストアから**販売終了・取り下げした旧刊**は構造的に `search_books` でヒットしない。
+共通パターンは2008〜2013年頃の短編・電子書籍専売タイトル。書籍自体は実在するが、現行の検索可能な索引のどこにも載っていない。
+
+riida-mcp フィードバック「現象9」で報告された未ヒット例の調査結果（2026-06-02 確認）:
+
+- **オライリー・ジャパン（旧刊 Ebook版のみタイトル）**: `CSS3の値、単位、色`（9784873116266）・`セレクタ、詳細度、カスケード`（9784873116037）・
+  `D3をはじめよう`（9784873115979）・`Web Workers`（9784873115962）・`OAuth 2.0をはじめよう`（9784873115580）・
+  `PHP開発者のためのJavaScript`（9784873116433）等。
+  これらは `/books/{isbn}/` の詳細ページは生きている（HTTP 200）が、`oreilly-japan` がフィルタする `/ebook/` 一覧
+  （現行ストアで販売中の約580冊）にも `/catalog/`・カテゴリページ（`/books/{topic}/`）にも載っていない。
+  詳細ページの `buying-options` は空（=現行ストアで購入導線なし。og:description に「本書はEbook版のみの販売となります」と残るが実売は終了）。
+  `sitemap.xml` も無く（404）、旧刊を網羅する代替の生インデックスは存在しない → **一覧ソースの差し替えでは救済不能**。
+  さらにこれら電子書籍専売 ISBN は openBD にも未登録（紙流通前提の JPRO/openBD に載らない）なため、
+  `search_books` だけでなく `get_book_by_isbn` の通常経路（openBD → カーリル）でも失敗する。
+- **翔泳社 / SEshop（旧刊）**: `レガシーソフトウェア改善ガイド`・`実用Common Lisp`・`初めての人のためのLISP［増補改訂版］`・
+  `エンジニアのための文章術 再入門講座 新版` 等。SEshop 検索（全カテゴリ）でそもそも 0 件＝**ストアに商品ページ自体が残っていない**
+  （O'Reilly と違い詳細ページも消えている）。電子版が存在しないか取り下げ済みで、`seshop` アダプタの取りこぼしではない。
+
+### 旧刊救済: ISBN からの詳細ページ直引き（`detailUrlForIsbn`）
+
+部分的な救済余地があるのはオライリーのみ。詳細ページ `/books/{isbn}/` が生きているため、以下を実装済み:
+
+- `PublisherAdapter.detailUrlForIsbn?(isbn)`（任意メソッド）— ISBN ベースの安定 URL を持つサイトが詳細ページ URL を構成する。
+  `oreilly-japan` が `/books/{isbn}/` を返す。
+- `isbn-publisher-codes.ts` の `oreilly-japan` に旧記号 `87311` を追加（従来は新記号 `8144` のみ）。
+- `get_book_by_isbn` は openBD ミス時、カーリルより先に `detailUrlForIsbn` 経路（robots.txt 確認 → `getDetail`）を試みる
+  （`fetchDetailByIsbnCode`）。これで `CSS3の値、単位、色`（9784873116266）等は**価格を除く書誌**（書名・著者・発行日・説明・書影）が回収できる。
+  価格は詳細ページの `buying-options` が空のため取得不可。
+
+ただし `search_books`（横断検索）では依然ヒットしない（`/ebook/` 一覧に無いため）。回収には ISBN が分かっている必要がある。
+SEshop 旧刊は詳細ページごと消えているため `detailUrlForIsbn` でも回収不能。
+
 ## 新しいアダプターの追加手順
 
 1. `src/adapters/publishers/{id}.ts` を作成し `PublisherAdapter` を実装

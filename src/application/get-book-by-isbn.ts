@@ -13,8 +13,38 @@ import { dedupeAuthors } from "../domain/authors.js";
  * 2. ストアリンクが既知アダプターと一致する場合は出版社サイトから詳細取得を試みる
  * 3. ISBN出版者記号から対応アダプターを特定し、出版社サイトで検索して詳細取得を試みる
  * 4. 取得できない場合は openBD データをそのまま返す
- * 5. openBD にも存在しない場合はカーリルから書誌情報を取得する（廃業出版社など）
+ * 5. openBD にも存在しない場合:
+ *    a. ISBN から詳細URLを決定的に引けるアダプター（detailUrlForIsbn）で詳細取得を試みる
+ *       （O'Reilly の電子書籍専売・販売終了の旧刊救済。openBD/カーリル未収録のため）
+ *    b. それも不可ならカーリルから書誌情報を取得する（廃業出版社など）
  */
+
+/**
+ * ISBN出版者記号からアダプターを特定し、detailUrlForIsbn で構成した詳細ページから直接取得する。
+ * openBD・カーリル・検索一覧いずれにも出ない旧刊（販売終了・電子書籍専売）の救済経路。
+ * 取得できなければ undefined を返す。
+ */
+async function fetchDetailByIsbnCode(
+  isbn: string,
+  publishers: readonly PublisherAdapter[],
+  deps: PublisherDeps,
+): Promise<BookRecord | undefined> {
+  const adapterId = findAdapterIdByIsbn(isbn);
+  if (!adapterId) return undefined;
+
+  const publisher = publishers.find(p => p.id === adapterId);
+  const url = publisher?.detailUrlForIsbn?.(isbn);
+  if (!publisher || !url) return undefined;
+
+  if (!(await checkRobotsTxt(url, deps))) return undefined;
+  try {
+    const book = await publisher.getDetail(url, deps);
+    book.language ??= publisher.language ?? "ja";
+    return book;
+  } catch {
+    return undefined;
+  }
+}
 export async function getBookByIsbn(
   isbn: string,
   publishers: readonly PublisherAdapter[],
@@ -33,7 +63,10 @@ export async function getBookByIsbn(
   const entry = openBDMap.get(normalizedIsbn);
 
   if (!entry) {
-    // openBD にない場合はカーリルをフォールバックとして試みる（廃業出版社など）
+    // openBD 未収録でも、ISBN から詳細URLを決定的に引けるアダプター（O'Reilly 旧刊等）を先に試す
+    const byAdapter = await fetchDetailByIsbnCode(normalizedIsbn, publishers, deps);
+    if (byAdapter) return stamp(byAdapter);
+    // それも不可ならカーリルをフォールバックとして試みる（廃業出版社など）
     const calilBook = await fetchCalilBook(normalizedIsbn, deps);
     if (calilBook) return stamp(calilBook);
     throw new Error(`書誌情報が見つかりません: ${isbn}`);

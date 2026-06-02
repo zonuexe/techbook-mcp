@@ -190,5 +190,46 @@ describe("oreillyJapanAdapter", () => {
         },
       ]);
     });
+
+    it("電子書籍専売・販売終了の旧刊（buying-options 空）でも価格以外の書誌を返す", async () => {
+      // /ebook/ 一覧から外れた旧刊。詳細ページは生存するが購入導線（価格）は無い
+      const body = await loadFixture("oreilly-detail-ebook-only.html");
+      const http = new MockHttpClient().addResponse(
+        "https://www.oreilly.co.jp/books/9784873116266/",
+        { status: 200, body },
+      );
+
+      const book = await oreillyJapanAdapter.getDetail(
+        "https://www.oreilly.co.jp/books/9784873116266/",
+        makeDeps(http),
+      );
+
+      assert.partialDeepStrictEqual(book, {
+        title: "CSS3の値、単位、色",
+        isbn: "9784873116266",
+        publishedAt: "2013-06-28",
+        publisher: "オライリー・ジャパン",
+      });
+      assert.deepStrictEqual(book.authors, ["Eric A. Meyer", "福嶋雅子", "株式会社トップスタジオ"]);
+      // buying-options が空なので価格は取得できない
+      assert.strictEqual(book.price, undefined);
+      assert.ok(book.description && book.description.length > 0);
+    });
+  });
+
+  describe("detailUrlForIsbn()", () => {
+    it("ISBN から /books/{isbn}/ の詳細URLを構成する", () => {
+      assert.strictEqual(
+        oreillyJapanAdapter.detailUrlForIsbn?.("9784873116266"),
+        "https://www.oreilly.co.jp/books/9784873116266/",
+      );
+    });
+
+    it("ハイフン付き ISBN もハイフンを除去して構成する", () => {
+      assert.strictEqual(
+        oreillyJapanAdapter.detailUrlForIsbn?.("978-4-87311-626-6"),
+        "https://www.oreilly.co.jp/books/9784873116266/",
+      );
+    });
   });
 });
