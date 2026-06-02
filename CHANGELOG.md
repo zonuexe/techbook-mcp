@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-06-03
+
+### Added
+
+- `resolve_book` ツールを追加。手がかり（ISBN・書名・著者）から正規の1冊を確信度つきで同定する。ISBN があれば openBD→出版社→カーリルで解決し、title も渡すと解決結果と照合して版違い・誤ISBN を検出する（`validation.isbnTitleAgree`）。返り値に `status`（matched/ambiguous/not_found）・`confidence`（high/medium/low）・`source` を含み、自動採用の可否を判断しやすくする
+- `resolve_books` ツールを追加（`resolve_book` の一括版）。ローカル蔵書への一括メタデータ付与向けに、入力順に揃った結果配列を返す
+
+### Fixed
+
+- 一部の実行環境・プロキシ環境で HTTP レスポンスの `Content-Encoding: gzip` が自動解凍されず、gzip の生バイトを `JSON.parse`／HTML パースしてエラーや空結果になる問題を修正（`get_book_by_isbn` が「is not valid JSON」で失敗、JSON API 系アダプタがエラー、HTML ローカルフィルタ型が無言で 0 件になる等）。gzip マジックバイトを検出した場合は手動で解凍するフォールバックを追加
+- `build` がコンパイル前に `dist/` をクリーンするようにし、ソース削除後の古い生成物が npm パッケージに混入しないようにした
+
 ## [0.3.2] - 2026-06-03
 
 ### Fixed
@@ -101,7 +113,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...HEAD
+[0.3.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.2.4...v0.3.0
