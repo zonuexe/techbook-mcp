@@ -73,6 +73,7 @@ Claude が `list_publishers` ツールを呼び出し、出版社名と ID の�
 | BOOK TECH | `book-tech` | — | HTML scraping |
 | ボーンデジタル | `born-digital` | `86246` | HTML scraping (EUC-JP) |
 | コロナ社 | `coronasha` | `339` | HTML scraping |
+| CQ出版社 | `cq-publishing` | — | HTML scraping (Tech Village) |
 | 技術評論社 | `gihyo` | `297` | JSON API |
 | インプレスブックス | `impress-books` | `8443` | HTML scraping |
 | 日科技連出版社 | `juse-p` | `8171` | HTML scraping |
