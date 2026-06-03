@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-03
+
 ### Added
 
 - 役割つきの著者情報 `BookRecord.contributors`（`{ name, role }[]`、role は `author`/`translator`/`supervisor`/`editor`）を追加。openBD の ONIX `Contributor` から取得し、`PersonName`（"姓, 名"形式）を整形（西洋名は "First Last"、和名は "姓 名"）する。`authors`（フラット配列・後方互換）も ONIX 由来のクリーンな名前で埋める
@@ -129,7 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.0...v0.3.1
