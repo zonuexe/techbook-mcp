@@ -1,6 +1,6 @@
 import type { BookRecord } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
-import { checkRobotsTxt } from "../adapters/publishers/base.js";
+import { checkRobotsTxt, deriveAsinFromStores } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, enrichWithOpenBD } from "../adapters/openbd.js";
 import { dedupeAuthors } from "../domain/authors.js";
 
@@ -25,6 +25,7 @@ export async function getBookDetail(
   const book = await publisher.getDetail(url, deps);
   book.language ??= publisher.language ?? "ja";
   book.authors = dedupeAuthors(book.authors);
+  book.asin ??= deriveAsinFromStores(book.ebookStores);
 
   // ISBNが特定できる場合はopenBDで欠損フィールドを補完
   if (book.isbn !== undefined) {

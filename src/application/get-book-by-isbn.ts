@@ -1,6 +1,6 @@
 import type { BookRecord } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
-import { checkRobotsTxt } from "../adapters/publishers/base.js";
+import { checkRobotsTxt, deriveAsinFromStores } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, openBDEntryToBookRecord } from "../adapters/openbd.js";
 import { fetchCalilBook } from "../adapters/calil.js";
 import { findAdapterIdByIsbn } from "../adapters/publishers/isbn-publisher-codes.js";
@@ -68,6 +68,7 @@ export async function resolveByIsbn(
   const stamp = (book: BookRecord, lang = "ja"): BookRecord => {
     book.language ??= lang;
     book.authors = dedupeAuthors(book.authors);
+    book.asin ??= deriveAsinFromStores(book.ebookStores);
     return book;
   };
 

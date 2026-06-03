@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - openBD 由来の著者を `summary.author`（生年・出版社が混入しがち）ではなく ONIX `Contributor` から取得するようにし、`["Boswell","Dustin Foucher",…]` のような分割・混入を解消
+- 出版社ページに既にある Amazon 購入動線（`ebookStores` の Amazon リンク）から `asin` を自動導出するようにし、より多くの書籍で ASIN を返す（追加の HTTP リクエストなし。Kindle の ASIN を紙の ASIN=ISBN-10 より優先）
 
 ## [0.3.3] - 2026-06-03
 

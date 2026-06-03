@@ -1,6 +1,6 @@
 import type { BookRecord, SearchQuery } from "../domain/book.js";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
-import { checkRobotsTxt } from "../adapters/publishers/base.js";
+import { checkRobotsTxt, deriveAsinFromStores } from "../adapters/publishers/base.js";
 import { fetchOpenBDBooks, enrichWithOpenBD } from "../adapters/openbd.js";
 import { matchScore } from "../domain/text-match.js";
 import { dedupeAuthors } from "../domain/authors.js";
@@ -100,6 +100,8 @@ export async function searchBooks(
     .map(book => ({
       ...book,
       authors: dedupeAuthors(book.authors),
+      // 既に取得済みの Amazon 購入動線（ebookStores）から ASIN を導出（追加フェッチなし）
+      asin: book.asin ?? deriveAsinFromStores(book.ebookStores),
       matchScore: Math.round(matchScore(query, book) * 1000) / 1000,
     }))
     // クエリ語があるのに一致度ゼロ＝検索サイトが返す新着フォールバック等の無関係本。

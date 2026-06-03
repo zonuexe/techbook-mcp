@@ -5,6 +5,7 @@ import {
   stripHtmlTags,
   resolveUrl,
   extractAsin,
+  deriveAsinFromStores,
   classifyEbookStore,
   extractEbookStoresFromDoc,
   fetchText,
@@ -178,6 +179,35 @@ describe("extractAsin()", () => {
 
   it("ASIN を含まなければ undefined を返す", () => {
     assert.strictEqual(extractAsin("https://www.amazon.co.jp/"), undefined);
+  });
+});
+
+// --- deriveAsinFromStores ---
+
+describe("deriveAsinFromStores()", () => {
+  it("Amazon ストアURLから ASIN を導出する", () => {
+    const stores = [
+      { name: "SEshop", url: "https://www.seshop.com/product/detail/1", drm: "social" as const },
+      { name: "Kindle", url: "https://www.amazon.co.jp/dp/B0ABCDEFGH", drm: "drm" as const },
+    ];
+    assert.strictEqual(deriveAsinFromStores(stores), "B0ABCDEFGH");
+  });
+
+  it("Kindle (B始まり) を紙の ASIN より優先する", () => {
+    const stores = [
+      { name: "Amazon", url: "https://www.amazon.co.jp/dp/4873119464", drm: "drm" as const },
+      { name: "Kindle", url: "https://www.amazon.co.jp/dp/B00ZZZZZZZ", drm: "drm" as const },
+    ];
+    assert.strictEqual(deriveAsinFromStores(stores), "B00ZZZZZZZ");
+  });
+
+  it("Amazon リンクが無ければ undefined", () => {
+    const stores = [{ name: "SEshop", url: "https://www.seshop.com/x", drm: "social" as const }];
+    assert.strictEqual(deriveAsinFromStores(stores), undefined);
+  });
+
+  it("undefined を渡しても安全", () => {
+    assert.strictEqual(deriveAsinFromStores(undefined), undefined);
   });
 });
 

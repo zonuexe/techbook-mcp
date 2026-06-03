@@ -212,6 +212,19 @@ export function extractAsin(html: string): string | undefined {
   return match?.[1];
 }
 
+/**
+ * 電子書籍ストアリンク（extractEbookStoresFromDoc が拾う Amazon 購入動線を含む）から
+ * ASIN を導出する。Kindle（"B" 始まり）を優先する（紙の ASIN=ISBN-10 は ISBN と重複するため）。
+ */
+export function deriveAsinFromStores(stores: EbookStore[] | undefined): string | undefined {
+  if (!stores) return undefined;
+  const asins = stores
+    .map(s => extractAsin(s.url))
+    .filter((a): a is string => a !== undefined);
+  if (asins.length === 0) return undefined;
+  return asins.find(a => a.startsWith("B")) ?? asins[0];
+}
+
 // --- 電子書籍ストア分類 ---
 
 interface StorePattern {
