@@ -12,9 +12,18 @@ export interface EbookStore {
   drm: DrmType;
 }
 
+/** 著者の役割（奥付・ONIX の区別に対応）。判別不能な場合は "author" にフォールバック */
+export type ContributorRole = "author" | "translator" | "supervisor" | "editor";
+
+export interface Contributor {
+  name: string;
+  role: ContributorRole;
+}
+
 export interface BookRecord {
   title: string;
-  authors: string[];
+  authors: string[];        // 役割を問わない著者名のフラットな配列（後方互換）
+  contributors?: Contributor[];  // 役割つきの著者情報（取得できた場合のみ。openBD ONIX 由来など）
   publisher: string;
   publishedAt?: string;   // "YYYY-MM-DD"（riida-mcp の release_date に対応）
   language?: string;      // ISO 639-1 言語コード（省略時は "ja" とみなす）

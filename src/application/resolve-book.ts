@@ -4,7 +4,7 @@ import { searchBooks, type ScoredBook } from "./search-books.js";
 import { resolveByIsbn, type IsbnSource } from "./get-book-by-isbn.js";
 import { mapWithConcurrency } from "./concurrency.js";
 import { looksLikeIsbn } from "../domain/isbn.js";
-import { titleMatchScore } from "../domain/text-match.js";
+import { titleMatchScore, sameWorkScore, titlesExactMatch, hasEditionMarker } from "../domain/text-match.js";
 
 /**
  * 同定（resolve）クエリ。Riida の read_pdf_colophon が抽出した手がかりを
@@ -32,16 +32,28 @@ export interface ResolveResult {
   matchScore: number;
   /** 取得元 */
   source: ResolveSource;
-  /** isbn と title の両方が与えられたときのみ：解決結果が title と一致するか（版違い検出） */
-  validation?: { isbnTitleAgree: boolean };
+  /**
+   * isbn と title の両方が与えられたときの照合結果。
+   * - isbnTitleAgree: 同一作品とみなせるか（版違いでも true。後方互換）
+   * - titleExact: 版表記も含めて完全一致か
+   * - sameWork: 同一作品らしさ 0..1（版表記を畳んで照合）
+   * - editionDiffers: 同一作品だが版表記が異なる（正しい本だが版が違う可能性）
+   * sameWork が低い（≈0）かつ titleExact=false は「誤ISBN（別作品）」の疑い。
+   */
+  validation?: {
+    isbnTitleAgree: boolean;
+    titleExact: boolean;
+    sameWork: number;
+    editionDiffers: boolean;
+  };
   /** ambiguous のとき上位候補を返す */
   candidates?: ScoredBook[];
   /** not_found のとき理由 */
   reason?: string;
 }
 
-/** title が ISBN 解決結果と一致しているとみなす最小スコア */
-const TITLE_AGREE_THRESHOLD = 0.5;
+/** title が ISBN 解決結果と同一作品とみなす最小 sameWork スコア */
+const SAME_WORK_THRESHOLD = 0.5;
 /** confidence: high とみなす最小 matchScore */
 const HIGH_SCORE = 0.9;
 /** confidence: medium とみなす最小 matchScore */
@@ -80,15 +92,25 @@ export async function resolveBook(
     if (resolved) {
       const { book, source } = resolved;
       if (query.title) {
-        const ts = titleMatchScore(query.title, book.title);
-        const agree = ts >= TITLE_AGREE_THRESHOLD;
+        const same = sameWorkScore(query.title, book.title);
+        const exact = titlesExactMatch(query.title, book.title);
+        const agree = same >= SAME_WORK_THRESHOLD;
+        // 版マーカーが実在する時だけ「版違い」とする（単なるサブタイトル差は除く）
+        const editionDiffers =
+          agree && !exact && (hasEditionMarker(query.title) || hasEditionMarker(book.title));
         return {
           status: "matched",
+          // 同一作品なら版違いでも高確信。別作品（誤ISBN疑い）のみ低確信
           confidence: agree ? "high" : "low",
           book,
-          matchScore: round3(ts),
+          matchScore: round3(titleMatchScore(query.title, book.title)),
           source,
-          validation: { isbnTitleAgree: agree },
+          validation: {
+            isbnTitleAgree: agree,
+            titleExact: exact,
+            sameWork: round3(same),
+            editionDiffers,
+          },
         };
       }
       // ISBN は完全一致＝正準。照合する title が無ければ高確信

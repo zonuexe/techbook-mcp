@@ -1,11 +1,12 @@
 import type { PublisherDeps } from "../domain/publisher.js";
-import type { BookRecord } from "../domain/book.js";
+import type { BookRecord, Contributor, ContributorRole } from "../domain/book.js";
 import { fetchText, stripAuthorRole } from "./publishers/base.js";
 import { dedupeAuthors } from "../domain/authors.js";
 
 /**
  * openBD の summary.author（"結城浩／著、北原かな／訳" 等）を著者名配列に分解する。
  * 区切りで分割し、役割語（著・訳など）を除去して重複を除く。
+ * ONIX の構造化 contributor が無い場合のフォールバック。
  */
 function parseOpenBDAuthors(author: string | undefined): string[] {
   if (!author) return [];
@@ -14,6 +15,58 @@ function parseOpenBDAuthors(author: string | undefined): string[] {
     .map(a => stripAuthorRole(a.trim()))
     .filter(Boolean);
   return dedupeAuthors(parts);
+}
+
+/** ONIX List 17 の contributor role コード → 役割 */
+const ONIX_ROLE_MAP: Record<string, ContributorRole> = {
+  A01: "author",      // By (author) 著
+  B06: "translator",  // Translated by 訳
+  B01: "editor",      // Edited by 編
+  B21: "editor",      // Edited by（別表記）
+  B13: "supervisor",  // 監修相当
+};
+
+/**
+ * ONIX PersonName.content（"姓, 名" 形式）を表示名に整形する。
+ * 西洋名（ASCII）は "First Last" に入れ替え、和名は "姓 名" にする。
+ */
+function formatPersonName(content: string): string {
+  const name = content.trim();
+  if (!name) return "";
+  const parts = name.split(/,\s*/);
+  if (parts.length !== 2) return name.replace(/\s+/g, " ");
+  const [last, first] = parts;
+  // eslint-disable-next-line no-control-regex
+  const isAscii = /^[\x00-\x7F]+$/.test(name);
+  return isAscii ? `${first} ${last}` : `${last} ${first}`;
+}
+
+/**
+ * ONIX DescriptiveDetail.Contributor から役割つきの著者情報を取り出す。
+ * summary.author（生年・出版社が混入しがち）より信頼できる。
+ */
+function parseContributors(entry: OpenBDEntry): Contributor[] {
+  const list = entry.onix.DescriptiveDetail?.Contributor;
+  if (!list || list.length === 0) return [];
+  const ordered = [...list].sort(
+    (a, b) => Number(a.SequenceNumber ?? 0) - Number(b.SequenceNumber ?? 0),
+  );
+  const out: Contributor[] = [];
+  for (const c of ordered) {
+    const name = formatPersonName(c.PersonName?.content ?? "");
+    if (!name) continue;
+    const code = c.ContributorRole?.find(Boolean);
+    const role: ContributorRole = (code && ONIX_ROLE_MAP[code]) || "author";
+    out.push({ name, role });
+  }
+  return out;
+}
+
+/** entry から著者名のフラット配列を得る（contributor 優先、無ければ summary.author） */
+function authorsFromEntry(entry: OpenBDEntry): string[] {
+  const contributors = parseContributors(entry);
+  if (contributors.length > 0) return dedupeAuthors(contributors.map(c => c.name));
+  return parseOpenBDAuthors(entry.summary.author);
 }
 
 const OPENBD_API_URL = "https://api.openbd.jp/v1/get";
@@ -47,10 +100,19 @@ interface OpenBDHanmoto {
   [key: string]: unknown;
 }
 
+interface OpenBDContributor {
+  SequenceNumber?: string;
+  ContributorRole?: string[];
+  PersonName?: { content?: string; collationkey?: string };
+}
+
 export interface OpenBDEntry {
   summary: OpenBDSummary;
   hanmoto?: OpenBDHanmoto;
   onix: {
+    DescriptiveDetail?: {
+      Contributor?: OpenBDContributor[];
+    };
     CollateralDetail?: {
       TextContent?: OpenBDTextContent[];
     };
@@ -123,10 +185,12 @@ export async function fetchOpenBDBooks(
 export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
   const { summary } = entry;
   const storelink = entry.hanmoto?.storelink;
+  const contributors = parseContributors(entry);
 
   return {
     title: summary.title,
-    authors: parseOpenBDAuthors(summary.author),
+    authors: authorsFromEntry(entry),
+    contributors: contributors.length > 0 ? contributors : undefined,
     publisher: summary.publisher,
     isbn: summary.isbn,
     publishedAt: parsePubDate(summary.pubdate),
@@ -142,10 +206,13 @@ export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
  * 既存のフィールドは上書きしない。
  */
 export function enrichWithOpenBD(book: BookRecord, entry: OpenBDEntry): BookRecord {
+  const contributors = parseContributors(entry);
   return {
     ...book,
     // 著者が空のとき openBD から補完する（出版社の検索APIが著者を返さない場合の救済）
-    authors: book.authors.length > 0 ? book.authors : parseOpenBDAuthors(entry.summary.author),
+    authors: book.authors.length > 0 ? book.authors : authorsFromEntry(entry),
+    // 役割つき著者は持っていなければ openBD の ONIX から補完する
+    contributors: book.contributors ?? (contributors.length > 0 ? contributors : undefined),
     publishedAt: book.publishedAt ?? parsePubDate(entry.summary.pubdate),
     price: book.price ?? getTaxIncludedPrice(entry),
     coverImageUrl: book.coverImageUrl ?? (entry.summary.cover || undefined),

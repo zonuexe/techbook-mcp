@@ -289,8 +289,9 @@ describe("getBookByIsbn()", () => {
   it("openBD データから著者が分割される", async () => {
     const openBDBody = await readFile(join(FIXTURES_DIR, "openbd-response.json"), "utf-8");
     const data = JSON.parse(openBDBody);
-    // 複数著者をスラッシュ区切りで設定
+    // 複数著者をスラッシュ区切りで設定（ONIX contributor が無いとき summary.author を使う経路）
     data[0].summary.author = "著者A/著者B";
+    data[0].onix.DescriptiveDetail = undefined;
     data[0].hanmoto = undefined;
     const http = new MockHttpClient().addResponse(
       "https://api.openbd.jp/v1/get",

@@ -18,6 +18,42 @@ export function normalizeForMatch(text: string): string {
     .replace(/[\s【】〔〕「」『』《》[\](){}（）｛｝<>＜＞、。，．・,.:;：；!！?？~〜～\-－—―ー_/\\|=+*'"`]/g, "");
 }
 
+/**
+ * 正規化済み文字列から版表記マーカーを除去する。
+ * "独習php第4版" → "独習php"、"初めての人のためのlisp増補改訂版" → "初めての人のためのlisp"。
+ * 同一作品の版違いを同一視するための前処理（normalizeForMatch の後に適用する）。
+ */
+const EDITION_MARKER_RE =
+  /第[0-9一二三四五六七八九十百]+[版刷]|増補改訂版|改訂新版|改訂版|増補版|新装版|普及版|新版/g;
+
+export function stripEditionMarkers(normalized: string): string {
+  return normalized.replace(EDITION_MARKER_RE, "");
+}
+
+/** 書名に版表記マーカー（第N版・増補改訂版 等）が含まれるか */
+export function hasEditionMarker(text: string): boolean {
+  const normalized = normalizeForMatch(text);
+  return stripEditionMarkers(normalized) !== normalized;
+}
+
+/**
+ * 2つの書名が「同一作品」である度合い（0..1）。版表記を畳んで照合する。
+ *
+ * 版違い（"独習PHP 第4版" vs "独習PHP"）は 1 に近く、別作品（誤ISBN等）は 0 になる。
+ * `isbnTitleAgree` を「同一作品なら版違いでも true」に一般化するための信号。
+ */
+export function sameWorkScore(a: string, b: string): number {
+  const na = stripEditionMarkers(normalizeForMatch(a));
+  const nb = stripEditionMarkers(normalizeForMatch(b));
+  return containmentScore(na, nb);
+}
+
+/** 2つの書名が正規化後に完全一致するか（版表記も含めて同一） */
+export function titlesExactMatch(a: string, b: string): boolean {
+  const na = normalizeForMatch(a);
+  return na !== "" && na === normalizeForMatch(b);
+}
+
 /** 1 を最良とする 0..1 の包含スコア。短い側が長い側に完全包含されるほど高い */
 function containmentScore(a: string, b: string): number {
   if (!a || !b) return 0;

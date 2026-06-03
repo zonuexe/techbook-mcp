@@ -5,6 +5,9 @@ import {
   titleMatchScore,
   authorMatchScore,
   matchScore,
+  sameWorkScore,
+  titlesExactMatch,
+  stripEditionMarkers,
 } from "../../../src/domain/text-match.js";
 
 describe("normalizeForMatch()", () => {
@@ -59,6 +62,35 @@ describe("authorMatchScore()", () => {
 
   it("一致なしなら 0", () => {
     assert.strictEqual(authorMatchScore("田中", ["鈴木一郎", "山田太郎"]), 0);
+  });
+});
+
+describe("stripEditionMarkers()", () => {
+  it("第N版 を除去する", () => {
+    assert.strictEqual(stripEditionMarkers(normalizeForMatch("独習PHP 第4版")), "独習php");
+  });
+  it("増補改訂版 等を除去する", () => {
+    assert.strictEqual(
+      stripEditionMarkers(normalizeForMatch("初めての人のためのLISP［増補改訂版］")),
+      "初めての人のためのlisp",
+    );
+  });
+});
+
+describe("sameWorkScore()", () => {
+  it("版表記だけ違う同一作品は 1 に近い", () => {
+    assert.strictEqual(sameWorkScore("独習PHP 第4版", "独習PHP"), 1);
+    assert.strictEqual(sameWorkScore("初めての人のためのLISP［増補改訂版］", "初めての人のためのLISP"), 1);
+  });
+  it("別作品（誤ISBN）は 0", () => {
+    assert.strictEqual(sameWorkScore("レガシーソフトウェア改善ガイド", "ガベージコレクション"), 0);
+  });
+});
+
+describe("titlesExactMatch()", () => {
+  it("版表記まで含めて一致する場合のみ true", () => {
+    assert.ok(titlesExactMatch("独習PHP", "独習ＰＨＰ"));
+    assert.ok(!titlesExactMatch("独習PHP 第4版", "独習PHP"));
   });
 });
 

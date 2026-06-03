@@ -93,7 +93,39 @@ describe("resolveBook()", () => {
       assert.strictEqual(r.book?.isbn, "9784908686207");
     });
 
-    it("ISBN と title が一致すれば isbnTitleAgree=true / 高確信", async () => {
+    const FULL_TITLE = "型システムのしくみ TypeScriptで実装しながら学ぶ型とプログラミング言語";
+
+    it("ISBN と title が完全一致すれば titleExact / 高確信", async () => {
+      const r = await resolveBook(
+        { isbn: "9784908686207", title: FULL_TITLE },
+        [],
+        makeDeps(await httpWithOpenBD()),
+      );
+
+      assert.strictEqual(r.confidence, "high");
+      assert.deepStrictEqual(r.validation, {
+        isbnTitleAgree: true,
+        titleExact: true,
+        sameWork: 1,
+        editionDiffers: false,
+      });
+    });
+
+    it("版表記だけ違えば同一作品として agree / editionDiffers=true / 高確信", async () => {
+      const r = await resolveBook(
+        { isbn: "9784908686207", title: `${FULL_TITLE} 第2版` },
+        [],
+        makeDeps(await httpWithOpenBD()),
+      );
+
+      assert.strictEqual(r.confidence, "high");
+      assert.strictEqual(r.validation?.isbnTitleAgree, true);
+      assert.strictEqual(r.validation?.titleExact, false);
+      assert.strictEqual(r.validation?.editionDiffers, true);
+      assert.ok((r.validation?.sameWork ?? 0) >= 0.9);
+    });
+
+    it("サブタイトル省略（版マーカー無し）は agree だが editionDiffers=false / 高確信", async () => {
       const r = await resolveBook(
         { isbn: "9784908686207", title: "型システムのしくみ" },
         [],
@@ -101,10 +133,11 @@ describe("resolveBook()", () => {
       );
 
       assert.strictEqual(r.confidence, "high");
-      assert.deepStrictEqual(r.validation, { isbnTitleAgree: true });
+      assert.strictEqual(r.validation?.isbnTitleAgree, true);
+      assert.strictEqual(r.validation?.editionDiffers, false);
     });
 
-    it("ISBN と title が食い違えば isbnTitleAgree=false / 低確信（版違い検出）", async () => {
+    it("別作品なら誤ISBNとして agree=false / editionDiffers=false / 低確信", async () => {
       const r = await resolveBook(
         { isbn: "9784908686207", title: "全く無関係な別の本ZZZ" },
         [],
@@ -112,7 +145,9 @@ describe("resolveBook()", () => {
       );
 
       assert.strictEqual(r.confidence, "low");
-      assert.deepStrictEqual(r.validation, { isbnTitleAgree: false });
+      assert.strictEqual(r.validation?.isbnTitleAgree, false);
+      assert.strictEqual(r.validation?.editionDiffers, false);
+      assert.ok((r.validation?.sameWork ?? 1) < 0.5);
     });
   });
 });

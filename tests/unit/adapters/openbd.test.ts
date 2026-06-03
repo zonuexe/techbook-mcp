@@ -2,7 +2,7 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { fetchOpenBDBooks, enrichWithOpenBD } from "../../../src/adapters/openbd.js";
+import { fetchOpenBDBooks, enrichWithOpenBD, openBDEntryToBookRecord } from "../../../src/adapters/openbd.js";
 import type { OpenBDEntry } from "../../../src/adapters/openbd.js";
 import { MockHttpClient } from "../../../src/adapters/http/mock-client.js";
 import { NullCacheStore } from "../../../src/adapters/cache/null-cache.js";
@@ -129,11 +129,12 @@ describe("enrichWithOpenBD", () => {
     assert.deepStrictEqual(enriched.authors, ["遠藤侑介"]);
   });
 
-  it("補完時は役割語を除去し重複を除く", async () => {
+  it("ONIX contributor が無ければ summary.author から役割語を除去し重複を除く", async () => {
     entry = await loadEntry();
     const entryWithRoles: OpenBDEntry = {
       ...entry,
       summary: { ...entry.summary, author: "結城浩／著、結城浩／著、北原かな／訳" },
+      onix: { ...entry.onix, DescriptiveDetail: undefined },
     };
     const book: BookRecord = {
       title: "x",
@@ -145,6 +146,40 @@ describe("enrichWithOpenBD", () => {
     const enriched = enrichWithOpenBD(book, entryWithRoles);
 
     assert.deepStrictEqual(enriched.authors, ["結城浩", "北原かな"]);
+  });
+
+  it("ONIX contributor から役割つき著者を取り名前を整形する（SequenceNumber順）", async () => {
+    entry = await loadEntry();
+    const e: OpenBDEntry = {
+      ...entry,
+      onix: {
+        ...entry.onix,
+        DescriptiveDetail: {
+          Contributor: [
+            { SequenceNumber: "2", ContributorRole: ["B06"], PersonName: { content: "角, 征典" } },
+            { SequenceNumber: "1", ContributorRole: ["A01"], PersonName: { content: "Boswell, Dustin" } },
+          ],
+        },
+      },
+    };
+
+    const book = openBDEntryToBookRecord(e);
+
+    // ASCII は "First Last"、和名は "姓 名"、SequenceNumber 昇順
+    assert.deepStrictEqual(book.contributors, [
+      { name: "Dustin Boswell", role: "author" },
+      { name: "角 征典", role: "translator" },
+    ]);
+    assert.deepStrictEqual(book.authors, ["Dustin Boswell", "角 征典"]);
+  });
+
+  it("enrichWithOpenBD は ONIX から役割つき contributors を補完する", async () => {
+    entry = await loadEntry();  // フィクスチャは A01 遠藤侑介 を持つ
+    const book: BookRecord = { title: "x", authors: [], publisher: "x", url: "https://example.com" };
+
+    const enriched = enrichWithOpenBD(book, entry);
+
+    assert.deepStrictEqual(enriched.contributors, [{ name: "遠藤侑介", role: "author" }]);
   });
 
   it("authors が非空なら上書きしない", async () => {

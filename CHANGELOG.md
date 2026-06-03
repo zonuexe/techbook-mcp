@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- 役割つきの著者情報 `BookRecord.contributors`（`{ name, role }[]`、role は `author`/`translator`/`supervisor`/`editor`）を追加。openBD の ONIX `Contributor` から取得し、`PersonName`（"姓, 名"形式）を整形（西洋名は "First Last"、和名は "姓 名"）する。`authors`（フラット配列・後方互換）も ONIX 由来のクリーンな名前で埋める
+- `resolve_book` の `validation` を拡張：`titleExact` / `sameWork`（同一作品らしさ 0..1、版表記を畳んで照合）/ `editionDiffers`（同一作品だが版表記が異なる）を追加。同一作品の版違いと「誤ISBN（別作品）」を呼び出し側が区別できる（`isbnTitleAgree` は後方互換のため維持）
+
+### Changed
+
+- openBD 由来の著者を `summary.author`（生年・出版社が混入しがち）ではなく ONIX `Contributor` から取得するようにし、`["Boswell","Dustin Foucher",…]` のような分割・混入を解消
+
 ## [0.3.3] - 2026-06-03
 
 ### Added
