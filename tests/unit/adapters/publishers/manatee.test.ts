@@ -126,6 +126,28 @@ describe("manateeAdapter", () => {
       });
     });
 
+    it("Amazon 動線が無い manatee ページから EC 商品ページを辿って ASIN を取得する（Kindle優先）", async () => {
+      const manateeHtml =
+        '<html><body><h1 class="title">本</h1>' +
+        '<a href="https://book.mynavi.jp/ec/products/detail/id=149835">紙版を見る</a>' +
+        "</body></html>";
+      const ecHtml =
+        "<html><body>" +
+        '<a href="https://www.amazon.co.jp/o/ASIN/4839980144">Amazon(紙)</a>' +
+        '<a href="https://www.amazon.co.jp/dp/B0CXYZ1234">Kindle</a>' +
+        "</body></html>";
+      const http = new MockHttpClient()
+        .addResponse("https://book.mynavi.jp/manatee/books/detail/id=149836", { status: 200, body: manateeHtml })
+        .addResponse("https://book.mynavi.jp/ec/products/detail/id=149835", { status: 200, body: ecHtml });
+
+      const book = await manateeAdapter.getDetail(
+        "https://book.mynavi.jp/manatee/books/detail/id=149836",
+        makeDeps(http),
+      );
+
+      assert.strictEqual(book.asin, "B0CXYZ1234");
+    });
+
     it("著者が配列で返される", async () => {
       const body = await loadFixture("manatee-detail.html");
       const http = new MockHttpClient().addResponse(

@@ -1,7 +1,7 @@
 import type { PublisherAdapter, PublisherDeps } from "../../domain/publisher.js";
 import type { BookRecord, SearchQuery } from "../../domain/book.js";
 import type { HtmlDocument } from "../../ports/html-parser.js";
-import { fetchText, parseJapanesePrice, resolveUrl } from "./base.js";
+import { fetchText, parseJapanesePrice, resolveUrl, extractAsin } from "./base.js";
 
 const BASE_URL = "https://book.mynavi.jp/manatee";
 const BOOKS_URL = `${BASE_URL}/books/`;
@@ -97,12 +97,28 @@ export const manateeAdapter: PublisherAdapter = {
     const descEl = doc.selectOne(".item_desc p:not(.date):not(.pages)");
     const description = descEl?.text().trim() || undefined;
 
+    // Amazon 購入動線は公式の マイナビブックスEC(/ec/products/) ページにある。
+    // manatee（電子直販）ページには Amazon リンクが無く EC 商品ページへの相互リンクのみ
+    // のため、辿って ASIN を取得する。
+    let asin = extractAsin(html);
+    if (!asin) {
+      const ecMatch = html.match(/https:\/\/book\.mynavi\.jp\/ec\/products\/detail\/id=\d+/);
+      if (ecMatch) {
+        try {
+          asin = extractAsin(await fetchText(ecMatch[0], deps));
+        } catch {
+          // EC ページ取得失敗は無視（ASIN なしで返す）
+        }
+      }
+    }
+
     return {
       title,
       authors,
       publisher,
       url,
       isbn,
+      asin,
       price,
       publishedAt,
       description,
