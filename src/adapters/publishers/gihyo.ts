@@ -89,27 +89,30 @@ export const gihyoAdapter: PublisherAdapter = {
 
   async getDetail(url: string, deps: PublisherDeps): Promise<BookRecord> {
     // URL例: https://gihyo.jp/book/2022/978-4-297-12815-2
+    //        https://gihyo.jp/dp/ebook/2026/978-4-297-15629-9 (電子版)
     const isbnMatch = url.match(/\/(978-[\d-]+)\s*$/);
     if (!isbnMatch) throw new Error(`URLからISBNを取得できません: ${url}`);
 
     const isbn = isbnMatch[1];
     const apiUrl = `${BASE_URL}/api_gh/site/search?search=${encodeURIComponent(isbn)}&limit=1`;
-
-    // JSONメタデータとebook store情報(HTML)を並列取得
-    const [apiText, htmlText] = await Promise.all([
-      fetchText(apiUrl, deps),
-      fetchText(url, deps),
-    ]);
-
+    const apiText = await fetchText(apiUrl, deps);
     const data: GihyoSearchResponse = JSON.parse(apiText);
-    const entry = data.list[isbn];
-    if (!entry) throw new Error(`書籍が見つかりません: ${isbn}`);
 
-    const base = entryToBookRecord(isbn, entry);
+    // 電子ISBN(/dp/ebook/)で検索しても API は紙ISBNをキーに返すため、キー不一致なら先頭を採用する
+    const fallback = Object.entries(data.list)[0] as [string, GihyoBookEntry] | undefined;
+    const entryIsbn = data.list[isbn] ? isbn : fallback?.[0];
+    const entry = data.list[isbn] ?? fallback?.[1];
+    if (!entry || !entryIsbn) throw new Error(`書籍が見つかりません: ${isbn}`);
 
-    const doc = deps.parser.parse(htmlText);
+    const base = entryToBookRecord(entryIsbn, entry);
+
+    // Amazon 購入動線(ASIN)・電子書籍ストアは公式 /book/ ページ(entry.url)にある。
+    // /dp/ebook/ ページには Amazon リンクが無く /book/ への導線のみのため、公式ページを辿って抽出する。
+    const officialUrl = resolveUrl(BASE_URL, entry.url);
+    const html = await fetchText(officialUrl, deps);
+    const doc = deps.parser.parse(html);
     const ebookStores = extractEbookStoresFromDoc(doc);
-    const asin = extractAsin(htmlText);
+    const asin = extractAsin(html);
 
     return {
       ...base,

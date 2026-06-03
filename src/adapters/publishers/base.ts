@@ -208,8 +208,11 @@ export function resolveUrl(base: string, path: string): string {
  * amazon.co.jp/dp/{ASIN}, /gp/product/{ASIN}, /o/ASIN/{ASIN} 形式に対応。
  */
 export function extractAsin(html: string): string | undefined {
-  const match = html.match(/amazon\.co\.jp\/(?:dp|gp\/product|o\/ASIN)\/([A-Z0-9]{10})/);
-  return match?.[1];
+  const matches = [...html.matchAll(/amazon\.co\.jp\/(?:dp|gp\/product|o\/ASIN)\/([A-Z0-9]{10})/g)]
+    .map(m => m[1]);
+  if (matches.length === 0) return undefined;
+  // Kindle（"B" 始まり）を優先する（紙の ASIN=ISBN-10 は ISBN と重複するため）
+  return matches.find(a => a.startsWith("B")) ?? matches[0];
 }
 
 /**

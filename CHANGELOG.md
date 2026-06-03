@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - openBD 由来の著者を `summary.author`（生年・出版社が混入しがち）ではなく ONIX `Contributor` から取得するようにし、`["Boswell","Dustin Foucher",…]` のような分割・混入を解消
 - 出版社ページに既にある Amazon 購入動線（`ebookStores` の Amazon リンク）から `asin` を自動導出するようにし、より多くの書籍で ASIN を返す（追加の HTTP リクエストなし。Kindle の ASIN を紙の ASIN=ISBN-10 より優先）
+- 技術評論社（gihyo）の `get_book_detail` が電子版ページ（`/dp/ebook/`）でも公式の `/book/` ページを辿って ASIN・電子書籍ストアを取得するようにした（電子版ページには Amazon 動線が無いため）
+
+### Fixed
+
+- 技術評論社（gihyo）の `get_book_detail` で、電子版 ISBN（`/dp/ebook/`）を渡すと API が紙版 ISBN をキーに返すためにエントリ取得に失敗していた問題を修正（キー不一致時は先頭エントリを採用）
 
 ## [0.3.3] - 2026-06-03
 

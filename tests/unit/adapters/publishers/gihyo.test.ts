@@ -133,5 +133,19 @@ describe("gihyoAdapter", () => {
 
       assert.strictEqual(book.asin, "B09YGZ18ZK");
     });
+
+    it("/dp/ebook/(電子)URL はキー不一致を吸収し公式 /book/ ページから ASIN を辿る", async () => {
+      const deps = await makeDetailDeps();
+      // 電子ISBN(URL末尾)は API が返すキー(紙ISBN)と一致しないが、先頭エントリを採用し
+      // entry.url の公式 /book/ ページ(Amazon 動線あり)から ASIN を抽出する
+      const book = await gihyoAdapter.getDetail(
+        "https://gihyo.jp/dp/ebook/2099/978-4-297-15629-9",
+        deps,
+      );
+
+      assert.strictEqual(book.asin, "B09YGZ18ZK");
+      // 正準URLは公式 /book/ ページになる
+      assert.strictEqual(book.url, "https://gihyo.jp/book/2022/978-4-297-12815-2");
+    });
   });
 });
