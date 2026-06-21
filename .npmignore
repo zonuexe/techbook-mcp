@@ -4,7 +4,7 @@ src/
 tests/
 .github/
 .claude/
-.codex/
+skills/
 *.config.ts
 tsconfig.json
 deno.json

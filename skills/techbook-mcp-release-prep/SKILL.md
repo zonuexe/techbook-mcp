@@ -1,6 +1,8 @@
 ---
 name: techbook-mcp-release-prep
 description: Prepare and ship a techbook-mcp release: bump the version, update the changelog, verify, commit, tag and push, publish to npm, and create the GitHub release. Use when the user asks to prepare the next version, cut or publish a release, or make sure versioned files are consistent before tagging.
+metadata:
+  internal: true
 ---
 
 # techbook-mcp Release Prep
