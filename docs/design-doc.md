@@ -1,7 +1,7 @@
 # techbook-mcp 設計書
 
 パッケージ名: `@zonuexe/techbook-mcp`
-ライセンス: AGPL-3.0-only
+ライセンス: AGPL-3.0-or-later
 
 ## 概要
 
