@@ -22,6 +22,8 @@ export interface Contributor {
 
 export interface BookRecord {
   title: string;
+  subtitle?: string;        // 副題（ISBD " : " 区切り。openBD 等が併記する場合のみ）
+  alternativeTitle?: string; // 並列タイトル（ISBD " = " 区切り。別言語タイトル等。openBD 由来）
   authors: string[];        // 役割を問わない著者名のフラットな配列（後方互換）
   contributors?: Contributor[];  // 役割つきの著者情報（取得できた場合のみ。openBD ONIX 由来など）
   publisher: string;

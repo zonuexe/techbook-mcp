@@ -82,10 +82,14 @@ export const TOOLS = [
       "手元の手がかり（ISBN・書名・著者）から正規の1冊を確信度つきで同定します。" +
       "PDF の奥付から抽出した曖昧なメタデータを書誌レコードに解決する用途に最適です。" +
       "isbn があれば openBD→出版社サイト→カーリルの順で解決し、title も渡すと解決結果と照合して" +
-      "版違い・誤ISBN を検出します（validation.isbnTitleAgree）。isbn が無い／解決できない場合は" +
-      "横断検索の一致度でベストマッチを採ります。" +
+      "版違い・誤ISBN を検出します。isbn が無い／解決できない場合は横断検索の一致度でベストマッチを採ります。" +
       "返り値: status（matched/ambiguous/not_found）・confidence（high/medium/low）・book・" +
-      "matchScore・source・候補（ambiguous時）。confidence=high はそのまま採用、low/ambiguous は要確認の目安です。" +
+      "matchScore・source・validation・候補（ambiguous時）・reason。confidence=high はそのまま採用、" +
+      "low/ambiguous は要確認の目安です。" +
+      "validation は book がある限り source 非依存で付与し、評価不能な項目は null で明示します： " +
+      "isbnMatches=false は『要求ISBNは見つからず書名一致で代替候補を返している』警告（このとき confidence は high になりません）。" +
+      "editionDiffers は ISBN 一致時は常に false（版が確定するため）。" +
+      "book.title は副題・並列タイトルを除いた本タイトルで、副題は book.subtitle・別言語タイトルは book.alternativeTitle に分離されます。" +
       "isbn / title / author のいずれかは必須。",
     inputSchema: {
       type: "object",

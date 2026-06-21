@@ -266,3 +266,56 @@ describe("enrichWithOpenBD", () => {
     assert.strictEqual(enriched.publishedAt, undefined);
   });
 });
+
+describe("openBDEntryToBookRecord", () => {
+  async function loadEntry(): Promise<OpenBDEntry> {
+    const body = await readFile(join(FIXTURES_DIR, "openbd-response.json"), "utf-8");
+    return (JSON.parse(body) as OpenBDEntry[])[0];
+  }
+
+  it("PersonName が生年つき見出し形式 '姓, 名, 1983-' でも姓名に整形する", async () => {
+    const base = await loadEntry();
+    const e: OpenBDEntry = {
+      ...base,
+      onix: {
+        ...base.onix,
+        DescriptiveDetail: {
+          Contributor: [
+            { SequenceNumber: "1", ContributorRole: ["A01"], PersonName: { content: "広木, 大地, 1983-" } },
+          ],
+        },
+      },
+    };
+
+    const book = openBDEntryToBookRecord(e);
+
+    assert.deepStrictEqual(book.authors, ["広木 大地"]);
+    assert.deepStrictEqual(book.contributors, [{ name: "広木 大地", role: "author" }]);
+  });
+
+  it("pubdate が月精度（YYYYMM）なら月初を補って publishedAt にする", async () => {
+    const base = await loadEntry();
+    const e: OpenBDEntry = { ...base, summary: { ...base.summary, pubdate: "201902" } };
+
+    const book = openBDEntryToBookRecord(e);
+
+    assert.strictEqual(book.publishedAt, "2019-02-01");
+  });
+
+  it("ISBD 区切りの書名を本タイトル・副題・並列タイトルに分離する", async () => {
+    const base = await loadEntry();
+    const e: OpenBDEntry = {
+      ...base,
+      summary: {
+        ...base.summary,
+        title: "エンジニアリング組織論への招待 = Engineering Organization Theory : 不確実性に向き合う",
+      },
+    };
+
+    const book = openBDEntryToBookRecord(e);
+
+    assert.strictEqual(book.title, "エンジニアリング組織論への招待");
+    assert.strictEqual(book.subtitle, "不確実性に向き合う");
+    assert.strictEqual(book.alternativeTitle, "Engineering Organization Theory");
+  });
+});

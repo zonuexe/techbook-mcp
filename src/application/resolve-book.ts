@@ -33,17 +33,23 @@ export interface ResolveResult {
   /** 取得元 */
   source: ResolveSource;
   /**
-   * isbn と title の両方が与えられたときの照合結果。
-   * - isbnTitleAgree: 同一作品とみなせるか（版違いでも true。後方互換）
+   * 与えられた手がかり（ISBN / title）と返却した本の照合結果。
+   * book !== null（matched / ambiguous）なら必ず付与する（source に依存しない）。
+   * 評価できない項目は null で明示する（ISBN 未指定なら isbnMatches=null、title 未指定なら title 系=null）。
+   * - isbnMatches: 要求ISBN と返却 book.isbn が一致するか（ISBN 未指定時 null）。
+   *   false は「要求ISBNは見つからず、書名一致で代替候補を返している」警告。
+   * - isbnTitleAgree: 同一作品とみなせるか（版違いでも true）
    * - titleExact: 版表記も含めて完全一致か
    * - sameWork: 同一作品らしさ 0..1（版表記を畳んで照合）
-   * - editionDiffers: 同一作品だが版表記が異なる（正しい本だが版が違う可能性）
+   * - editionDiffers: 同一作品だが版表記が異なる（版が違う可能性）。
+   *   ISBN が一致しているときは版が確定するため常に false。
    * sameWork が低い（≈0）かつ titleExact=false は「誤ISBN（別作品）」の疑い。
    */
   validation?: {
-    isbnTitleAgree: boolean;
-    titleExact: boolean;
-    sameWork: number;
+    isbnMatches: boolean | null;
+    isbnTitleAgree: boolean | null;
+    titleExact: boolean | null;
+    sameWork: number | null;
     editionDiffers: boolean;
   };
   /** ambiguous のとき上位候補を返す */
@@ -71,6 +77,56 @@ function scoreToConfidence(score: number): ResolveConfidence {
   return "low";
 }
 
+/** ISBN を比較用に正規化（ハイフン除去）。未指定なら undefined */
+function normalizeIsbn(isbn: string | undefined): string | undefined {
+  return isbn ? isbn.replace(/-/g, "") : undefined;
+}
+
+type Validation = NonNullable<ResolveResult["validation"]>;
+
+/**
+ * 手がかり（要求ISBN・クエリ書名）と返却した本の照合結果を組み立てる。
+ * 評価できない項目は null。ISBN が一致するときは版が確定するため editionDiffers=false。
+ */
+function buildValidation(
+  reqIsbn: string | undefined,
+  queryTitle: string | undefined,
+  book: BookRecord,
+): Validation {
+  const bookIsbn = normalizeIsbn(book.isbn);
+  const isbnMatches =
+    reqIsbn === undefined ? null : bookIsbn !== undefined && bookIsbn === reqIsbn;
+
+  if (!queryTitle) {
+    return { isbnMatches, isbnTitleAgree: null, titleExact: null, sameWork: null, editionDiffers: false };
+  }
+
+  const same = sameWorkScore(queryTitle, book.title);
+  const exact = titlesExactMatch(queryTitle, book.title);
+  const agree = same >= SAME_WORK_THRESHOLD;
+  // 版マーカーが実在し、かつ ISBN で版が確定していないときだけ「版違い」とする
+  const editionDiffers =
+    isbnMatches !== true &&
+    agree &&
+    !exact &&
+    (hasEditionMarker(queryTitle) || hasEditionMarker(book.title));
+
+  return {
+    isbnMatches,
+    isbnTitleAgree: agree,
+    titleExact: exact,
+    sameWork: round3(same),
+    editionDiffers,
+  };
+}
+
+/** ScoredBook の matchScore を落として素の BookRecord にする（top-level matchScore と重複させない） */
+function stripScore(book: ScoredBook): BookRecord {
+  const rest: Partial<ScoredBook> = { ...book };
+  delete rest.matchScore;
+  return rest as BookRecord;
+}
+
 /**
  * 手がかり（ISBN / 書名 / 著者）から正規の1冊を確信度つきで同定する。
  *
@@ -86,35 +142,23 @@ export async function resolveBook(
 ): Promise<ResolveResult> {
   const isbn = query.isbn?.trim();
   const hasTextQuery = Boolean(query.title || query.author);
+  // 検索フォールバック時にも要求ISBNと照合できるよう、正規化済みISBNを保持する
+  const reqIsbn = isbn && looksLikeIsbn(isbn) ? normalizeIsbn(isbn) : undefined;
 
-  if (isbn && looksLikeIsbn(isbn)) {
-    const resolved = await resolveByIsbn(isbn, publishers, deps);
+  if (reqIsbn !== undefined) {
+    const resolved = await resolveByIsbn(isbn as string, publishers, deps);
     if (resolved) {
       const { book, source } = resolved;
-      if (query.title) {
-        const same = sameWorkScore(query.title, book.title);
-        const exact = titlesExactMatch(query.title, book.title);
-        const agree = same >= SAME_WORK_THRESHOLD;
-        // 版マーカーが実在する時だけ「版違い」とする（単なるサブタイトル差は除く）
-        const editionDiffers =
-          agree && !exact && (hasEditionMarker(query.title) || hasEditionMarker(book.title));
-        return {
-          status: "matched",
-          // 同一作品なら版違いでも高確信。別作品（誤ISBN疑い）のみ低確信
-          confidence: agree ? "high" : "low",
-          book,
-          matchScore: round3(titleMatchScore(query.title, book.title)),
-          source,
-          validation: {
-            isbnTitleAgree: agree,
-            titleExact: exact,
-            sameWork: round3(same),
-            editionDiffers,
-          },
-        };
-      }
-      // ISBN は完全一致＝正準。照合する title が無ければ高確信
-      return { status: "matched", confidence: "high", book, matchScore: 1, source };
+      const validation = buildValidation(reqIsbn, query.title, book);
+      return {
+        status: "matched",
+        // title があり別作品（誤ISBN疑い）なら低確信、それ以外は高確信
+        confidence: validation.isbnTitleAgree === false ? "low" : "high",
+        book,
+        matchScore: query.title ? round3(titleMatchScore(query.title, book.title)) : 1,
+        source,
+        validation,
+      };
     }
     // ISBN 指定だが見つからない。title/author も無ければ確定的に not_found
     if (!hasTextQuery) {
@@ -162,30 +206,30 @@ export async function resolveBook(
 
   const best = books[0];
   const second = books[1];
-  const confidence = scoreToConfidence(best.matchScore);
+  const validation = buildValidation(reqIsbn, query.title, best);
+  // 要求ISBNがあるのに別ISBN（または欠落）の本を返す＝黙った版すり替え。高確信を付けず警告する（#1）
+  const isbnFallbackMismatch = reqIsbn !== undefined && validation.isbnMatches !== true;
+  const confidence: ResolveConfidence = isbnFallbackMismatch
+    ? "low"
+    : scoreToConfidence(best.matchScore);
+  const reason = isbnFallbackMismatch
+    ? `要求ISBN ${isbn} は解決できず、書名一致で代替候補を返しています（返却ISBN: ${best.isbn ?? "なし"}）`
+    : undefined;
   const ambiguous =
     second !== undefined &&
     best.matchScore < 1 &&
     best.matchScore >= MEDIUM_SCORE &&
     best.matchScore - second.matchScore < AMBIGUOUS_GAP;
 
-  if (ambiguous) {
-    return {
-      status: "ambiguous",
-      confidence,
-      book: best,
-      matchScore: best.matchScore,
-      source: "search",
-      candidates: books.slice(0, 3),
-    };
-  }
-
   return {
-    status: "matched",
+    status: ambiguous ? "ambiguous" : "matched",
     confidence,
-    book: best,
+    book: stripScore(best),
     matchScore: best.matchScore,
     source: "search",
+    validation,
+    ...(ambiguous ? { candidates: books.slice(0, 3) } : {}),
+    ...(reason ? { reason } : {}),
   };
 }
 

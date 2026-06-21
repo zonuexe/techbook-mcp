@@ -81,6 +81,53 @@ describe("resolveBook()", () => {
       const r = await resolveBook({}, [], makeDeps());
       assert.strictEqual(r.status, "not_found");
     });
+
+    it("検索経路でも validation を付け、book に matchScore を重複させない", async () => {
+      const publishers = [makeAdapter("a", [makeBook({ title: "Rust入門" })])];
+
+      const r = await resolveBook({ title: "Rust入門" }, publishers, makeDeps());
+
+      assert.strictEqual(r.source, "search");
+      assert.ok(r.validation, "validation が source 非依存で付与される");
+      assert.strictEqual(r.validation?.isbnMatches, null); // ISBN 未指定
+      assert.strictEqual(r.validation?.titleExact, true);
+      assert.ok(
+        !("matchScore" in (r.book as Record<string, unknown>)),
+        "book は top-level matchScore と重複しない（matchScore を含まない）",
+      );
+    });
+  });
+
+  describe("ISBN 解決失敗→検索フォールバック（黙った版すり替え防止 / #1）", () => {
+    // openBD が該当ISBNを返さない MockHttpClient（[null]）
+    function httpOpenBDMiss(): MockHttpClient {
+      return new MockHttpClient().addResponse("https://api.openbd.jp/v1/get", {
+        status: 200,
+        body: "[null]",
+      });
+    }
+
+    it("要求ISBNが解決できず別ISBNの本を返すときは confidence=low・isbnMatches=false・reason を付ける", async () => {
+      // 要求は改訂新版(9784297102913)だが、検索でヒットするのは旧版(9784774141640)
+      const publishers = [
+        makeAdapter("gihyo", [
+          makeBook({ title: "プログラマのための文字コード技術入門", isbn: "9784774141640" }),
+        ]),
+      ];
+
+      const r = await resolveBook(
+        { isbn: "9784297102913", title: "プログラマのための文字コード技術入門" },
+        publishers,
+        makeDeps(httpOpenBDMiss()),
+      );
+
+      assert.strictEqual(r.status, "matched");
+      assert.strictEqual(r.source, "search");
+      assert.strictEqual(r.confidence, "low"); // 書名は完全一致でも高確信を付けない
+      assert.strictEqual(r.book?.isbn, "9784774141640");
+      assert.strictEqual(r.validation?.isbnMatches, false);
+      assert.ok(r.reason && r.reason.includes("9784297102913"), "要求ISBNを reason に明示する");
+    });
   });
 
   describe("ISBN 経路", () => {
@@ -104,6 +151,7 @@ describe("resolveBook()", () => {
 
       assert.strictEqual(r.confidence, "high");
       assert.deepStrictEqual(r.validation, {
+        isbnMatches: true,
         isbnTitleAgree: true,
         titleExact: true,
         sameWork: 1,
@@ -111,7 +159,7 @@ describe("resolveBook()", () => {
       });
     });
 
-    it("版表記だけ違えば同一作品として agree / editionDiffers=true / 高確信", async () => {
+    it("ISBN一致時は版マーカー差があっても editionDiffers=false（版が確定するため）", async () => {
       const r = await resolveBook(
         { isbn: "9784908686207", title: `${FULL_TITLE} 第2版` },
         [],
@@ -119,9 +167,11 @@ describe("resolveBook()", () => {
       );
 
       assert.strictEqual(r.confidence, "high");
+      assert.strictEqual(r.validation?.isbnMatches, true);
       assert.strictEqual(r.validation?.isbnTitleAgree, true);
+      // 版表記の差は editionDiffers ではなく titleExact=false で表す
       assert.strictEqual(r.validation?.titleExact, false);
-      assert.strictEqual(r.validation?.editionDiffers, true);
+      assert.strictEqual(r.validation?.editionDiffers, false);
       assert.ok((r.validation?.sameWork ?? 0) >= 0.9);
     });
 

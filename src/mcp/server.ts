@@ -13,6 +13,7 @@ import { getBookByIsbn } from "../application/get-book-by-isbn.js";
 import { resolveBook, resolveBooks } from "../application/resolve-book.js";
 import type { ResolveQuery, ResolveResult } from "../application/resolve-book.js";
 import { looksLikeIsbn } from "../domain/isbn.js";
+import { collapseWhitespace } from "../domain/title.js";
 import { VERSION } from "../version.js";
 import { TOOLS } from "./tools.js";
 
@@ -29,9 +30,12 @@ function formatEbookStore(store: EbookStore): Record<string, unknown> {
   return { ...store, drmLabel: DRM_LABELS[store.drm] };
 }
 
-function formatBook(book: BookRecord): Record<string, unknown> {
-  if (!book.ebookStores) return book as unknown as Record<string, unknown>;
-  return { ...book, ebookStores: book.ebookStores.map(formatEbookStore) };
+export function formatBook(book: BookRecord): Record<string, unknown> {
+  // スクレイピング由来の生改行・連続空白が title に残ることがあるため出力境界で畳む（全ソース統一）
+  const cleaned: BookRecord = { ...book, title: collapseWhitespace(book.title) };
+  if (cleaned.subtitle) cleaned.subtitle = collapseWhitespace(cleaned.subtitle);
+  if (!cleaned.ebookStores) return cleaned as unknown as Record<string, unknown>;
+  return { ...cleaned, ebookStores: cleaned.ebookStores.map(formatEbookStore) };
 }
 
 const ERROR_TYPE_LABELS: Record<SearchError["type"], string> = {

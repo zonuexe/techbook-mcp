@@ -2,6 +2,7 @@ import type { PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, Contributor, ContributorRole } from "../domain/book.js";
 import { fetchText, stripAuthorRole } from "./publishers/base.js";
 import { dedupeAuthors } from "../domain/authors.js";
+import { parseBibliographicTitle } from "../domain/title.js";
 
 /**
  * openBD の summary.author（"結城浩／著、北原かな／訳" 等）を著者名配列に分解する。
@@ -27,17 +28,21 @@ const ONIX_ROLE_MAP: Record<string, ContributorRole> = {
 };
 
 /**
- * ONIX PersonName.content（"姓, 名" 形式）を表示名に整形する。
+ * ONIX PersonName.content を表示名に整形する。
+ *
+ * 図書館見出し形式 "姓, 名" および生年つきの "姓, 名, 1983-" に対応する
+ * （後者はカンマ3分割になるため、先頭2要素＝姓名のみ採用し生年は捨てる）。
  * 西洋名（ASCII）は "First Last" に入れ替え、和名は "姓 名" にする。
+ * カンマを含まない（既に表示名の）場合はそのまま空白を畳んで返す。
  */
 function formatPersonName(content: string): string {
   const name = content.trim();
   if (!name) return "";
   const parts = name.split(/,\s*/);
-  if (parts.length !== 2) return name.replace(/\s+/g, " ");
-  const [last, first] = parts;
+  if (parts.length < 2) return name.replace(/\s+/g, " ");
+  const [last, first] = parts;  // 3要素目以降（生年・没年）は無視
   // eslint-disable-next-line no-control-regex
-  const isAscii = /^[\x00-\x7F]+$/.test(name);
+  const isAscii = /^[\x00-\x7F]+$/.test(`${last}${first}`);
   return isAscii ? `${first} ${last}` : `${last} ${first}`;
 }
 
@@ -126,9 +131,20 @@ export interface OpenBDEntry {
 
 // --- ユーティリティ ---
 
+/**
+ * openBD の pubdate（"YYYYMMDD" / "YYYYMM" / "YYYY"）を "YYYY-MM-DD" に正規化する。
+ * 月精度（6桁）は月初 "-01" を補う（personal-media アダプタと同方針）。
+ * 年精度（4桁）以下は日付として確定できないため undefined を返す。
+ */
 function parsePubDate(pubdate: string): string | undefined {
-  if (!pubdate || pubdate.length < 8) return undefined;
-  return `${pubdate.slice(0, 4)}-${pubdate.slice(4, 6)}-${pubdate.slice(6, 8)}`;
+  const digits = (pubdate ?? "").replace(/\D/g, "");
+  if (digits.length >= 8) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6, 8)}`;
+  }
+  if (digits.length === 6) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-01`;
+  }
+  return undefined;
 }
 
 function findTextByType(entry: OpenBDEntry, ...types: string[]): string | undefined {
@@ -186,9 +202,13 @@ export function openBDEntryToBookRecord(entry: OpenBDEntry): BookRecord {
   const { summary } = entry;
   const storelink = entry.hanmoto?.storelink;
   const contributors = parseContributors(entry);
+  // ISBD 区切り（" = 並列タイトル" / " : 副題"）を構造化し、生改行・連続空白を畳む
+  const { title, subtitle, alternativeTitle } = parseBibliographicTitle(summary.title);
 
   return {
-    title: summary.title,
+    title,
+    subtitle,
+    alternativeTitle,
     authors: authorsFromEntry(entry),
     contributors: contributors.length > 0 ? contributors : undefined,
     publisher: summary.publisher,
