@@ -5,4 +5,4 @@
  * リリース時は package.json / package-lock.json / CHANGELOG.md と揃えて更新すること
  * （[[.codex/skills/techbook-mcp-release-prep]] の更新対象ファイルに含まれる）。
  */
-export const VERSION = "0.4.0";
+export const VERSION = "0.5.0";

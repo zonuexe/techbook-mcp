@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-21
+
+### Added
+
+- `BookRecord` に `subtitle`（副題）・`alternativeTitle`(並列タイトル・別言語タイトル) を追加。openBD の ISBD 表記書名（`本タイトル = 並列タイトル : 副題`）を構造化し、`" : "` を副題、`" = "` を並列タイトルとして分離する
+- `resolve_book` / `resolve_books` の `validation` に `isbnMatches`（要求 ISBN と返却 ISBN の一致）を追加し、`book` がある限り取得元（source）に依存せず常に付与するようにした。評価できない項目は `null` で明示する（呼び出し側が統一的にパースできる）
+- openBD の発行日が月精度（`YYYYMM`）の場合も `publishedAt` を `YYYY-MM-01` 形式で返すようにした
+
+### Changed
+
+- `validation.editionDiffers` は ISBN が一致しているとき常に `false` を返すようにした（ISBN で版が確定するため。書名表記の差は `titleExact` で表す）
+- `resolve_book` / `resolve_books` の検索経路で返す `book` から、トップレベルと重複していた `matchScore` を除去した（`matchScore` はトップレベルのみ）
+- スクレイピング由来の改行・連続空白が書名に混入していたのを、出力時に単一スペースへ畳むようにした
+
+### Fixed
+
+- `resolve_book` / `resolve_books` で、ISBN を指定したのに解決できず書名検索へフォールバックした際、要求と異なる版（別 ISBN）を `confidence: high` のまま黙って返していた問題を修正。要求 ISBN と一致しない場合は `confidence` を下げ、`validation.isbnMatches: false` と `reason` で警告する
+- openBD 由来の著者が、生年つきの図書館見出し形式（`姓, 名, 1983-`）のまま返ることがあった問題を修正（`姓 名` に整形し生年を除去）
+
+### Security
+
+- 推移的依存（cheerio 経由の undici、`@modelcontextprotocol/sdk` 経由の hono）の既知の脆弱性を解消（`npm audit` 0 件）
+
 ## [0.4.0] - 2026-06-03
 
 ### Added
@@ -131,7 +154,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.1...v0.3.2
