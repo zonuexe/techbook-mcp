@@ -62,6 +62,7 @@ techbook-mcp/
 │   │   ├── book.ts          # BookRecord, SearchQuery, DrmType 型定義
 │   │   ├── publisher.ts     # PublisherAdapter インターフェース (language, scale)
 │   │   ├── text-match.ts    # 照合用テキスト正規化・matchScore 算出
+│   │   ├── title.ts         # 書名の空白畳み・ISBD 副題/並列タイトル構造化
 │   │   └── isbn.ts          # ISBN 正規化・looksLikeIsbn 判定
 │   ├── ports/
 │   │   ├── http.ts          # HttpClient インターフェース
@@ -102,6 +103,7 @@ techbook-mcp/
 │   │   ├── search-books.ts   # 横断検索・スケジューリング・matchScore 付与
 │   │   ├── get-book-detail.ts
 │   │   ├── get-book-by-isbn.ts
+│   │   ├── resolve-book.ts   # 手がかり→正規1冊の同定 (resolveBook/resolveBooks・validation)
 │   │   └── concurrency.ts    # mapWithConcurrency / withTimeout
 │   ├── mcp/
 │   │   ├── server.ts
@@ -364,6 +366,8 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 | `search_books` | 書名・著者名で検索 | `title?`, `author?`, `publisher?`, `limit?` |
 | `get_book_detail` | URLから詳細情報取得 | `url` |
 | `get_book_by_isbn` | ISBNから書誌情報取得（openBD→出版社サイト→カーリル） | `isbn` |
+| `resolve_book` | 手がかり（ISBN/書名/著者）から正規の1冊を確信度つきで同定 | `isbn?`, `title?`, `author?`, `publisher?` |
+| `resolve_books` | `resolve_book` のバッチ版（入力順に結果配列を返す） | `books[]` |
 | `list_publishers` | 対応出版社一覧 | なし |
 
 ## 検索の挙動
@@ -386,6 +390,34 @@ type DrmType = "free" | "social" | "password_pdf" | "drm";
 - **errors の集約**: 失敗理由を `type`（`robots` / `timeout` / `http` / `other`）に分類し、MCP 層で種別×出版社に集約して静音化する
 - **ISBN ショートカット**: `title` が ISBN 形式（`src/domain/isbn.ts` の `looksLikeIsbn`）かつ `author` 未指定なら、
   全社横断をやめて `get_book_by_isbn` 経路に振り分ける
+- **書名の正規化（出力境界）**: スクレイピング由来の生改行・連続空白が `title` に残ることがあるため、
+  MCP 層 `formatBook()`（`src/mcp/server.ts`）で `collapseWhitespace()`（`src/domain/title.ts`）を全ソース統一適用する。
+  openBD の ISBD 表記書名（`"本タイトル = 並列タイトル : 副題"`）は `parseBibliographicTitle()` で構造化し、
+  `BookRecord.subtitle`（`" : "` 区切り）・`BookRecord.alternativeTitle`（`" = "` 区切り・別言語タイトル）へ分離する
+  （`openBDEntryToBookRecord` で適用。スペースを伴わない書名内のコロン等は誤分割しない）
+
+## 同定の挙動（resolve_book / resolve_books）
+
+`resolve_book` は Riida の `read_pdf_colophon` が抽出した曖昧な手がかり（ISBN・書名・著者）を
+**正規の1冊へ確信度つきで解決する**ための統合ツール。`isbn` / `title` / `author` のいずれかが必須。
+実装は `src/application/resolve-book.ts`。
+
+- **解決経路**: `isbn` があれば `resolveByIsbn`（openBD→出版社サイト→カーリル）で解決。解決できない、
+  または ISBN が無い場合は横断検索（`searchBooks`）の `matchScore` でベストマッチを採る。
+  上位2件が拮抗（差 < `AMBIGUOUS_GAP`）なら `status="ambiguous"` で候補（`candidates`）を返す。
+- **返り値（source 非依存で固定）**: `status`（`matched`/`ambiguous`/`not_found`）・`confidence`（`high`/`medium`/`low`）・
+  `book`（`not_found` 時 `null`）・`matchScore`・`source`・`validation`・`reason?`・`candidates?`。
+  `book` は素の `BookRecord`（top-level `matchScore` と重複させないため `ScoredBook` の `matchScore` は落とす。
+  `candidates` は候補ごとの比較に使うため `matchScore` 付きのまま）。
+- **`validation`（`book !== null` なら常時付与・source 非依存）**: 与えた手がかりと返却本の照合結果。
+  評価できない項目は `null` で明示する（統一的にパースできるように）。
+  - `isbnMatches`: 要求ISBN と返却 `book.isbn` の一致（ISBN 未指定なら `null`）。
+    **`false` は「要求ISBNは解決できず、書名一致で代替候補を返している」警告**で、このとき `confidence` は `high` にしない（黙った版すり替えの防止）。
+  - `isbnTitleAgree` / `titleExact` / `sameWork`: 書名の同一作品らしさ（`title` 未指定なら `null`）。
+    `sameWork ≈ 0` かつ `titleExact=false` は誤ISBN（別作品）の疑い。
+  - `editionDiffers`: 同一作品だが版表記が異なる可能性。**ISBN が一致しているときは版が確定するため常に `false`**
+    （版表記の差は `titleExact=false` で表す）。
+- **`reason`**: `not_found` の理由、または ISBN フォールバックで別ISBNを返した際の警告文（要求ISBNを明示）。
 
 ## カバレッジの制約
 
