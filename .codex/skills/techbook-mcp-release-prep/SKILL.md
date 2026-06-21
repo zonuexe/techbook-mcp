@@ -1,6 +1,6 @@
 ---
 name: techbook-mcp-release-prep
-description: Prepare a techbook-mcp release by bumping the version, updating the changelog, and running verification. Use when the user asks to prepare the next version, cut a release, or make sure versioned files are consistent before tagging.
+description: Prepare and ship a techbook-mcp release: bump the version, update the changelog, verify, commit, tag and push, publish to npm, and create the GitHub release. Use when the user asks to prepare the next version, cut or publish a release, or make sure versioned files are consistent before tagging.
 ---
 
 # techbook-mcp Release Prep
@@ -94,6 +94,55 @@ Bump up version to x.y.z
 
 Do not include other unrelated changes in the release commit.
 
+## Tag and Push
+
+After the release commit passes verification, tag it and push both the branch and the tag.
+The tag must exist on the remote before the GitHub release can reference it.
+
+```bash
+git tag vX.Y.Z
+git push origin HEAD
+git push origin vX.Y.Z
+```
+
+Use a `v`-prefixed tag (`vX.Y.Z`) to match the existing tags and the `CHANGELOG.md` compare links.
+
+## Publish to npm
+
+```bash
+npm publish --dry-run   # review the packed file list first
+npm publish
+```
+
+`prepublishOnly` runs `npm run build`, so `dist/` is rebuilt and published automatically.
+This is an outward-facing, irreversible step — confirm the version and dry-run output before publishing.
+
+## Create the GitHub Release
+
+Create a release at <https://github.com/zonuexe/techbook-mcp/releases> for the new tag, using the
+matching `CHANGELOG.md` section as the notes. Requires the `vX.Y.Z` tag to be pushed and the
+`gh` CLI authenticated.
+
+Extract the version's changelog section (heading excluded) and create the release:
+
+```bash
+VERSION=X.Y.Z
+awk -v h="## [$VERSION]" '
+  index($0, h) == 1 { flag = 1; next }   # start after this version heading
+  /^## \[/          { flag = 0 }         # stop at the next version heading
+  flag
+' CHANGELOG.md > /tmp/techbook-mcp-release-notes.md
+
+gh release create "v$VERSION" \
+  --title "v$VERSION" \
+  --notes-file /tmp/techbook-mcp-release-notes.md
+```
+
+- Title matches the git tag (`vX.Y.Z`).
+- Body is the user-facing `Added` / `Changed` / `Fixed` / `Security` entries from `CHANGELOG.md`.
+- Omit `--prerelease` for normal releases.
+- After creating, open the releases page and confirm the notes render correctly.
+
 ## Quick Checklist
 
 - Working tree starts clean or you understand every pending change.
@@ -103,4 +152,7 @@ Do not include other unrelated changes in the release commit.
 - `npm test` passed.
 - `npm run lint` passed.
 - `npm run build` passed.
-- Commit message follows `chore: release x.y.z`.
+- Commit message is `Bump up version to x.y.z` (this project does not use Conventional Commits).
+- Tag `vx.y.z` created and pushed to the remote.
+- `npm publish` done (after reviewing `npm publish --dry-run`).
+- GitHub release created at <https://github.com/zonuexe/techbook-mcp/releases> with the `CHANGELOG.md` section as notes.
