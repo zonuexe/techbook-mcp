@@ -81,6 +81,7 @@ techbook-mcp/
 │   │       ├── base.ts          # 共通ユーティリティ (fetchText, parsePrice, EBOOK_STORE_PATTERNS)
 │   │       ├── book-tech.ts     # BOOK TECH
 │   │       ├── born-digital.ts  # ボーンデジタル
+│   │       ├── c-r.ts           # C&R研究所 (公式サイト・本の森.JP)
 │   │       ├── coronasha.ts     # コロナ社
 │   │       ├── cq-publishing.ts # CQ出版社 (Tech Village 書庫＆販売)
 │   │       ├── gihyo.ts         # 技術評論社
@@ -125,6 +126,7 @@ techbook-mcp/
 |----|------|---------|------|
 | `book-tech` | BOOK TECH | HTML scraping | カラーミーショップ |
 | `born-digital` | ボーンデジタル | HTML scraping | カラーミーショップ・EUC-JP エンコード必須 |
+| `c-r` | C&R研究所 | HTML scraping | 公式サイトを正典に取得・通販は本の森.JP(manatee)に統合・価格は税抜表記 |
 | `coronasha` | コロナ社 | HTML scraping | 電子版フラグで絞り込み・外部ストアへ委託販売 |
 | `cq-publishing` | CQ出版社 | HTML scraping | 電子書籍直販サイト「Tech Village」・検索キーワードはパスに埋め込む |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
@@ -172,6 +174,21 @@ GET https://wgn-obs.shop-pro.jp/?mode=srh&keyword={EUC-JP encoded keyword}
 - 価格: `var Colorme = {...}` JSON の `product.sales_price_including_tax`
 - 著者・発行日: 詳細ページの説明テキストをタブまたは全角コロン `：` で分割して解析
 - DRM: `"social"`（PDFにメールアドレスが印字）
+
+**C&R研究所 (c-r)** — 公式サイト ＋ 本の森.JP
+```
+GET https://www.c-r.com/book/listthum/index?word={UTF-8 percent-encoded keyword}&sflg=1
+```
+- 公式サイト `c-r.com` を**正典**として書誌を取得（出版社名は常に `"C&R研究所"`）。自社通販「本の森.JP」は
+  マイナビ出版の manatee 基盤（`book.mynavi.jp/manatee/c-r/`）に統合されており、アカウントも共通
+- 検索フォームは `method=post`（`sflg=1` hidden ＋ `word`）だが GET でも同結果のため `fetchText`(GET) で叩く
+- 検索結果: `div.clearfix`（書影 `.fll img` ＋ 本文 `.flr > .book02`）が 1 件。`p.book05 a` がタイトル/リンク、
+  同 `.book02` 内のテキストから `■価格：`・`■ISBN`・`■著者：`（`／`等で複数分割）を正規表現で抽出
+- 詳細ページ `/book/detail/{id}`: `p.book_s_title`(書名)・`div.book_s02`(価格/ISBN/著者)・`p.book_s01`先頭(紹介文)・
+  `div.book_s03` の本の森.JP(manatee) リンクを ebookStore に充てる。**発行日は公式ページに無い**（openBD 補完に委ねる）
+- **価格は税抜表記**（`2,720円＋税`）。書籍は標準税率のため `floor(本体 × 1.1)` で税込整数に換算（例 2720→2992）
+- DRM: `"social"`（本の森.JP は manatee 基盤・購入者情報透かし入りPDF）。詳細ページの Amazon リンクは紙版、
+  `c-r.com/bookreader/` は試し読みビューアーなので ebookStore には含めない
 
 **コロナ社 (coronasha)**
 ```

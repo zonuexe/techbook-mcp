@@ -103,6 +103,7 @@ const http = new MockHttpClient()
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
 - **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与
+- **税抜表記サイト**: `c-r.com`（C&R研究所）は価格が税抜（`2,720円＋税`）。`BookRecord.price` は税込整数規約なので `floor(本体 × 1.1)`（書籍は標準税率10%）で換算する。出版社名は公式サイトから常に `"C&R研究所"`。通販「本の森.JP」は manatee 基盤に統合されているため、C&R の電子書籍は `manatee` アダプターの一般検索（`/manatee/books/`）でも `"マナティ"` ラベルでヒットしうる（出版社視点 `c-r` と店舗視点 `manatee` で重複しうるが、横断検索に出版社横断の dedup は無い）
 - **検索結果は matchScore 降順＋ゼロ関連度を除外**: `search_books` はアプリ層で各候補に `matchScore`（0〜1）を付与しベストマッチ順にソートする（`src/domain/text-match.ts`）。アダプターの返却順には依存しない。クエリ語があるのに一致度ゼロの候補（検索サイトが該当なし時に返す新着フォールバック）は除外し、該当なしは空配列で返す。書名スコアはトークン分割した包含割合（純日本語の部分語が助詞を跨いでも拾える）
 - **著者は dedup 済み**: search/detail/isbn の全経路で `dedupeAuthors()`（`src/domain/authors.ts`）により著者配列の重複を除く（表記ゆれも `normalizeForMatch` で同一視）。アダプター側で重複排除を頑張る必要はない
 - **ISBN ショートカット**: `search_books` の `title` が ISBN 形式（`looksLikeIsbn`）かつ `author` 未指定だと、横断検索せず `get_book_by_isbn` 経路に振り分けられる（MCP ハンドラ `src/mcp/server.ts`）

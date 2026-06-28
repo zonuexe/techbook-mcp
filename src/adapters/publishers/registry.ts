@@ -2,6 +2,7 @@ import type { PublisherAdapter } from "../../domain/publisher.js";
 import { bookTechAdapter } from "./book-tech.js";
 import { googleBooksAdapter } from "./google-books.js";
 import { bornDigitalAdapter } from "./born-digital.js";
+import { crAdapter } from "./c-r.js";
 import { coronashaAdapter } from "./coronasha.js";
 import { cqPublishingAdapter } from "./cq-publishing.js";
 import { gihyoAdapter } from "./gihyo.js";
@@ -25,6 +26,7 @@ import { techbookfestAdapter } from "./techbookfest.js";
 export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   bookTechAdapter,
   bornDigitalAdapter,
+  crAdapter,
   coronashaAdapter,
   cqPublishingAdapter,
   gihyoAdapter,
