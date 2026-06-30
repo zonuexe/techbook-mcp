@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-06-29
+
+### Added
+
+- C&R研究所 (`c-r`) アダプターを追加。公式サイト c-r.com を正典として書名・著者・ISBN・価格を取得する。価格は税抜表記（`2,720円＋税`）を税込整数に換算し、電子書籍の購入動線は本の森.JP（マイナビ出版 manatee 基盤）を `ebookStores` に充てる
+
 ## [0.5.0] - 2026-06-21
 
 ### Added
@@ -154,7 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.2...v0.3.3
