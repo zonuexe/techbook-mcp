@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-06
+
+### Added
+
+- IPA（情報処理推進機構）(`ipa`) アダプターを追加。アーカイブ刊行物（SEC BOOKS・情報セキュリティ白書・ソフトウェア開発データ白書・各種ガイド）を書名でローカルフィルタし、書誌情報を取得する。無償配布 PDF のため `ebookStores` は DRM フリー、旧刊の ISBN-10 は ISBN-13 に変換、税抜表記の定価は税込整数に換算する
+
 ## [0.5.1] - 2026-06-29
 
 ### Added
@@ -160,7 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.3.3...v0.4.0
