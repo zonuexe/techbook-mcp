@@ -100,6 +100,7 @@ const http = new MockHttpClient()
 - **Referer 必須**: `maruzen-publishing.co.jp` の検索は Referer なしで 403
 - **機関向けストア除外**: `kw.maruzen.co.jp`（Knowledge Worker）は個人向けではないため除外
 - **ローカルフィルタ型**: `oreilly-japan` と `peaks` は検索APIがなくトップページ/一覧をローカルフィルタ
+- **2階層カタログ**: `ipa`（情報処理推進機構）はアーカイブ刊行物一覧をローカルフィルタ。一覧リンクの class が `icon--folder`（情報セキュリティ白書・ソフトウェア開発データ白書）はサブ一覧なので1階層だけ展開する。無償PDFのため `ebookStores` は `{name:"IPA", drm:"free"}` 固定。定価は税抜表記なら `floor(本体×1.1)`、旧刊の ISBN-10 は ISBN-13 へ変換。`dl.data-list` を持たない補助ページ（FAQ等）は書籍でないため除外
 - **著者のみ検索不可**: ローカルフィルタ型アダプターは `!query.title` のとき `[]` を返す（HTTP呼ばない）
 - **パス埋め込み検索**: `cc.cqpub.co.jp`（CQ出版 Tech Village）は検索語を `?q=` ではなくパス末尾 `doclib_search/q={encoded}/` に埋め込む。物販サイト `shop.cqpub.co.jp` は別物（紙のみ・電子書籍なし）
 - **JSONインデックス型**: `pragprog.com`（Pragmatic Bookshelf, 海外）は `/search/index.json`（lunr.js 用全書籍インデックス）を取得してローカルフィルタ。価格は USD なので `currency: "USD"` を付与

@@ -85,6 +85,7 @@ techbook-mcp/
 │   │       ├── coronasha.ts     # コロナ社
 │   │       ├── cq-publishing.ts # CQ出版社 (Tech Village 書庫＆販売)
 │   │       ├── gihyo.ts         # 技術評論社
+│   │       ├── ipa.ts           # IPA (情報処理推進機構・アーカイブ刊行物)
 │   │       ├── lambdanote.ts    # ラムダノート
 │   │       ├── leanpub.ts       # Leanpub (海外・セルフ出版・DRM-free)
 │   │       ├── manatee.ts       # マナティ (マイナビ出版直販)
@@ -130,6 +131,7 @@ techbook-mcp/
 | `coronasha` | コロナ社 | HTML scraping | 電子版フラグで絞り込み・外部ストアへ委託販売 |
 | `cq-publishing` | CQ出版社 | HTML scraping | 電子書籍直販サイト「Tech Village」・検索キーワードはパスに埋め込む |
 | `gihyo` | 技術評論社 | JSON API | `/api_gh/site/search` |
+| `ipa` | IPA（情報処理推進機構） | HTML scraping | アーカイブ刊行物・検索APIなし・全一覧をローカルフィルタ・無償PDF（DRMフリー） |
 | `lambdanote` | ラムダノート | HTML scraping | Shopify ストア |
 | `manatee` | マナティ (マイナビ出版直販) | HTML scraping | 複数出版社を委託販売 |
 | `maruzen-publishing` | 丸善出版 | HTML scraping | Referer ヘッダー必須 |
@@ -217,6 +219,18 @@ GET https://cc.cqpub.co.jp/lib/system/doclib_search/q={UTF-8 percent-encoded key
 GET https://gihyo.jp/api_gh/site/search?search={keyword}&limit={n}
 ```
 レスポンス: `list[isbn]` オブジェクト。`author` は `{ 役割: { 名前: "<ruby>markup</ruby>" } }` 形式なのでHTML除去が必要。
+
+**IPA / 情報処理推進機構 (ipa)** — アーカイブ刊行物・ローカルフィルタ
+```
+GET https://www.ipa.go.jp/archive/publish/index.html   # 書籍・刊行物一覧（カタログ）
+```
+- 検索APIなし。`ul.archive-list li a` の書籍・刊行物一覧をタイトルでローカルフィルタ（`scale: "minor"`・全カタログを長期キャッシュ）。著者のみ検索は非対応
+- 一覧は2階層: リンクの class が `icon--folder` のもの（情報セキュリティ白書・ソフトウェア開発データ白書）はサブ一覧ページなので1階層だけ展開して子の書籍リンク（`icon--webpage`）を取り込む
+- マッチした各エントリの詳細ページを取得し `dl.data-list`（`dt.data-list__ttl__inner` / `dd.data-list__data`）から発行日・ISBN・定価を抽出。書名は `h1.ttl.--lv1`、書影は `.img-box img`、紹介文は先頭の `p.article-txt`（注意書き「本ページの情報は…」は除外）。`data-list` を持たない補助ページ（FAQ・ダウンロード案内）は書籍でないため `null` 扱いで除外
+- **無償PDF・技術的DRMなし** → `ebookStores` は `{ name: "IPA", drm: "free" }` 固定（本事業終了に伴い紙の販売は終了、PDFのみ無償配布）
+- ISBN-10（旧刊。例 `4-274-50026-8`）は 978 プレフィックス＋チェックディジット再計算で ISBN-13 に変換する
+- 定価は税込整数へ換算: `税込`表記はそのまま、`税抜`表記（例 `本体300円（税抜）`）は `floor(本体 × 1.1)`、`定価：2,200円（本体価格2,000 円＋税10％）`は先頭の税込総額を採る
+- 出版社名は常に `"IPA"`（SEC BOOKS の一部は発行がオーム社等だが、IPA アーカイブの無償配布物として統一）。著者は一覧・詳細とも個人名を持たないため空配列（openBD が ISBN で補完）
 
 **ラムダノート (lambdanote)** — Shopify
 ```

@@ -7,6 +7,7 @@ import { coronashaAdapter } from "./coronasha.js";
 import { cqPublishingAdapter } from "./cq-publishing.js";
 import { gihyoAdapter } from "./gihyo.js";
 import { impressBooksAdapter } from "./impress.js";
+import { ipaAdapter } from "./ipa.js";
 import { jusePAdapter } from "./juse-p.js";
 import { lambdanoteAdapter } from "./lambdanote.js";
 import { leanpubAdapter } from "./leanpub.js";
@@ -31,6 +32,7 @@ export const DEFAULT_PUBLISHERS: readonly PublisherAdapter[] = [
   cqPublishingAdapter,
   gihyoAdapter,
   impressBooksAdapter,
+  ipaAdapter,
   jusePAdapter,
   lambdanoteAdapter,
   leanpubAdapter,
