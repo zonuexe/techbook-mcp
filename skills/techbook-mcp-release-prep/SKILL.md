@@ -27,6 +27,7 @@ Update these files together in one pass:
 - `package.json` — `"version"` field
 - `package-lock.json` — `"version"` field in the root object (same value as `package.json`)
 - `src/version.ts` — `VERSION` constant (single source of truth for the MCP server version and HTTP User-Agent; must match `package.json`)
+- `plugin.json` — `"version"` field (Agent Plugins manifest; must match `package.json`)
 
 ### CHANGELOG.md Rules
 
@@ -85,7 +86,7 @@ All three must pass. Do not commit if any check fails.
 
 Prefer a single release-prep commit containing:
 
-- version bump in `package.json`, `package-lock.json`, and `src/version.ts`
+- version bump in `package.json`, `package-lock.json`, `src/version.ts`, and `plugin.json`
 - `CHANGELOG.md` update
 
 Use this commit message format:
@@ -149,7 +150,7 @@ gh release create "v$VERSION" \
 
 - Working tree starts clean or you understand every pending change.
 - `CHANGELOG.md` has a new `## [x.y.z] - YYYY-MM-DD` section with user-facing entries.
-- `package.json`, `package-lock.json`, and `src/version.ts` all show the new version.
+- `package.json`, `package-lock.json`, `src/version.ts`, and `plugin.json` all show the new version.
 - Bottom-of-file links in `CHANGELOG.md` are consistent.
 - `npm test` passed.
 - `npm run lint` passed.

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "techbook-mcp",
+  "version": "0.6.0",
+  "description": "MCP server for searching Japanese technical book bibliographic information",
+  "author": {
+    "name": "USAMI Kenta"
+  },
+  "homepage": "https://github.com/zonuexe/techbook-mcp",
+  "repository": "https://github.com/zonuexe/techbook-mcp",
+  "license": "AGPL-3.0-or-later",
+  "keywords": ["mcp", "books", "bibliography", "japan"]
+}
