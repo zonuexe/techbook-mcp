@@ -1,4 +1,6 @@
-export const TOOLS = [
+import type { Tool } from "@modelcontextprotocol/server";
+
+export const TOOLS: Tool[] = [
   {
     name: "search_books",
     description:
@@ -128,4 +130,4 @@ export const TOOLS = [
       },
     },
   },
-] as const;
+];

@@ -1,9 +1,5 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+import { Server } from "@modelcontextprotocol/server";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, EbookStore, DrmType, SearchQuery } from "../domain/book.js";
 import { searchBooks } from "../application/search-books.js";
@@ -98,11 +94,11 @@ export function createServer(
     },
   );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
+  server.setRequestHandler("tools/list", async () => ({
     tools: TOOLS,
   }));
 
-  server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  server.setRequestHandler("tools/call", async (request) => {
     const { name, arguments: args = {} } = request.params;
 
     switch (name) {

@@ -18,7 +18,7 @@
     "test:watch": "node --import tsx/esm --test --watch 'tests/**/*.test.ts'"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "cheerio": "^1.2.0",
     "iconv-lite": "^0.7.2",
     "zod": "^4.4.3"
