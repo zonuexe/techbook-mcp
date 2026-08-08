@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-09
+
+### Added
+
+- 全ツールに `readOnlyHint` / `openWorldHint` アノテーションを付与し、クライアントがツールの性質（読み取り専用・外部サイトへのアクセスの有無）を判別できるようにした
+- 各ツールに `outputSchema` を定義し、`tools/call` の応答に構造化データ（`structuredContent`）を含めるようにした。従来通りのJSON文字列表現（`content`）も維持する
+- Agent Plugins 仕様（agent-plugins.org）準拠の `plugin.json` / `mcp.json` を追加し、対応クライアントから本サーバーをプラグインとして検出・起動できるようにした
+
+### Changed
+
+- MCP SDK を v1 (`@modelcontextprotocol/sdk`) から v2 (`@modelcontextprotocol/server`) に移行した
+
+### Fixed
+
+- 引数不備・未知のツール名のエラーを、実装依存の内部エラー（`-32603`）ではなく JSON-RPC 仕様通りの Invalid params（`-32602`）で返すようにした
+
+### Security
+
+- TypeScript を 7 系にアップデートし、推移的依存（cheerio 経由の undici）の既知の脆弱性を解消した（`npm audit` 0 件）
+
 ## [0.6.0] - 2026-07-06
 
 ### Added
@@ -166,7 +186,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - テストを vitest から `node:test` + `node:assert` に移行（Node.js・Bun・Deno で共通実行可能に）
 
-[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/zonuexe/techbook-mcp/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/zonuexe/techbook-mcp/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/zonuexe/techbook-mcp/compare/v0.4.0...v0.5.0
