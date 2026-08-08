@@ -1,4 +1,4 @@
-import { Server } from "@modelcontextprotocol/server";
+import { Server, ProtocolError, INVALID_PARAMS } from "@modelcontextprotocol/server";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, EbookStore, DrmType, SearchQuery } from "../domain/book.js";
@@ -131,7 +131,7 @@ export function createServer(
 
       case "get_book_detail": {
         const url = args["url"];
-        if (typeof url !== "string") throw new Error("url は必須です");
+        if (typeof url !== "string") throw new ProtocolError(INVALID_PARAMS, "url は必須です");
         const book = await getBookDetail(url, publishers, deps);
         return {
           content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
@@ -151,7 +151,7 @@ export function createServer(
 
       case "get_book_by_isbn": {
         const isbn = args["isbn"];
-        if (typeof isbn !== "string") throw new Error("isbn は必須です");
+        if (typeof isbn !== "string") throw new ProtocolError(INVALID_PARAMS, "isbn は必須です");
         const book = await getBookByIsbn(isbn, publishers, deps);
         return {
           content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
@@ -167,7 +167,7 @@ export function createServer(
 
       case "resolve_books": {
         const booksArg = args["books"];
-        if (!Array.isArray(booksArg)) throw new Error("books は配列で指定してください");
+        if (!Array.isArray(booksArg)) throw new ProtocolError(INVALID_PARAMS, "books は配列で指定してください");
         const queries = booksArg.map(b => toResolveQuery((b ?? {}) as Record<string, unknown>));
         const results = await resolveBooks(queries, publishers, deps);
         return {
@@ -179,7 +179,7 @@ export function createServer(
       }
 
       default:
-        throw new Error(`未知のツール: ${name}`);
+        throw new ProtocolError(INVALID_PARAMS, `未知のツール: ${name}`);
     }
   });
 

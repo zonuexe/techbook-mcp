@@ -38,6 +38,7 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
     name: "get_book_detail",
@@ -52,6 +53,7 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
     name: "list_publishers",
@@ -60,6 +62,7 @@ export const TOOLS: Tool[] = [
       type: "object",
       properties: {},
     },
+    annotations: { readOnlyHint: true, openWorldHint: false },
   },
   {
     name: "get_book_by_isbn",
@@ -77,6 +80,7 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
     name: "resolve_book",
@@ -102,6 +106,7 @@ export const TOOLS: Tool[] = [
         publisher: { type: "string", description: "出版社ID（検索経路の絞り込みヒント。任意）" },
       },
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
     name: "resolve_books",
@@ -129,5 +134,6 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    annotations: { readOnlyHint: true, openWorldHint: true },
   },
 ];
