@@ -1,5 +1,98 @@
 import type { Tool } from "@modelcontextprotocol/server";
 
+// --- 出力スキーマ (structuredContent の構造を表す) ---
+
+const CONTRIBUTOR_SCHEMA = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    role: { type: "string", enum: ["author", "translator", "supervisor", "editor"] },
+  },
+  required: ["name", "role"],
+};
+
+const EBOOK_STORE_SCHEMA = {
+  type: "object",
+  properties: {
+    name: { type: "string" },
+    url: { type: "string" },
+    drm: { type: "string", enum: ["free", "social", "password_pdf", "drm"] },
+    drmLabel: { type: "string" },
+  },
+  required: ["name", "url", "drm", "drmLabel"],
+};
+
+const BOOK_PROPERTIES = {
+  title: { type: "string" },
+  subtitle: { type: "string" },
+  alternativeTitle: { type: "string" },
+  authors: { type: "array", items: { type: "string" } },
+  contributors: { type: "array", items: CONTRIBUTOR_SCHEMA },
+  publisher: { type: "string" },
+  publishedAt: { type: "string", description: "YYYY-MM-DD" },
+  language: { type: "string", description: "ISO 639-1（省略時は ja）" },
+  isbn: { type: "string" },
+  asin: { type: "string" },
+  url: { type: "string" },
+  price: { type: "number" },
+  currency: { type: "string", description: "ISO 4217（省略時は JPY）" },
+  coverImageUrl: { type: "string" },
+  description: { type: "string" },
+  tags: { type: "array", items: { type: "string" } },
+  ebookStores: { type: "array", items: EBOOK_STORE_SCHEMA },
+};
+const BOOK_REQUIRED = ["title", "authors", "publisher", "url"];
+
+const BOOK_SCHEMA = {
+  type: "object",
+  properties: BOOK_PROPERTIES,
+  required: BOOK_REQUIRED,
+};
+
+const SCORED_BOOK_SCHEMA = {
+  type: "object",
+  properties: { ...BOOK_PROPERTIES, matchScore: { type: "number", description: "クエリとの一致度 (0〜1)" } },
+  required: [...BOOK_REQUIRED, "matchScore"],
+};
+
+const SEARCH_ERROR_SUMMARY_SCHEMA = {
+  type: "object",
+  properties: {
+    type: { type: "string", enum: ["robots", "timeout", "http", "other"] },
+    label: { type: "string" },
+    count: { type: "number" },
+    publishers: { type: "array", items: { type: "string" } },
+  },
+  required: ["type", "label", "count", "publishers"],
+};
+
+const VALIDATION_SCHEMA = {
+  type: "object",
+  properties: {
+    isbnMatches: { type: ["boolean", "null"] },
+    isbnTitleAgree: { type: ["boolean", "null"] },
+    titleExact: { type: ["boolean", "null"] },
+    sameWork: { type: ["number", "null"] },
+    editionDiffers: { type: "boolean" },
+  },
+  required: ["isbnMatches", "isbnTitleAgree", "titleExact", "sameWork", "editionDiffers"],
+};
+
+const RESOLVE_RESULT_SCHEMA = {
+  type: "object",
+  properties: {
+    status: { type: "string", enum: ["matched", "ambiguous", "not_found"] },
+    confidence: { type: "string", enum: ["high", "medium", "low"] },
+    book: { anyOf: [BOOK_SCHEMA, { type: "null" }] },
+    matchScore: { type: "number" },
+    source: { type: "string" },
+    validation: VALIDATION_SCHEMA,
+    candidates: { type: "array", items: SCORED_BOOK_SCHEMA },
+    reason: { type: "string" },
+  },
+  required: ["status", "confidence", "book", "matchScore", "source"],
+};
+
 export const TOOLS: Tool[] = [
   {
     name: "search_books",
@@ -38,6 +131,14 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    outputSchema: {
+      type: "object",
+      properties: {
+        books: { type: "array", items: SCORED_BOOK_SCHEMA },
+        errors: { type: "array", items: SEARCH_ERROR_SUMMARY_SCHEMA },
+      },
+      required: ["books"],
+    },
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
@@ -53,6 +154,7 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    outputSchema: BOOK_SCHEMA,
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
@@ -61,6 +163,18 @@ export const TOOLS: Tool[] = [
     inputSchema: {
       type: "object",
       properties: {},
+    },
+    outputSchema: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          id: { type: "string" },
+          name: { type: "string" },
+          baseUrl: { type: "string" },
+        },
+        required: ["id", "name", "baseUrl"],
+      },
     },
     annotations: { readOnlyHint: true, openWorldHint: false },
   },
@@ -80,6 +194,7 @@ export const TOOLS: Tool[] = [
         },
       },
     },
+    outputSchema: BOOK_SCHEMA,
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
@@ -106,6 +221,7 @@ export const TOOLS: Tool[] = [
         publisher: { type: "string", description: "出版社ID（検索経路の絞り込みヒント。任意）" },
       },
     },
+    outputSchema: RESOLVE_RESULT_SCHEMA,
     annotations: { readOnlyHint: true, openWorldHint: true },
   },
   {
@@ -133,6 +249,13 @@ export const TOOLS: Tool[] = [
           },
         },
       },
+    },
+    outputSchema: {
+      type: "object",
+      properties: {
+        results: { type: "array", items: RESOLVE_RESULT_SCHEMA },
+      },
+      required: ["results"],
     },
     annotations: { readOnlyHint: true, openWorldHint: true },
   },

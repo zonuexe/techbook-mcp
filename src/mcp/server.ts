@@ -1,4 +1,5 @@
 import { Server, ProtocolError, INVALID_PARAMS } from "@modelcontextprotocol/server";
+import type { CallToolResult, Tool } from "@modelcontextprotocol/server";
 import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
 import type { PublisherAdapter, PublisherDeps } from "../domain/publisher.js";
 import type { BookRecord, EbookStore, DrmType, SearchQuery } from "../domain/book.js";
@@ -98,8 +99,21 @@ export function createServer(
     tools: TOOLS,
   }));
 
+  /**
+   * content（従来のJSON文字列表現）と structuredContent（構造化データ）の両方を積んで返す。
+   * projectCallToolResult が outputSchema のルート型に応じて 2025-era 向けの
+   * `{result: ...}` ラップを要否判定する（配列ルート等は 2025-era では自動ラップされる）。
+   */
+  function respond(data: unknown, outputSchema: Tool["outputSchema"]): CallToolResult {
+    return server.projectCallToolResult(
+      { content: [{ type: "text", text: JSON.stringify(data, null, 2) }], structuredContent: data },
+      outputSchema,
+    );
+  }
+
   server.setRequestHandler("tools/call", async (request) => {
     const { name, arguments: args = {} } = request.params;
+    const outputSchema = TOOLS.find(t => t.name === name)?.outputSchema;
 
     switch (name) {
       case "search_books": {
@@ -110,9 +124,7 @@ export function createServer(
         if (title && !author && looksLikeIsbn(title)) {
           const book = await getBookByIsbn(title, publishers, deps);
           const output = { books: [{ ...formatBook(book), matchScore: 1 }] };
-          return {
-            content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
-          };
+          return respond(output, outputSchema);
         }
 
         const query: SearchQuery = {
@@ -124,18 +136,14 @@ export function createServer(
         const { books, errors } = await searchBooks(query, publishers, deps);
         const output: Record<string, unknown> = { books: books.map(formatBook) };
         if (errors.length > 0) output["errors"] = summarizeErrors(errors);
-        return {
-          content: [{ type: "text", text: JSON.stringify(output, null, 2) }],
-        };
+        return respond(output, outputSchema);
       }
 
       case "get_book_detail": {
         const url = args["url"];
         if (typeof url !== "string") throw new ProtocolError(INVALID_PARAMS, "url は必須です");
         const book = await getBookDetail(url, publishers, deps);
-        return {
-          content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
-        };
+        return respond(formatBook(book), outputSchema);
       }
 
       case "list_publishers": {
@@ -144,25 +152,19 @@ export function createServer(
           name: p.name,
           baseUrl: p.baseUrl,
         }));
-        return {
-          content: [{ type: "text", text: JSON.stringify(list, null, 2) }],
-        };
+        return respond(list, outputSchema);
       }
 
       case "get_book_by_isbn": {
         const isbn = args["isbn"];
         if (typeof isbn !== "string") throw new ProtocolError(INVALID_PARAMS, "isbn は必須です");
         const book = await getBookByIsbn(isbn, publishers, deps);
-        return {
-          content: [{ type: "text", text: JSON.stringify(formatBook(book), null, 2) }],
-        };
+        return respond(formatBook(book), outputSchema);
       }
 
       case "resolve_book": {
         const result = await resolveBook(toResolveQuery(args), publishers, deps);
-        return {
-          content: [{ type: "text", text: JSON.stringify(formatResolveResult(result), null, 2) }],
-        };
+        return respond(formatResolveResult(result), outputSchema);
       }
 
       case "resolve_books": {
@@ -170,12 +172,7 @@ export function createServer(
         if (!Array.isArray(booksArg)) throw new ProtocolError(INVALID_PARAMS, "books は配列で指定してください");
         const queries = booksArg.map(b => toResolveQuery((b ?? {}) as Record<string, unknown>));
         const results = await resolveBooks(queries, publishers, deps);
-        return {
-          content: [{
-            type: "text",
-            text: JSON.stringify({ results: results.map(formatResolveResult) }, null, 2),
-          }],
-        };
+        return respond({ results: results.map(formatResolveResult) }, outputSchema);
       }
 
       default:
